@@ -1,5 +1,6 @@
 package com.github.alantr7.codebots.language.runtime.functions;
 
+import com.github.alantr7.codebots.language.runtime.BlockType;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.RuntimeCodeBlock;
 import com.github.alantr7.codebots.language.runtime.RuntimeInstruction;
@@ -13,7 +14,7 @@ public class RuntimeNativeFunction extends RuntimeCodeBlock {
     private final Function<Object[], Object> handler;
 
     public RuntimeNativeFunction(Program program, String label, Function<Object[], Object> handler) {
-        super(program, label, program.getRootScope(), new RuntimeInstruction[0]);
+        super(program, label, program.getRootScope(), BlockType.FUNCTION, new RuntimeInstruction[0]);
         this.handler = handler;
     }
 
@@ -24,7 +25,7 @@ public class RuntimeNativeFunction extends RuntimeCodeBlock {
 
     @Override
     public void next() {
-        var function = environment.getFunctionStack().getLast();
+        var function = environment.getCallStack().getLast();
         handler.apply(function.getArguments());
 
         isExecuted = true;

@@ -1,22 +1,22 @@
 package com.github.alantr7.codebots.language.parser;
 
 import com.github.alantr7.codebots.language.runtime.*;
+import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 
 import java.util.Deque;
 import java.util.LinkedList;
 
 public class AssemblyParser {
 
-    public static RuntimeCodeBlock parseCodeBlock(Program program, String[] input) {
+    public static RuntimeCodeBlock parseCodeBlock(Program program, String[] input) throws ParseException {
         var scope = new BlockScope();
         scope.setParent(program.getRootScope());
 
-        return _parseCodeBlock(program,  "__main__", scope, input).block;
+        return _parseCodeBlock(program, "__main__", scope, BlockType.MAIN, input).block;
     }
 
-    private static ParseResult _parseCodeBlock(Program program, String label, BlockScope scope, String[] input) {
+    private static ParseResult _parseCodeBlock(Program program, String label, BlockScope scope, BlockType type, String[] input) throws ParseException {
         Deque<RuntimeInstruction> block = new LinkedList<>();
-        int position = 0;
 
         for (int i = 0; i < input.length; i++) {
             var trimmed = input[i].trim();
@@ -26,13 +26,41 @@ public class AssemblyParser {
             var tokenized = tokenize(trimmed);
             var instruction = tokenized[0];
 
+            System.out.println(type.name() + ": " + instruction);
+
+            if (type.blocksInstruction(instruction)) {
+                throw new ParseException("Instruction '%s' is not allowed in %s.".formatted(instruction, type.name()));
+            }
+
             if (instruction.equals("begin")) {
                 var nextBlock = new String[input.length - i - 1];
                 System.arraycopy(input, i + 1, nextBlock, 0, nextBlock.length);
 
                 var blockScope = new BlockScope();
                 blockScope.setParent(scope);
-                var subBlock = _parseCodeBlock(program, tokenized.length == 2 ? tokenized[1] : null, blockScope, nextBlock);
+
+                BlockType nextBlockType;
+                String nextFunctionName = null;
+
+                if (tokenized.length > 1) {
+                    // Probably a loop
+                    nextBlockType = BlockType.STANDARD;
+                } else if (block.getLast() instanceof RuntimeSentence sentence) {
+                    var previousInstruction = sentence.getInstruction();
+                    if (previousInstruction.equals("define_func")) {
+                        nextBlockType = BlockType.FUNCTION;
+                        nextFunctionName = sentence.getTokens()[1];
+                    } else {
+                        nextBlockType = type;
+                    }
+                } else {
+                    throw new ParseException("Can not have a code block at the start.");
+                }
+
+                var subBlock = _parseCodeBlock(program, tokenized.length == 2 ? tokenized[1] : null, blockScope, nextBlockType, nextBlock);
+                if (nextBlockType == BlockType.FUNCTION) {
+                    subBlock.block.setFunctionName(nextFunctionName);
+                }
 
                 block.add(subBlock.block);
                 i += subBlock.blockLength + 1;
@@ -41,7 +69,7 @@ public class AssemblyParser {
 
             if (instruction.equals("end")) {
                 return new ParseResult(
-                        new RuntimeCodeBlock(program, label, scope, block.toArray(new RuntimeInstruction[0])),
+                        new RuntimeCodeBlock(program, label, scope, type, block.toArray(new RuntimeInstruction[0])),
                         i
                 );
             }
@@ -52,7 +80,7 @@ public class AssemblyParser {
 //        var blockScope = new BlockScope();
 //        blockScope.setParent(scope);
         return new ParseResult(
-                new RuntimeCodeBlock(program, label, scope, block.toArray(RuntimeInstruction[]::new)),
+                new RuntimeCodeBlock(program, label, scope, type, block.toArray(RuntimeInstruction[]::new)),
                 input.length
         );
     }

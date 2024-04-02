@@ -1,0 +1,5 @@
+<code_block> ::= (<define_var>) <code_block>*
+
+<define_var> ::= "var" <name> "=" <number>
+<name> ::= [a-z]+
+<number> ::= [0-9]+

@@ -1,6 +1,6 @@
 package com.github.alantr7.codebots.language.runtime;
 
-import com.github.alantr7.codebots.language.runtime.functions.RuntimeFunctionContext;
+import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import lombok.Getter;
 
@@ -19,7 +19,7 @@ public class RuntimeEnvironment {
     }
 
     @Getter
-    private final Deque<RuntimeFunctionContext> functionStack = new LinkedList<>();
+    private final Deque<FunctionCall> callStack = new LinkedList<>();
 
     @Getter
     private final Deque<RuntimeCodeBlock> blockStack = new LinkedList<>();

@@ -2,8 +2,11 @@ package com.github.alantr7.codebots.language.runtime;
 
 import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
-import com.github.alantr7.codebots.language.runtime.functions.RuntimeFunctionContext;
+import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeSleepFunction;
+import com.github.alantr7.codebots.language.runtime.utils.Calculator;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
@@ -13,9 +16,13 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
     protected RuntimeEnvironment environment;
 
+    @Getter
     private final RuntimeInstruction[] block;
 
     private final BlockScope scope;
+
+    @Getter
+    private final BlockType blockType;
 
     private int i;
 
@@ -25,17 +32,20 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
     private boolean isFunction = false;
 
+    @Getter @Setter
     private String functionName;
 
+    @Getter
     private final String label;
 
     private final Map<String, Integer> labelPositions = new LinkedHashMap<>();
 
-    public RuntimeCodeBlock(Program program, String label, BlockScope scope, RuntimeInstruction[] block) {
+    public RuntimeCodeBlock(Program program, String label, BlockScope scope, BlockType blockType, RuntimeInstruction[] block) {
         this.program = program;
         this.environment = program.getEnvironment();
         this.label = label;
         this.scope = scope;
+        this.blockType = blockType;
         this.block = block;
 
         for (int j = 0; j < block.length; j++) {
@@ -75,7 +85,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
     }
 
     private void _execute() throws Exception {
-        var functionStack = environment.getFunctionStack();
+        var functionStack = environment.getCallStack();
 
         var sentence = block[i];
         if (sentence instanceof RuntimeCodeBlock block1) {
@@ -110,16 +120,16 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 scope.setVariable(tokens[1], new RuntimeVariable(type));
             }
             case "add" -> {
-
+                mathOperation(tokens, 0);
             }
             case "sub" -> {
-
+                mathOperation(tokens, 1);
             }
             case "mul" -> {
-
+                mathOperation(tokens, 2);
             }
             case "div" -> {
-
+                mathOperation(tokens, 3);
             }
             case "mod" -> {
                 scope.getVariable(tokens[1])
@@ -137,7 +147,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                     environment.getBlockStack().add(new RuntimeSleepFunction(program, Integer.parseInt(tokens[1])));
             case "push_func" -> {
                 var object = (RuntimeCodeBlock) environment.REGISTRY_CURRENT_SCOPE.getValue();
-                functionStack.add(new RuntimeFunctionContext(object.scope, tokens[1]));
+                functionStack.add(new FunctionCall(object.scope, tokens[1]));
             }
             case "use_arg" -> {
                 var function = functionStack.getLast();
@@ -269,6 +279,15 @@ public class RuntimeCodeBlock extends RuntimeObject {
         a++;
     }
 
+    private void mathOperation(String[] tokens, int operationIndex) throws Exception {
+        var operation = Calculator.operations()[operationIndex];
+        var num1 = getValue(tokens[2]);
+        var num2 = getValue(tokens[3]);
+
+        var result = operation.perform(num1, num2);
+        setValue(tokens[1], result);
+    }
+
     private Object getValue(String raw) {
         char firstCharacter = raw.charAt(0);
         return switch (firstCharacter) {
@@ -293,7 +312,20 @@ public class RuntimeCodeBlock extends RuntimeObject {
         };
     }
 
-    private void setValue(String key, Object value) throws ExecutionException {
+    protected RuntimeVariable findVariableInScope(String raw) {
+        char firstCharacter = raw.charAt(0);
+        return switch (firstCharacter) {
+            case '$' -> {
+                // Get value from the registry
+                var name = raw.substring(1);
+                yield environment.getRegistry(name); // Added getValue()
+            }
+            case '&' -> scope.getVariable(raw.substring(1));
+            default -> scope.getVariable(raw);
+        };
+    }
+
+    protected void setValue(String key, Object value) throws ExecutionException {
         boolean isReference = value instanceof RuntimeVariable;
         RuntimeVariable registry;
 
@@ -353,7 +385,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
             RuntimeInstruction lastInstruction;
 
             if (i == 0) {
-                lastInstruction = entry.block[i];
+                lastInstruction = entry.block[entry.i];
             } else {
                 lastInstruction = entry.block[entry.i - 1];
             }
@@ -380,7 +412,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
     @Override
     public String toString() {
-        return label;
+        return "BLOCK " + (label != null ? label : functionName);
     }
 
 }

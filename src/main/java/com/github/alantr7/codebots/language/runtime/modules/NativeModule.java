@@ -1,9 +1,6 @@
 package com.github.alantr7.codebots.language.runtime.modules;
 
-import com.github.alantr7.codebots.language.runtime.BlockScope;
-import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.language.runtime.RuntimeCodeBlock;
-import com.github.alantr7.codebots.language.runtime.RuntimeInstruction;
+import com.github.alantr7.codebots.language.runtime.*;
 
 public class NativeModule extends Module {
 
@@ -12,7 +9,7 @@ public class NativeModule extends Module {
     }
 
     private NativeModule(Program program, BlockScope scope) {
-        super(program, scope, new RuntimeCodeBlock(program, "__main__", scope, new RuntimeInstruction[0]));
+        super(program, scope, new RuntimeCodeBlock(program, "__main__", scope, BlockType.MAIN, new RuntimeInstruction[0]));
     }
 
 }
