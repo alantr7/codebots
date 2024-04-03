@@ -43,17 +43,6 @@ public class BnfTest {
         var testResult = bnf.test(bnf.getRule("code_block"), input);
 
         System.out.println("\nBNF Parse Result: " + testResult);
-
-//
-//
-//        var program = Program.createFromFileModule(new File(directory, path));
-//        program.registerNativeModule("console", new ConsolePrintModule(program));
-//        program.executeEverything();
-//
-//        var outline = ModuleOutline.forModule(program.getMainModule());
-//        System.out.println(outline);
-//
-//        return program;
     }
 
 }

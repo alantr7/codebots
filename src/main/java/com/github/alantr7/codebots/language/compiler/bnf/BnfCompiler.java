@@ -34,7 +34,7 @@ public class BnfCompiler {
             var token = rule[i];
             Token actualToken;
 
-            // NON TERMINAL TOKEN
+            // Todo: Replace with switch
             if (token.charAt(0) == '<') {
                 actualToken = parseNonTerminalToken(rules, token);
             } else if (token.charAt(0) == '"') {
@@ -89,7 +89,7 @@ public class BnfCompiler {
     }
 
     private static Token parseTerminalToken(String input) {
-        String name = input.substring(1, input.lastIndexOf('"'));
+        String name = input.substring(1, input.lastIndexOf('"')).replace("\\n", "\r\n");
         return new BnfTerminalToken(name);
     }
 
@@ -148,13 +148,13 @@ public class BnfCompiler {
         return tokens.toArray(String[]::new);
     }
 
-    private static char[] PATTERN_BREAK = {
+    private static final char[] PATTERN_BREAK = {
             ' ', '(', ')', '{', '}', '.', '\n', '+', '?', '*'
     };
 
     private static boolean isSymbol(char ch) {
-        for (int i = 0; i < PATTERN_BREAK.length; i++) {
-            if (PATTERN_BREAK[i] == ch)
+        for (char c : PATTERN_BREAK) {
+            if (c == ch)
                 return true;
         }
         return false;

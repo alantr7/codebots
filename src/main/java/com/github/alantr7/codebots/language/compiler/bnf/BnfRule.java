@@ -97,11 +97,16 @@ public class BnfRule {
                     input = result.remaining;
                 }
             } else if (token instanceof BnfRegexToken inst) {
-                var result = String.valueOf(input.charAt(0)).matches(inst.getRegex());
-                if (!result)
-                    return new TestResult(false, input, null);
+                int matches = 0;
+                System.out.println(inst.getRegex());
+                while (!input.isEmpty() && String.valueOf(input.charAt(0)).matches(inst.getRegex())) {
+                    matches++;
+                    input = input.substring(1);
+                }
+                System.out.println("Regex matches: " + matches);
 
-                input = input.substring(1);
+                if (matches == 0 && inst.count != TokenSpecial.ZERO_OR_MORE)
+                    return new TestResult(false, input, null);
             } else if (token instanceof TokenGroup inst) {
                 var result = testBranches(inst.getBranches(), input, true);
                 if (!result.success && inst.count != TokenSpecial.ZERO_OR_MORE)
@@ -115,16 +120,27 @@ public class BnfRule {
 
                 input = input.substring(1);
             } else if (token instanceof BnfTerminalToken inst) {
-                var result = input.startsWith(inst.getValue());
-                if (!result && inst.count != TokenSpecial.ZERO_OR_MORE)
+                int matches = 0;
+                while (input.startsWith(inst.getValue())) {
+                    matches++;
+
+                    input = input.substring(inst.getValue().length());
+
+                    if (inst.count == TokenSpecial.ONE)
+                        break;
+                }
+
+                var result = matches != 0;
+                System.out.println("Terminal: '" + inst.getValue() + "': " + inst.count + ", Matches: " + matches);
+
+                if (!result && inst.count == TokenSpecial.ONE_OR_MORE)
                     return new TestResult(false, input, null);
 
-                if (!result && inst.count.getSymbol() == TokenSpecial.ZERO_OR_MORE.getSymbol())
+                if (!result && inst.count != TokenSpecial.ZERO_OR_MORE && inst.count != TokenSpecial.ZERO_OR_ONE)
+                    return new TestResult(false, input, null);
+
+                if (!result)
                     continue;
-
-                System.out.println("Terminal: '" + inst.getValue() + "': " + inst.count);
-
-                input = input.substring(inst.getValue().length());
             } else {
                 System.out.println("Unknown token: " + token);
             }
