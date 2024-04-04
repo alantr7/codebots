@@ -9,9 +9,9 @@ public class BnfNonTerminalToken extends Token {
     @Getter
     private final String name;
 
-    private final Map<String, BnfRule> rules;
+    private final Map<String, GrammarRule> rules;
 
-    public BnfNonTerminalToken(String name, Map<String, BnfRule> rules) {
+    public BnfNonTerminalToken(String name, Map<String, GrammarRule> rules) {
         this.name = name;
         this.rules = rules;
     }

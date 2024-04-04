@@ -2,37 +2,45 @@ package com.github.alantr7.codebots.language.compiler.bnf;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Map;
 
-public class BnfRule {
+public class GrammarRule {
+
+    private final Grammar grammar;
 
     private final String name;
 
     private final TokenGroup tokens;
-
-    private final Map<String, BnfRule> rules;
 
     private Deque<CurrentParse> queue = new LinkedList<>();
 
     record CurrentParse(Token[] branch, String input) {
     }
 
-    public BnfRule(String name, TokenGroup tokens, Map<String, BnfRule> rules) {
+    public GrammarRule(Grammar grammar, String name, TokenGroup tokens) {
+        this.grammar = grammar;
         this.name = name;
         this.tokens = tokens;
-        this.rules = rules;
     }
 
-    public boolean test(String input) {
-        var result = testBranches(input, false);
-        return result.success;
+    public ResultNode compile(String input) {
+        var root = new ResultNode();
+        root.setName(name);
+
+        var result = testBranches(root, input, false, false, 0);
+        if (!result.success)
+            return new ResultNode();
+
+        return root;
     }
 
-    private TestResult testBranches(String input, boolean partial) {
-        return testBranches(this.tokens.getBranches(), input, partial);
+    private TestResult testBranches(ResultNode node, String input, boolean partial, boolean isGroup, int indent) {
+        var result = testBranches(node, this.tokens.getBranches(), input, partial, isGroup, indent);
+        return result;
     }
 
-    private TestResult testBranches(Token[][] branches, String input, boolean partial) {
+    private TestResult testBranches(ResultNode parent, Token[][] branches, String input, boolean partial, boolean isGroup, int indent) {
+        var node = parent;
+
         for (int branchId = 0; branchId < branches.length; branchId++) {
             var branch = branches[branchId];
 
@@ -42,14 +50,18 @@ public class BnfRule {
             }
             queue.add(new CurrentParse(branch, input));
 
-            System.out.println("Testing branch " + this.name + "#" + branchId);
+            System.out.println(" ".repeat(indent) + "Testing branch " + this.name + "#" + branchId);
 
-            TestResult result = testBranch(branch, null, input);
-            System.out.println("Branch " + this.name + "#" + branchId + " result: " + result + " for '" + input + "', Match: " + result.matched);
+            TestResult result = testBranch(node, branch, null, input, isGroup, indent);
+            System.out.println(" ".repeat(indent) + "Branch " + this.name + "#" + branchId + " result: " + result + " for '" + input + "', Match: " + result.matched + ", Node: " + result.node);
 
             TestResult originResult = result;
 
-            int j = 0;/*
+            int j = 0;
+
+            // TODO: Sometimes enters an infinite loop.
+            //       Temporarily disabled. (during testing was only needed for math)
+            /*
             while (result.success && !result.remaining.isBlank() && result.matched != null) {
                 var result2 = testBranch(branch, result.matched, result.remaining);
                 System.out.println("Result#" + (++j) + ": " + result2);
@@ -67,7 +79,10 @@ public class BnfRule {
 
             if (originResult.success && (partial || originResult.remaining.isBlank())) {
                 queue.remove(new CurrentParse(branch, input));
-                return new TestResult(true, originResult.remaining, this);
+                if (!isGroup) {
+                    node.getChildren().add(result.node);
+                }
+                return new TestResult(true, originResult.remaining, this, result.node);
             }
             if (!originResult.success) {
                 System.out.println("Failed.");
@@ -76,29 +91,54 @@ public class BnfRule {
             queue.remove(new CurrentParse(branch, input));
         }
 
-        return new TestResult(false, input, this);
+        return new TestResult(false, input, this, node);
     }
 
-    private TestResult testBranch(Token[] branch, BnfRule lastMatched, String input) {
+    private TestResult testBranch(ResultNode parent, Token[] branch, GrammarRule lastMatched, String input, boolean isGroup, int indent) {
         int i = 0;
-        System.out.println("Testing branch of " + name + " with input: " + input);
+        ResultNode node;
+
+        if (isGroup) {
+            node = parent;
+        } else {
+            node = new ResultNode();
+            node.setName(name);
+        }
+
+        System.out.println(" ".repeat(indent) + "Testing branch of " + name + " with input: " + input);
+        if (name.equals("var_assign")) {
+            boolean a = true;
+        }
+
         for (; i < branch.length; i++) {
             var token = branch[i];
             if (token instanceof BnfNonTerminalToken inst) {
+                // TODO: This worked before adding the loop. After loop it might not but not sure?
                 if (i == 0 && lastMatched != null) {
+                    System.out.println("This thing.");
                     if (!lastMatched.name.equals(inst.getName()) && inst.getCount() != TokenSpecial.ZERO_OR_MORE) {
                         return new TestResult(false, input, null);
                     }
                 } else {
-                    var result = rules.get(inst.getName()).testBranches(input, true);
-                    if (!result.success && inst.getCount() != TokenSpecial.ZERO_OR_MORE)
-                        return new TestResult(false, input, null);
+                    TestResult result;
+                    String previous = input;
+                    while (!input.isEmpty() && (result = grammar.getRule(inst.getName()).testBranches(node, input, true, false, indent + 2)) != null) {
+                        if (!result.success && inst.getCount() != TokenSpecial.ZERO_OR_MORE)
+                            return new TestResult(false, input, null);
 
-                    input = result.remaining;
+                        input = result.remaining;
+                        if (input.equals(previous))
+                            break;
+
+                        previous = input;
+
+                        if (inst.count == TokenSpecial.ONE || inst.count == TokenSpecial.ZERO_OR_ONE)
+                            break;
+                    }
                 }
             } else if (token instanceof BnfRegexToken inst) {
                 int matches = 0;
-                System.out.println(inst.getRegex());
+                String originalInput = input;
                 while (!input.isEmpty() && String.valueOf(input.charAt(0)).matches(inst.getRegex())) {
                     matches++;
                     input = input.substring(1);
@@ -107,8 +147,10 @@ public class BnfRule {
 
                 if (matches == 0 && inst.count != TokenSpecial.ZERO_OR_MORE)
                     return new TestResult(false, input, null);
+
+                node.getChildren().add(new ResultNode(inst.getRegex(), originalInput.substring(0, matches)));
             } else if (token instanceof TokenGroup inst) {
-                var result = testBranches(inst.getBranches(), input, true);
+                var result = testBranches(node, inst.getBranches(), input, true, true, indent + 2);
                 if (!result.success && inst.count != TokenSpecial.ZERO_OR_MORE)
                     return new TestResult(false, input, null);
 
@@ -121,6 +163,7 @@ public class BnfRule {
                 input = input.substring(1);
             } else if (token instanceof BnfTerminalToken inst) {
                 int matches = 0;
+                String originalInput = input;
                 while (input.startsWith(inst.getValue())) {
                     matches++;
 
@@ -131,7 +174,7 @@ public class BnfRule {
                 }
 
                 var result = matches != 0;
-                System.out.println("Terminal: '" + inst.getValue() + "': " + inst.count + ", Matches: " + matches);
+                System.out.println(" ".repeat(indent) + "Terminal: '" + inst.getValue() + "': " + inst.count + ", Matches: " + matches);
 
                 if (!result && inst.count == TokenSpecial.ONE_OR_MORE)
                     return new TestResult(false, input, null);
@@ -139,14 +182,13 @@ public class BnfRule {
                 if (!result && inst.count != TokenSpecial.ZERO_OR_MORE && inst.count != TokenSpecial.ZERO_OR_ONE)
                     return new TestResult(false, input, null);
 
-                if (!result)
-                    continue;
+                node.getChildren().add(new ResultNode(inst.getValue()));
             } else {
                 System.out.println("Unknown token: " + token);
             }
         }
 
-        return new TestResult(true, input, this);
+        return new TestResult(true, input, this, node);
     }
 
     @Override
@@ -154,7 +196,12 @@ public class BnfRule {
         return name;
     }
 
-    record TestResult(boolean success, String remaining, BnfRule matched) {
+    record TestResult(boolean success, String remaining, GrammarRule matched, ResultNode node) {
+
+        TestResult(boolean success, String remaining, GrammarRule matched) {
+            this(success, remaining, matched, null);
+        }
+
     }
 
 }

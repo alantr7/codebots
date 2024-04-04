@@ -1,14 +1,13 @@
 package com.github.alantr7.codebots.language.compiler.bnf;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-public class BnfCompiler {
+public class BnfParser {
 
-    public static BnfGrammar compile(String[] input) {
+    public static Grammar parse(String[] input) {
         var tokens = tokenize(input);
-        var rules = new HashMap<String, BnfRule>();
+        var grammar = new Grammar();
 
         for (var rule : tokens) {
             var name = rule[0].substring(1, rule[0].length() - 1);
@@ -18,72 +17,66 @@ public class BnfCompiler {
                 throw new RuntimeException("Invalid syntax!: '" + assignSymbol + "'");
             }
 
-            var group = (TokenGroup) compileTokenGroup(rules, rule, 2)[0];
+            var group = (TokenGroup) compileTokenGroup(grammar, rule, 2)[0];
             System.out.println(group.toString());
 
-            var actualRule = new BnfRule(name, group, rules);
-            rules.put(name, actualRule);
+            var actualRule = new GrammarRule(grammar, name, group);
+            grammar.registerRule(name, actualRule);
         }
 
-        return new BnfGrammar(rules);
+        return grammar;
     }
 
-    private static Object[] compileTokenGroup(Map<String, BnfRule> rules, String[] rule, int i) {
+    private static Object[] compileTokenGroup(Grammar grammar, String[] rule, int i) {
+        var rules = grammar.getRules();
         var subTokens = new LinkedList<Token>();
         for (; i < rule.length; i++) {
-            var token = rule[i];
-            Token actualToken;
+            var rawToken = rule[i];
+            Token token;
 
-            // Todo: Replace with switch
-            if (token.charAt(0) == '<') {
-                actualToken = parseNonTerminalToken(rules, token);
-            } else if (token.charAt(0) == '"') {
-                actualToken = parseTerminalToken(token);
-            } else if (token.charAt(0) == '[') {
-                actualToken = parseIntervalToken(token);
-            } else if (token.charAt(0) == '(') {
-                var result = compileTokenGroup(rules, rule, i + 1);
-                actualToken = (Token) result[0];
+            switch (rawToken.charAt(0)) {
+                case '<' -> token = parseNonTerminalToken(rules, rawToken);
+                case '"' -> token = parseTerminalToken(rawToken);
+                case '[' -> token = parseIntervalToken(rawToken);
+                case '(' -> {
+                    var result = compileTokenGroup(grammar, rule, i + 1);
+                    token = (Token) result[0];
 
-                subTokens.add(actualToken);
-                i = (int) result[1];
-                continue;
-            } else if (token.charAt(0) == ')') {
-                var group = new TokenGroup(subTokens.toArray(Token[]::new));
-                return new Object[]{
-                        group,
-                        i
-                };
-            } else if (token.charAt(0) == '|') {
-                actualToken = TokenSpecial.OR;
-            } else if (token.charAt(0) == '?') {
-                actualToken = TokenSpecial.ZERO_OR_ONE;
-            } else if (token.charAt(0) == '*') {
-                actualToken = TokenSpecial.ZERO_OR_MORE;
-            } else if (token.charAt(0) == '+') {
-                actualToken = TokenSpecial.ONE_OR_MORE;
-            } else {
-                throw new RuntimeException("Invalid token. It's neither terminal or non-terminal: '%s'".formatted(token));
+                    subTokens.add(token);
+                    i = (int) result[1];
+                    continue;
+                }
+                case ')' -> {
+                    var group = new TokenGroup(subTokens.toArray(Token[]::new));
+                    return new Object[]{
+                            group,
+                            i
+                    };
+                }
+                case '|' -> token = TokenSpecial.OR;
+                case '?' -> token = TokenSpecial.ZERO_OR_ONE;
+                case '*' -> token = TokenSpecial.ZERO_OR_MORE;
+                case '+' -> token = TokenSpecial.ONE_OR_MORE;
+                default ->
+                        throw new RuntimeException("Invalid token. It's neither terminal or non-terminal: '%s'".formatted(rawToken));
             }
 
             if (subTokens.peekLast() != null) {
-                if (actualToken != TokenSpecial.OR && actualToken instanceof TokenSpecial operator) {
+                if (token != TokenSpecial.OR && token instanceof TokenSpecial operator) {
                     subTokens.getLast().setCount(operator);
                     continue;
                 }
             }
 
-            subTokens.add(actualToken);
+            subTokens.add(token);
         }
 
         // Find ORs, and create branches
-
-
         var group = new TokenGroup(subTokens.toArray(Token[]::new));
         return new Object[]{group, 0};
     }
 
-    private static Token parseNonTerminalToken(Map<String, BnfRule> rules, String input) {
+    private static Token parseNonTerminalToken(Map<String, GrammarRule> rules, String input) {
         String name = input.substring(1, input.indexOf('>'));
         return new BnfNonTerminalToken(name, rules);
     }
@@ -137,8 +130,6 @@ public class BnfCompiler {
 
                 if (character != ' ')
                     tokens.add(String.valueOf(character));
-
-                continue;
             }
         }
 
@@ -148,16 +139,10 @@ public class BnfCompiler {
         return tokens.toArray(String[]::new);
     }
 
-    private static final char[] PATTERN_BREAK = {
-            ' ', '(', ')', '{', '}', '.', '\n', '+', '?', '*'
-    };
+    private static final String SYMBOLS = " (){}.\n+?*";
 
     private static boolean isSymbol(char ch) {
-        for (char c : PATTERN_BREAK) {
-            if (c == ch)
-                return true;
-        }
-        return false;
+        return SYMBOLS.contains(String.valueOf(ch));
     }
 
 }

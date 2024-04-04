@@ -1,5 +1,4 @@
-import com.github.alantr7.codebots.language.compiler.Compiler;
-import com.github.alantr7.codebots.language.compiler.bnf.BnfCompiler;
+import com.github.alantr7.codebots.language.compiler.bnf.BnfParser;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -25,14 +24,15 @@ public class SourceTest {
         var file = new File(directory, bnfPath);
         var lines = Files.readAllLines(file.toPath()).toArray(String[]::new);
 
-        var bnf = BnfCompiler.compile(lines);
+        var bnf = BnfParser.parse(lines);
         var code = Files.readString(new File(directory, path).toPath());
 
         System.out.println("Source Code:\n" + code);
 
         var testResult = bnf.test(bnf.getRule("program"), code);
 
-        System.out.println("\nBNF Parse Result: " + testResult);
+        System.out.println("\nBNF Parse Result:");
+        System.out.println(testResult.tree());
     }
 
 }

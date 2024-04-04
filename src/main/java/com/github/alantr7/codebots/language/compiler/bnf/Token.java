@@ -8,4 +8,8 @@ public abstract class Token {
     @Getter @Setter
     TokenSpecial count = TokenSpecial.ONE;
 
+    GrammarRule.TestResult test(TestContext context, String input) {
+        return new GrammarRule.TestResult(false, input, null);
+    }
+
 }

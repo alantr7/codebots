@@ -1,5 +1,4 @@
-import com.github.alantr7.codebots.language.compiler.Compiler;
-import com.github.alantr7.codebots.language.compiler.bnf.BnfCompiler;
+import com.github.alantr7.codebots.language.compiler.bnf.BnfParser;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -27,7 +26,7 @@ public class BnfTest {
 
     @Test
     public void testBranches() throws Exception {
-        test("branches.bnf", "function a(b, b) {var a = 5} function b(a) {var a = 5} function c(a) {}");
+        test("branches.bnf", "function print5(text, times) {var a = 5 function one(arg) {} function two(arg) {}}");
     }
 
     @Test
@@ -39,10 +38,11 @@ public class BnfTest {
         var file = new File(directory, path);
         var lines = Files.readAllLines(file.toPath()).toArray(String[]::new);
 
-        var bnf = BnfCompiler.compile(lines);
+        var bnf = BnfParser.parse(lines);
         var testResult = bnf.test(bnf.getRule("code_block"), input);
 
         System.out.println("\nBNF Parse Result: " + testResult);
+        System.out.println("Success: " + !testResult.getChildren().isEmpty());
     }
 
 }
