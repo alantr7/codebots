@@ -12,18 +12,18 @@ public class ResultNode {
 
     private Token token;
 
-    private Object name;
+    private String name;
 
     private String matched;
 
     public ResultNode() {
     }
 
-    public ResultNode(Object name) {
+    public ResultNode(String name) {
         this(name, null);
     }
 
-    public ResultNode(Object name, String matched) {
+    public ResultNode(String name, String matched) {
         this.name = name;
         this.matched = matched;
     }
@@ -35,6 +35,14 @@ public class ResultNode {
 
     public String tree() {
         return toString(0);
+    }
+
+    // TODO: Use LinkedHashMap for children for quicker finding
+    public ResultNode getChild(String name) {
+        for (var child : children)
+            if (name.equals(child.getName()))
+                return child;
+        return null;
     }
 
     public String getMatched() {

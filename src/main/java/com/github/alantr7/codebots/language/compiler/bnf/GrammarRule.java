@@ -22,6 +22,15 @@ public class GrammarRule {
         this.tokens = tokens;
     }
 
+    // TODO: For some reason "if" requires a space after it
+    // TODO: For some reason, multiple parameters don't work
+
+    // TODO: If doesn't work if there's no space before it (other things as well): D(3) tT.P(24)if   (59){   }
+
+    // TODO: For loop with a var that's not assigned, doesn't work
+    //       # because optional argument inside of a non-optional group isn't properly parsed)
+
+    // TODO: Use LL(1) instead.
     public ResultNode compile(String input) {
         var root = new ResultNode();
         root.setName(name);
@@ -61,9 +70,9 @@ public class GrammarRule {
 
             // TODO: Sometimes enters an infinite loop.
             //       Temporarily disabled. (during testing was only needed for math)
-            /*
-            while (result.success && !result.remaining.isBlank() && result.matched != null) {
-                var result2 = testBranch(branch, result.matched, result.remaining);
+
+            while (result.success && !result.remaining.isBlank() && result.matched != null && j++ < 2) {
+                var result2 = testBranch(node, branch, result.matched, result.remaining, isGroup, indent);
                 System.out.println("Result#" + (++j) + ": " + result2);
 
                 if (result2.success && !result2.remaining.isBlank() && result2.matched != null) {
@@ -72,10 +81,23 @@ public class GrammarRule {
                 }
 
                 if (result2.success && (partial || result2.remaining.isBlank()))
-                    return new TestResult(true, result.remaining, this);
+                    return new TestResult(true, result2.remaining, this);
 
                 break;
+            }
+/*
+            if (result.success && (partial || result.remaining.isBlank())) {
+                queue.remove(new CurrentParse(branch, input));
+                if (!isGroup) {
+                    node.getChildren().add(result.node);
+                }
+                return new TestResult(true, result.remaining, this, result.node);
+            }
+            if (!result.success) {
+                System.out.println("Failed.");
             }*/
+
+            // TODO: No idea why originResult is used instead of result
 
             if (originResult.success && (partial || originResult.remaining.isBlank())) {
                 queue.remove(new CurrentParse(branch, input));
@@ -116,14 +138,15 @@ public class GrammarRule {
                 // TODO: This worked before adding the loop. After loop it might not but not sure?
                 if (i == 0 && lastMatched != null) {
                     System.out.println("This thing.");
-                    if (!lastMatched.name.equals(inst.getName()) && inst.getCount() != TokenSpecial.ZERO_OR_MORE) {
+                    if (!lastMatched.name.equals(inst.getName()) && inst.getCount() != TokenSpecial.ZERO_OR_MORE && inst.getCount() != TokenSpecial.ZERO_OR_ONE) {
                         return new TestResult(false, input, null);
                     }
                 } else {
                     TestResult result;
                     String previous = input;
-                    while (!input.isEmpty() && (result = grammar.getRule(inst.getName()).testBranches(node, input, true, false, indent + 2)) != null) {
-                        if (!result.success && inst.getCount() != TokenSpecial.ZERO_OR_MORE)
+                    while (!input.isEmpty()) {
+                        result = grammar.getRule(inst.getName()).testBranches(node, input, true, false, indent + 2);
+                        if (!result.success && inst.getCount() != TokenSpecial.ZERO_OR_MORE && inst.getCount() != TokenSpecial.ZERO_OR_ONE)
                             return new TestResult(false, input, null);
 
                         input = result.remaining;
@@ -150,11 +173,38 @@ public class GrammarRule {
 
                 node.getChildren().add(new ResultNode(inst.getRegex(), originalInput.substring(0, matches)));
             } else if (token instanceof TokenGroup inst) {
+                /*
                 var result = testBranches(node, inst.getBranches(), input, true, true, indent + 2);
                 if (!result.success && inst.count != TokenSpecial.ZERO_OR_MORE)
                     return new TestResult(false, input, null);
 
-                input = result.remaining;
+                input = result.remaining;*/
+
+                TestResult result = null;
+                int matches = 0;
+
+                String previous = input;
+
+                while (!input.isEmpty()) {
+                    result = testBranches(node, inst.getBranches(), input, true, true, indent + 2);
+                    if (!result.success && inst.getCount() != TokenSpecial.ZERO_OR_MORE)
+                        break;
+
+                    input = result.remaining;
+                    if (input.equals(previous))
+                        break;
+
+                    previous = input;
+                    matches++;
+
+                    // TODO: For some reason it doesn't work when line below is removed /shrug
+                     if (inst.getCount() == TokenSpecial.ONE || inst.getCount() == TokenSpecial.ZERO_OR_ONE)
+                        break;
+                }
+
+                if (matches == 0 && inst.getCount() != TokenSpecial.ZERO_OR_MORE && inst.getCount() != TokenSpecial.ZERO_OR_ONE) {
+                    return new TestResult(false, input, null);
+                }
             } else if (token instanceof TokenSpecial inst) {
                 var result = input.charAt(0) == inst.getSymbol();
                 if (!result)

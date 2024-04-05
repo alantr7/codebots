@@ -1,4 +1,6 @@
 import com.github.alantr7.codebots.language.compiler.Compiler;
+import com.github.alantr7.codebots.language.compiler.bnf.BnfParser;
+import com.github.alantr7.codebots.language.compiler.bnf.Grammar;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.modules.outline.ModuleOutline;
 import com.github.alantr7.codebots.language.runtime.modules.standard.ConsolePrintModule;
@@ -12,22 +14,26 @@ public class CompilerTest {
 
     private static File directory;
 
+    private static Grammar grammar;
+
     @BeforeClass
-    public static void init() {
+    public static void init() throws Exception {
         directory = new File("E:\\Users\\Alan\\Desktop\\CodeBots Tests");
+        grammar = BnfParser.parse(
+                Files.readAllLines(new File(directory, "language.bnf").toPath()).toArray(String[]::new)
+        );
     }
 
     @Test
     public void basicTest() throws Exception {
-        test("src_example.txt");
+        test("src_function.txt");
     }
 
 
     private void test(String path) throws Exception {
         var file = new File(directory, path);
-        var lines = Files.readAllLines(file.toPath()).toArray(String[]::new);
-
-        var block = Compiler.compile(lines);
+        var lines = Files.readString(file.toPath());
+        var block = Compiler.compile(grammar, lines);
 
 //
 //

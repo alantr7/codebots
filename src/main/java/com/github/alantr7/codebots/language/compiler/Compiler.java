@@ -1,70 +1,107 @@
 package com.github.alantr7.codebots.language.compiler;
 
+import com.github.alantr7.codebots.language.compiler.bnf.Grammar;
+import com.github.alantr7.codebots.language.compiler.bnf.ResultNode;
 import com.github.alantr7.codebots.language.runtime.RuntimeCodeBlock;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Compiler {
 
-    public static RuntimeCodeBlock compile(String[] input) {
-        // try and compile...
-        var tokens = tokenize(input);
-        Arrays.stream(tokens).forEach(line -> System.out.println(Arrays.toString(Arrays.stream(line).map(token -> "'" + token + "'").toArray(String[]::new))));
+    public static RuntimeCodeBlock compile(Grammar grammar, String input) {
+        System.out.println("Parsing " + input + " with grammar: " + grammar);
+        var tree = grammar.test(grammar.getRule("program"), input);
 
+        System.out.println("Tree:");
+        System.out.println(tree.tree());
 
+        var code = new StringBuilder();
+        compile(tree, code, 0);
+
+        System.out.println("Compiled:");
+        System.out.println(code);
 
         return null;
     }
 
-    private static String[][] tokenize(String[] lines) {
-        var tokensPerLines = new LinkedList<String[]>();
-        for (var raw : lines) {
-            var line = raw.trim();
-            if (line.isBlank())
-                continue;
+    private static void compile(ResultNode node, StringBuilder code, int indent) {
+        switch (node.getName()) {
+            case "program" -> {
+                compileChildren(node, code, indent + 2);
+            }
+            case "define_var" -> {
+                indent(code, indent);
+                code.append("define_var ");
+                code.append(node.getChild("name").getMatched());
+                code.append(" int");
+                code.append("\n");
+            }
+            case "define_func" -> {
+                indent(code, indent);
+                code.append("define_func ");
+                code.append(node.getChild("name").getMatched());
+                code.append("\n");
 
-            var tokenized = tokenizeLine(line);
-            tokensPerLines.add(tokenized);
-        }
+                indent(code, indent);
+                code.append("begin");
+                code.append("\n");
 
-        return tokensPerLines.toArray(String[][]::new);
-    }
+                var parameters = node.getChild("parameters");
+                var index = new AtomicInteger(0);
+                parameters.getChildren().forEach(param -> {
+                    if (!param.getName().equals("name"))
+                        return;
 
-    private static String[] tokenizeLine(String line) {
-        var tokens = new LinkedList<String>();
-        String currentToken = "";
-        int start = 0;
-        for (int i = 1; i < line.length(); i++) {
-            var character = line.charAt(i);
-            if (isSymbol(character)) {
-                var token = line.substring(start, i);
-                if (!token.isBlank())
-                    tokens.add(token);
+                    indent(code, indent + 2);
+                    code.append("define_var arg").append(index.get()).append("\n");
 
-                start = i + 1;
+                    indent(code, indent + 2);
+                    code.append("unload_arg 0 &arg").append(index.get()).append("\n");
 
-                if (character != ' ')
-                    tokens.add(String.valueOf(character));
+                    index.incrementAndGet();
+                });
 
-                continue;
+                var body = node.getChild("function_block");
+                if (body != null) {
+                    compileChildren(body, code, indent);
+                }
+
+                indent(code, indent);
+                code.append("end");
+            }
+
+            case "function_block" -> {
+                compileChildren(node, code, indent - 2);
+            }
+
+            case "call_function" -> {
+                indent(code, indent);
+                code.append("push_func ").append(node.getChild("name")).append("\n");
+
+                var arguments = node.getChild("call_args");
+                int index = 0;
+                for (var argument : arguments.getChildren()) {
+                    indent(code, indent + 2);
+                    code.append("set_arg ").append(index).append(" ").append("i").append(argument.getMatched()).append("\n");
+                }
+
+                indent(code, indent + 2);
+                code.append("call\n");
+
+                indent(code, indent);
+                code.append("pop_func").append("\n");
             }
         }
-
-        tokens.add(line.substring(start));
-        return tokens.toArray(String[]::new);
     }
 
-    private static char[] PATTERN_BREAK = {
-            ' ', '"', '(', ')', '{', '}', '.', '\n'
-    };
+    private static void compileChildren(ResultNode node, StringBuilder code, int indent) {
+        node.getChildren().forEach(child -> compile(child, code, indent + 2));
+    }
 
-    private static boolean isSymbol(char ch) {
-        for (int i = 0; i < PATTERN_BREAK.length; i++) {
-            if (PATTERN_BREAK[i] == ch)
-                return true;
-        }
-        return false;
+    private static void indent(StringBuilder code, int indent) {
+        code.append(" ".repeat(indent));
     }
 
 }
