@@ -198,7 +198,7 @@ public class GrammarRule {
                     matches++;
 
                     // TODO: For some reason it doesn't work when line below is removed /shrug
-                     if (inst.getCount() == TokenSpecial.ONE || inst.getCount() == TokenSpecial.ZERO_OR_ONE)
+                    if (inst.getCount() == TokenSpecial.ONE || inst.getCount() == TokenSpecial.ZERO_OR_ONE)
                         break;
                 }
 

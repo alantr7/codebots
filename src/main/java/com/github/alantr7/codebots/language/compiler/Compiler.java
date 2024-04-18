@@ -23,6 +23,10 @@ public class Compiler {
         System.out.println("Compiled:");
         System.out.println(code);
 
+        if (true) {
+            System.out.println("Hi!");
+        }
+
         return null;
     }
 
@@ -69,7 +73,7 @@ public class Compiler {
                 }
 
                 indent(code, indent);
-                code.append("end");
+                code.append("end").append("\n");
             }
 
             case "function_block" -> {
