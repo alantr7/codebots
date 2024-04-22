@@ -1,50 +1,50 @@
 import com.github.alantr7.codebots.language.compiler.Compiler;
-import com.github.alantr7.codebots.language.compiler.bnf.BnfParser;
-import com.github.alantr7.codebots.language.compiler.bnf.Grammar;
-import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.language.runtime.modules.outline.ModuleOutline;
-import com.github.alantr7.codebots.language.runtime.modules.standard.ConsolePrintModule;
-import org.junit.BeforeClass;
+import com.github.alantr7.codebots.language.compiler.parser.Parser;
+import com.github.alantr7.codebots.language.compiler.Tokenizer;
 import org.junit.Test;
-
-import java.io.File;
-import java.nio.file.Files;
 
 public class CompilerTest {
 
-    private static File directory;
-
-    private static Grammar grammar;
-
-    @BeforeClass
-    public static void init() throws Exception {
-        directory = new File("E:\\Users\\Alan\\Desktop\\CodeBots Tests");
-        grammar = BnfParser.parse(
-                Files.readAllLines(new File(directory, "language.bnf").toPath()).toArray(String[]::new)
-        );
-    }
-
     @Test
-    public void basicTest() throws Exception {
-        test("src_function.txt");
-    }
+    public void testCompiler2() {
+//        new Compiler().parse(Tokenizer.tokenize("function main(){5+rand(5,hello(2,hi(3)))}"));
+//        new Compiler().parse(Tokenizer.tokenize("function main(){ rand(5,hello(2,hi(3)))}"));
+        /*var tree = new Parser().parse(Tokenizer.tokenize(
+                """
+                        import turtle
+                        
+                        function main(first, second) {
+                            print(5)
+                            turtle.hi.a.move(turtle.getX()+5, 0, 0)
+                            
+                            var a = 1+5+3*10+4*2*4*0+3*4
+                            
+                            if (5+5>3) {
+                                var a = random(3,17+3)*5*11+3*2+random(0, 10+3)+11
+                                var length = a.length()
+                            }
+                        }
+                        """
 
+                        .split("\n")
+        ));*/
 
-    private void test(String path) throws Exception {
-        var file = new File(directory, path);
-        var lines = Files.readString(file.toPath());
-        var block = Compiler.compile(grammar, lines);
+        var tree = new Parser().parse(Tokenizer.tokenize("""
+                import turtle
+                
+                function main() {
+                    var a = 5+random(10)
+                    var b = 3
+                    
+                    turtle.move()
+                }
+                """
+                .split("\n")));
 
-//
-//
-//        var program = Program.createFromFileModule(new File(directory, path));
-//        program.registerNativeModule("console", new ConsolePrintModule(program));
-//        program.executeEverything();
-//
-//        var outline = ModuleOutline.forModule(program.getMainModule());
-//        System.out.println(outline);
-//
-//        return program;
+        var compiled = new Compiler().compile(tree);
+        System.out.println("\n\n");
+        System.out.println("Compiled code:\n----------------------------");
+        System.out.println(compiled);
     }
 
 }

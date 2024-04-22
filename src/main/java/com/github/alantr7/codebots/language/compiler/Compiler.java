@@ -1,111 +1,106 @@
 package com.github.alantr7.codebots.language.compiler;
 
-import com.github.alantr7.codebots.language.compiler.bnf.Grammar;
-import com.github.alantr7.codebots.language.compiler.bnf.ResultNode;
-import com.github.alantr7.codebots.language.runtime.RuntimeCodeBlock;
+import com.github.alantr7.codebots.language.compiler.parser.element.Module;
+import com.github.alantr7.codebots.language.compiler.parser.element.exp.Expression;
+import com.github.alantr7.codebots.language.compiler.parser.element.exp.FunctionCall;
+import com.github.alantr7.codebots.language.compiler.parser.element.exp.MemberAccess;
+import com.github.alantr7.codebots.language.compiler.parser.element.exp.PostfixExpression;
+import com.github.alantr7.codebots.language.compiler.parser.element.stmt.Function;
+import com.github.alantr7.codebots.language.compiler.parser.element.stmt.VariableDeclareStatement;
 
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Stack;
 
 public class Compiler {
 
-    public static RuntimeCodeBlock compile(Grammar grammar, String input) {
-        System.out.println("Parsing " + input + " with grammar: " + grammar);
-        var tree = grammar.test(grammar.getRule("program"), input);
+    StringBuilder code = new StringBuilder();
 
-        System.out.println("Tree:");
-        System.out.println(tree.tree());
-
-        var code = new StringBuilder();
-        compile(tree, code, 0);
-
-        System.out.println("Compiled:");
-        System.out.println(code);
-
-        if (true) {
-            System.out.println("Hi!");
+    public String compile(Module module) {
+        for (var importS : module.getImports()) {
+            code.append("define_var ")
+                    .append(importS.getAlias())
+                    .append("\n")
+                    .append("import ").append(importS.getName())
+                    .append(" $").append(importS.getAlias())
+                    .append("\n");
         }
 
-        return null;
+        code.append("\n");
+
+        for (var function : module.getFunctions()) {
+            compileFunction(function);
+        }
+
+        return code.toString();
     }
 
-    private static void compile(ResultNode node, StringBuilder code, int indent) {
-        switch (node.getName()) {
-            case "program" -> {
-                compileChildren(node, code, indent + 2);
-            }
-            case "define_var" -> {
-                indent(code, indent);
-                code.append("define_var ");
-                code.append(node.getChild("name").getMatched());
-                code.append(" int");
-                code.append("\n");
-            }
-            case "define_func" -> {
-                indent(code, indent);
-                code.append("define_func ");
-                code.append(node.getChild("name").getMatched());
-                code.append("\n");
+    private void compileFunction(Function function) {
+        code.append("define_func ")
+                .append(function.getName())
+                .append("\n")
+                .append("begin\n");
 
-                indent(code, indent);
-                code.append("begin");
-                code.append("\n");
+        for (var parameter : function.getParameters()) {
+            code.append("define_var ")
+                    .append(parameter)
+                    .append("\n");
+        }
 
-                var parameters = node.getChild("parameters");
-                var index = new AtomicInteger(0);
-                parameters.getChildren().forEach(param -> {
-                    if (!param.getName().equals("name"))
-                        return;
+        for (var statement : function.getStatements()) {
+            if (statement instanceof VariableDeclareStatement stmt) {
+                code.append("  define_var ").append(stmt.getName()).append("\n");
+                var ass = (PostfixExpression) stmt.getValue();
 
-                    indent(code, indent + 2);
-                    code.append("define_var arg").append(index.get()).append("\n");
-
-                    indent(code, indent + 2);
-                    code.append("unload_arg 0 &arg").append(index.get()).append("\n");
-
-                    index.incrementAndGet();
-                });
-
-                var body = node.getChild("function_block");
-                if (body != null) {
-                    compileChildren(body, code, indent);
-                }
-
-                indent(code, indent);
-                code.append("end").append("\n");
-            }
-
-            case "function_block" -> {
-                compileChildren(node, code, indent - 2);
-            }
-
-            case "call_function" -> {
-                indent(code, indent);
-                code.append("push_func ").append(node.getChild("name")).append("\n");
-
-                var arguments = node.getChild("call_args");
-                int index = 0;
-                for (var argument : arguments.getChildren()) {
-                    indent(code, indent + 2);
-                    code.append("set_arg ").append(index).append(" ").append("i").append(argument.getMatched()).append("\n");
-                }
-
-                indent(code, indent + 2);
-                code.append("call\n");
-
-                indent(code, indent);
-                code.append("pop_func").append("\n");
+                compileExpression(ass, "&" + stmt.getName());
+            } else if (statement instanceof FunctionCall stmt) {
+                compileFunctionCall(stmt);
             }
         }
+
+        code.append("end\n");
     }
 
-    private static void compileChildren(ResultNode node, StringBuilder code, int indent) {
-        node.getChildren().forEach(child -> compile(child, code, indent + 2));
+    private void compileFunctionCall(FunctionCall call) {
+        if (!call.getTarget().getValue().equals("this")) {
+            MemberAccess current = call.getTarget();
+            while (current != null) {
+                code.append("  set $cs ").append(current.getValue()).append("\n");
+                current = current.getRight();
+            }
+        }
+        code.append("  push_func ").append(call.getValue()).append("\n");
+        Expression[] arguments = call.getArguments();
+        for (int i = 0; i < arguments.length; i++) {
+            var argument = arguments[i];
+            compileExpression((PostfixExpression) argument, "$exp1");
+            code.append("  set_arg ").append(i).append(" $exp1\n");
+        }
+
+        code.append("  call\n  pop_func\n");
     }
 
-    private static void indent(StringBuilder code, int indent) {
-        code.append(" ".repeat(indent));
-    }
+    private void compileExpression(PostfixExpression expression, String registry) {
+        if (expression.getValue().length == 1 && expression.getValue()[0].isLiteral()) {
+            code.append("  set ").append(registry).append(" ").append(expression.getValue()[0].getValue()).append("\n");
+            return;
+        }
 
+        code.append("  push_stack\n");
+
+        var tokens = new Stack<String>();
+
+        for (var element : expression.getValue()) {
+            if (element instanceof FunctionCall call) {
+                compileFunctionCall(call);
+                code.append("  push $rv\n");
+                tokens.push("pop");
+            } else {
+                tokens.push(element.getValue().toString());
+            }
+        }
+
+        code.append("  eval $exp1 ").append(String.join(" ", tokens.toArray(String[]::new))).append("\n");
+        code.append("  pop_stack\n");
+    }
 }
