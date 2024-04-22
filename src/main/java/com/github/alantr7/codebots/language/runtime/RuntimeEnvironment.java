@@ -4,10 +4,7 @@ import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import lombok.Getter;
 
-import java.util.Deque;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public class RuntimeEnvironment {
 
@@ -23,6 +20,9 @@ public class RuntimeEnvironment {
 
     @Getter
     private final Deque<RuntimeCodeBlock> blockStack = new LinkedList<>();
+
+    @Getter
+    private final Stack<Stack<String>> tokenStack = new Stack<>();
 
     @Getter
     private final Map<String, RuntimeNativeFunction> nativeFunctions = new LinkedHashMap<>();

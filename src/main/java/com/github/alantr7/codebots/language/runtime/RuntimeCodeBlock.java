@@ -144,8 +144,12 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 Assertions.assertType(environment.REGISTRY_CURRENT_VALUE, ValueType.STRING, "Type mismatch.");
                 setValue(tokens[1], ((String) scope.getVariable(tokens[1]).getValue()) + environment.REGISTRY_CURRENT_VALUE.getValue());
             }
-            case "sleep" ->
-                    environment.getBlockStack().add(new RuntimeSleepFunction(program, Integer.parseInt(tokens[1])));
+            case "sleep" -> environment.getBlockStack().add(new RuntimeSleepFunction(program, Integer.parseInt(tokens[1])));
+
+            case "push_stack" -> environment.getTokenStack().push(new Stack<>());
+            case "pop_stack" -> environment.getTokenStack().pop();
+            case "push" -> environment.getTokenStack().peek().push(tokens[1]);
+
             case "push_func" -> {
                 var object = (RuntimeCodeBlock) environment.REGISTRY_CURRENT_SCOPE.getValue();
                 functionStack.add(new FunctionCall(object.scope, tokens[1]));
