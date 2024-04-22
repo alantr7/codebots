@@ -19,6 +19,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
     @Getter
     private final RuntimeInstruction[] block;
 
+    @Getter
     private final BlockScope scope;
 
     @Getter
@@ -115,9 +116,9 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
 
             case "define_var" -> {
-                var type = ValueType.fromString(tokens[2]);
-                Assertions.assertBool(type != null && type != ValueType.NULL, "Invalid variable type.");
-                scope.setVariable(tokens[1], new RuntimeVariable(type));
+//                var type = ValueType.fromString(tokens[2]);
+//                Assertions.assertBool(type != null && type != ValueType.NULL, "Invalid variable type.");
+                scope.setVariable(tokens[1], new RuntimeVariable(ValueType.ANY));
             }
             case "add" -> {
                 mathOperation(tokens, 0);
@@ -268,6 +269,10 @@ public class RuntimeCodeBlock extends RuntimeObject {
                         iterator.remove();
                     }
                 }
+            }
+
+            default -> {
+                System.err.println("Unknown instruction: " + instruction);;
             }
         }
 

@@ -36,6 +36,7 @@ public class CompilerTest {
                     var a = 5+random(10)
                     var b = 3
                     
+                    print(5)
                     turtle.move()
                 }
                 """

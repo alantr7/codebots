@@ -3,6 +3,7 @@ package com.github.alantr7.codebots.language.parser;
 import com.github.alantr7.codebots.language.runtime.*;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 
@@ -27,6 +28,7 @@ public class AssemblyParser {
             var instruction = tokenized[0];
 
             System.out.println(type.name() + ": " + instruction);
+            System.out.println("  " + Arrays.toString(tokenized));
 
             if (type.blocksInstruction(instruction)) {
                 throw new ParseException("Instruction '%s' is not allowed in %s.".formatted(instruction, type.name()));
