@@ -17,8 +17,7 @@ public class CodeTest {
     public void testVariableAssignWithExpressions() throws Exception {
         testCode("""
                 function main() {
-                  print(random(5))
-                  var a = 5 * random(10)
+                  print(3*random(100)+2*random(30)*3)
                 }
                 """
         );
@@ -27,10 +26,13 @@ public class CodeTest {
     private void testCode(String code) throws Exception {
         var tokens = Tokenizer.tokenize(code.split("\n"));
         var parser = new Parser();
-        var compiler = new Compiler().compile(parser.parse(tokens)).split("\n");
+        var inline = new Compiler().compile(parser.parse(tokens));
+        var compiled = inline.split("\n");
+
+        System.out.println(inline);
 
         var program = new Program(new File("."));
-        var block = AssemblyParser.parseCodeBlock(program, compiler);
+        var block = AssemblyParser.parseCodeBlock(program, compiled);
 
         program.registerNativeModule("math", new MathModule(program));
         program.setMainModule(new MemoryModule(program, block));

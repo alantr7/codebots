@@ -148,7 +148,12 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
             case "push_stack" -> environment.getTokenStack().push(new Stack<>());
             case "pop_stack" -> environment.getTokenStack().pop();
-            case "push" -> environment.getTokenStack().peek().push(tokens[1]);
+            case "push" -> environment.getTokenStack().peek().push(String.valueOf(getValue(tokens[1])));
+
+            case "eval" -> {
+                var expression = Arrays.copyOfRange(tokens, 2, tokens.length);
+                evaluateExpression(tokens[1], expression);
+            }
 
             case "push_func" -> {
                 var object = (RuntimeCodeBlock) environment.REGISTRY_CURRENT_SCOPE.getValue();
@@ -295,6 +300,38 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
         var result = operation.perform(num1, num2);
         setValue(tokens[1], result);
+    }
+
+    private void evaluateExpression(String registry, String[] expressions) throws Exception {
+        System.out.println("Evaluating expression: " + Arrays.toString(expressions));
+        var stack = new Stack<Integer>();
+        var tokenStack = environment.getTokenStack().peek();
+
+        int operand1, operand2;
+
+        for (var literal : expressions) {
+            if (literal.matches("\\d+")) {
+                stack.push(Integer.parseInt(literal));
+            } else if (literal.equals("pop")) {
+                var pop = tokenStack.pop();
+                System.out.println("Popped: " + pop);
+                stack.push(Integer.parseInt(pop));
+            } else {
+                // It's an operator
+                operand2 = stack.pop();
+                operand1 = stack.pop();
+
+                switch (literal) {
+                    case "+" -> stack.push(operand1 + operand2);
+                    case "-" -> stack.push(operand1 - operand2);
+                    case "*" -> stack.push(operand1 * operand2);
+                    case "/" -> stack.push(operand1 / operand2);
+                }
+            }
+        }
+
+        setValue(registry, stack.peek());
+        System.out.println("Evaluated expression. Result: " + stack.peek());
     }
 
     private Object getValue(String raw) {

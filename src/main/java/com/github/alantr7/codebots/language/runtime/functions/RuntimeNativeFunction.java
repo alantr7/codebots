@@ -1,9 +1,6 @@
 package com.github.alantr7.codebots.language.runtime.functions;
 
-import com.github.alantr7.codebots.language.runtime.BlockType;
-import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.language.runtime.RuntimeCodeBlock;
-import com.github.alantr7.codebots.language.runtime.RuntimeInstruction;
+import com.github.alantr7.codebots.language.runtime.*;
 
 import java.util.function.Function;
 
@@ -26,8 +23,9 @@ public class RuntimeNativeFunction extends RuntimeCodeBlock {
     @Override
     public void next() {
         var function = environment.getCallStack().getLast();
-        handler.apply(function.getArguments());
+        var result = handler.apply(function.getArguments());
 
+        environment.REGISTRY_RETURN_VALUE.setValue(result);
         isExecuted = true;
     }
 
