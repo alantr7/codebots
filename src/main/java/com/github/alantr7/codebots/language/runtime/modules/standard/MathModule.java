@@ -13,7 +13,8 @@ public class MathModule extends NativeModule {
         super(program);
 
         this.getRootScope().setFunction("random", new RuntimeNativeFunction(program, "random", args -> {
-            var rand = new Random().nextInt((int) args[0]);
+            var rand = Math.round(Math.random() * (int) args[0]);
+//            System.out.println("Random bounds: " + args[0]);
             System.out.println("Arguments: " + Arrays.toString(args));
             System.out.println("Random number generated: " + rand);
 

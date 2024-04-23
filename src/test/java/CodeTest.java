@@ -16,8 +16,17 @@ public class CodeTest {
     @Test
     public void testVariableAssignWithExpressions() throws Exception {
         testCode("""
+                function test() {
+                
+                }
+                
                 function main() {
-                  print(3*random(100)+2*random(30)*3)
+                  print(3*random(random(10)))
+                  var a = 5
+                  var b = 5
+                  print(a + b * b)
+                  
+                  test()
                 }
                 """
         );

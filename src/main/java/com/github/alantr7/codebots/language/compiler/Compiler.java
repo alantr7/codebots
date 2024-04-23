@@ -1,10 +1,7 @@
 package com.github.alantr7.codebots.language.compiler;
 
 import com.github.alantr7.codebots.language.compiler.parser.element.Module;
-import com.github.alantr7.codebots.language.compiler.parser.element.exp.Expression;
-import com.github.alantr7.codebots.language.compiler.parser.element.exp.FunctionCall;
-import com.github.alantr7.codebots.language.compiler.parser.element.exp.MemberAccess;
-import com.github.alantr7.codebots.language.compiler.parser.element.exp.PostfixExpression;
+import com.github.alantr7.codebots.language.compiler.parser.element.exp.*;
 import com.github.alantr7.codebots.language.compiler.parser.element.stmt.Function;
 import com.github.alantr7.codebots.language.compiler.parser.element.stmt.VariableDeclareStatement;
 
@@ -52,13 +49,25 @@ public class Compiler {
                 code.append("  define_var ").append(stmt.getName()).append("\n");
                 var ass = (PostfixExpression) stmt.getValue();
 
-                compileExpression(ass, "&" + stmt.getName());
+                compileExpression(ass, stmt.getName());
             } else if (statement instanceof FunctionCall stmt) {
                 compileFunctionCall(stmt);
             }
         }
 
         code.append("end\n");
+    }
+
+    private void compileVariableAccess(VariableAccess var) {
+        if (!var.getTarget().getValue().equals("this")) {
+            MemberAccess current = var.getTarget();
+            while (current != null) {
+                code.append("  set $cs ").append(current.getValue()).append("\n");
+                current = current.getRight();
+            }
+        }
+
+        code.append("  push *").append(var.getName()).append("\n");
     }
 
     private void compileFunctionCall(FunctionCall call) {
@@ -94,6 +103,9 @@ public class Compiler {
             if (element instanceof FunctionCall call) {
                 compileFunctionCall(call);
                 code.append("  push $rv\n");
+                tokens.push("pop");
+            } else if (element instanceof VariableAccess member) {
+                compileVariableAccess(member);
                 tokens.push("pop");
             } else {
                 tokens.push(element.getValue().toString());

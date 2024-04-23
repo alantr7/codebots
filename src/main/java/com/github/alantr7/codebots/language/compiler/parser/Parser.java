@@ -271,12 +271,12 @@ public class Parser {
             } else {
 
                 queue.rollback();
-                var functionCall = nextFunctionCall();
-                if (functionCall == null) {
+                var memberAccess = nextMemberAccessOrCall();
+                if (memberAccess == null) {
                     break;
                 } else {
-                    System.out.println("IT IS A FUNCTION CALL :O");
-                    postfix.add(functionCall);
+                    System.out.println("IT IS A MEMBER ACCESS :O");
+                    postfix.add(memberAccess);
                 }
 
                 expectsOperator = true;
@@ -348,6 +348,68 @@ public class Parser {
         if (!queue.peek().equals("(")) {
             queue.rollback();
             return null;
+        }
+
+        queue.advance();
+
+        List<Expression> arguments = new LinkedList<>();
+        if (!queue.peek().equals(")")) {
+            while (true) {
+                var argument = nextExpression();
+                if (argument == null) break;
+
+                arguments.add(argument);
+                if (queue.peek().equals(",")) {
+                    queue.advance();
+                    continue;
+                }
+
+                break;
+            }
+        }
+
+        if (!queue.peek().equals(")"))
+            return null;
+
+        queue.advance();
+        return new FunctionCall(target, name, arguments.toArray(new Expression[0]));
+    }
+
+    private Expression nextMemberAccessOrCall() {
+        String identifier = nextIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+
+        var access = new LinkedList<String>();
+        access.add(identifier);
+
+        while (queue.peek().equals(".")) {
+            queue.advance();
+            var nextIdentifier = nextIdentifier();
+            if (nextIdentifier == null) {
+                return null;
+            }
+
+            access.add(nextIdentifier);
+        }
+
+        String name = access.getLast();
+        MemberAccess target = null;
+
+        access.removeLast();
+
+        if (access.isEmpty()) {
+            target = new MemberAccess("this", null);
+        } else {
+            var iterator = access.descendingIterator();
+            while (iterator.hasNext()) {
+                target = new MemberAccess(iterator.next(), target);
+            }
+        }
+
+        if (!queue.peek().equals("(")) {
+            return new VariableAccess(target, name);
         }
 
         queue.advance();
