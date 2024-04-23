@@ -4,7 +4,6 @@ import com.github.alantr7.codebots.language.runtime.BlockScope;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.RuntimeCodeBlock;
 import com.github.alantr7.codebots.language.runtime.RuntimeEnvironment;
-import com.github.alantr7.codebots.language.runtime.modules.outline.OutlineEntry;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -30,10 +30,6 @@ public class AssemblyParser {
             System.out.println(type.name() + ": " + instruction);
             System.out.println("  " + Arrays.toString(tokenized));
 
-            if (type.blocksInstruction(instruction)) {
-                throw new ParseException("Instruction '%s' is not allowed in %s.".formatted(instruction, type.name()));
-            }
-
             if (instruction.equals("begin")) {
                 var nextBlock = new String[input.length - i - 1];
                 System.arraycopy(input, i + 1, nextBlock, 0, nextBlock.length);
