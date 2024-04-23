@@ -17,7 +17,7 @@ public class CodeTest {
     public void testVariableAssignWithExpressions() throws Exception {
         testCode("""
                 function test() {
-                
+                  print(061439126)
                 }
                 
                 function main() {

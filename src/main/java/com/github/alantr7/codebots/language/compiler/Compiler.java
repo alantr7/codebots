@@ -59,6 +59,7 @@ public class Compiler {
     }
 
     private void compileVariableAccess(VariableAccess var) {
+        code.append("  set $cs #cs\n");
         if (!var.getTarget().getValue().equals("this")) {
             MemberAccess current = var.getTarget();
             while (current != null) {
