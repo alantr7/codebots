@@ -14,11 +14,48 @@ import java.io.File;
 public class CodeTest {
 
     @Test
-    public void testVariableAssignWithExpressions() throws Exception {
-        testCode("""
+    public void testIfElseIfElse() throws Exception {
+        testCode("""                
                 function main() {
-                  var a = 10 + 1 == 11 - 1 * 0
-                  print(a == true)
+                  var number = random(100)
+                  if (number < 30) {
+                    print("Less than 30!")
+                  }
+                  else if (number < 60) {
+                    print("Less than 60!")
+                  }
+                  else {
+                    print("Less than 100!")
+                    main()
+                  }
+                }
+                """
+        );
+    }
+
+    @Test
+    public void testRecursiveness() throws Exception {
+        testCode("""
+                function getTriesUntilMatch(input, counter) {
+                  var rand = random(50)
+                  counter = counter + 1
+                  
+                  if (rand < input) {
+                    print("IT IS LESS THAN THAT!")
+                    print(counter)
+                  } else {
+                    if (counter < 100) {
+                      getTriesUntilMatch(input, counter)
+                    } else {
+                      print(counter)
+                      print("Counter is greater than 100")
+                    }
+                  }
+                }
+                
+                function main() {
+                  var number = 17
+                  getTriesUntilMatch(number, 0)
                 }
                 """
         );

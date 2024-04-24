@@ -27,9 +27,6 @@ public class AssemblyParser {
             var tokenized = tokenize(trimmed);
             var instruction = tokenized[0];
 
-            System.out.println(type.name() + ": " + instruction);
-            System.out.println("  " + Arrays.toString(tokenized));
-
             if (instruction.equals("begin")) {
                 var nextBlock = new String[input.length - i - 1];
                 System.arraycopy(input, i + 1, nextBlock, 0, nextBlock.length);

@@ -3,11 +3,7 @@ package com.github.alantr7.codebots.language.compiler.parser;
 import com.github.alantr7.codebots.language.compiler.TokenQueue;
 import com.github.alantr7.codebots.language.compiler.parser.element.Module;
 import com.github.alantr7.codebots.language.compiler.parser.element.exp.*;
-import com.github.alantr7.codebots.language.compiler.parser.element.stmt.Function;
-import com.github.alantr7.codebots.language.compiler.parser.element.stmt.IfStatement;
-import com.github.alantr7.codebots.language.compiler.parser.element.stmt.ImportStatement;
-import com.github.alantr7.codebots.language.compiler.parser.element.stmt.Statement;
-import com.github.alantr7.codebots.language.compiler.parser.element.stmt.VariableDeclareStatement;
+import com.github.alantr7.codebots.language.compiler.parser.element.stmt.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -126,6 +122,10 @@ public class Parser {
         if (stmt != null)
             return stmt;
 
+        stmt = nextVariableAssign();
+        if (stmt != null)
+            return stmt;
+
         stmt = nextIfStatement();
         if (stmt != null)
             return stmt;
@@ -158,9 +158,34 @@ public class Parser {
         return new VariableDeclareStatement(name, value);
     }
 
-    private Statement nextIfStatement() {
+    private Statement nextVariableAssign() {
+        var next = nextIdentifier();
+        if (next == null) {
+            return null;
+        }
+
+        if (!queue.peek().equals("=")) {
+            queue.rollback();
+            return null;
+        }
+
+        System.out.println("VARIABLE ASSIGN!");
+        queue.advance();
+        var value = nextExpression();
+
+        if (value == null) {
+            System.out.println("Expression is null!");
+            return null;
+        }
+
+        return new VariableAssignStatement(new MemberAccess("this", null), next, value);
+    }
+
+    private IfStatement nextIfStatement() {
         if (!queue.peek().equals("if"))
             return null;
+
+        System.out.println("IF STATEMENT!");
 
         queue.advance();
         if (!queue.peek().equals("(")) {
@@ -202,7 +227,32 @@ public class Parser {
         }
         queue.advance();
 
-        return new IfStatement(condition, statements.toArray(new Statement[0]));
+        var elseStatements = new LinkedList<Statement>();
+        IfStatement nextIf = null;
+
+        // Check if there's an ELSE keyword
+        if (queue.peek().equals("else")) {
+            queue.advance();
+
+            // Check if it's an else-if, or just an else
+            if (queue.peek().equals("{")) {
+                queue.advance();
+
+                while (true) {
+                    var stmt = nextStatement();
+                    if (stmt == null)
+                        break;
+
+                    elseStatements.add(stmt);
+                }
+
+                queue.advance(); // "}"
+            } else if (queue.peek().equals("if")) {
+                nextIf = nextIfStatement();
+            }
+        }
+
+        return new IfStatement(condition, statements.toArray(new Statement[0]), nextIf, elseStatements.toArray(new Statement[0]));
     }
 
     private Expression nextExpression() {
@@ -275,13 +325,18 @@ public class Parser {
                 }
             } else  {
 
-                queue.rollback();
-                var memberAccess = nextMemberAccessOrCall();
-                if (memberAccess == null) {
-                    break;
+                if (next.startsWith("\"") && next.endsWith("\"")) {
+                    postfix.add(new LiteralExpression(next.substring(1, next.length() - 1), LiteralExpression.STRING));
+                    System.out.println("It's a string :>");
                 } else {
-                    System.out.println("IT IS A MEMBER ACCESS :O");
-                    postfix.add(memberAccess);
+                    queue.rollback();
+                    var memberAccess = nextMemberAccessOrCall();
+                    if (memberAccess == null) {
+                        break;
+                    } else {
+                        System.out.println("IT IS A MEMBER ACCESS :O");
+                        postfix.add(memberAccess);
+                    }
                 }
 
                 expectsOperator = true;
@@ -383,6 +438,11 @@ public class Parser {
     private Expression nextMemberAccessOrCall() {
         String identifier = nextIdentifier();
         if (identifier == null) {
+            return null;
+        }
+
+        if (identifier.equals("if")) {
+            queue.rollback();
             return null;
         }
 

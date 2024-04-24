@@ -2,8 +2,7 @@ package com.github.alantr7.codebots.language.compiler;
 
 import com.github.alantr7.codebots.language.compiler.parser.element.Module;
 import com.github.alantr7.codebots.language.compiler.parser.element.exp.*;
-import com.github.alantr7.codebots.language.compiler.parser.element.stmt.Function;
-import com.github.alantr7.codebots.language.compiler.parser.element.stmt.VariableDeclareStatement;
+import com.github.alantr7.codebots.language.compiler.parser.element.stmt.*;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -38,24 +37,35 @@ public class Compiler {
                 .append("\n")
                 .append("begin\n");
 
-        for (var parameter : function.getParameters()) {
-            code.append("define_var ")
+        var parameters = function.getParameters();
+        for (int i = 0; i < parameters.length; i++) {
+            var parameter = parameters[i];
+            code.append("  define_var ")
                     .append(parameter)
                     .append("\n");
+            code.append("  unload_arg ").append(i).append(" ").append(parameter).append("\n");
         }
 
         for (var statement : function.getStatements()) {
-            if (statement instanceof VariableDeclareStatement stmt) {
-                code.append("  define_var ").append(stmt.getName()).append("\n");
-                var ass = (PostfixExpression) stmt.getValue();
-
-                compileExpression(ass, stmt.getName());
-            } else if (statement instanceof FunctionCall stmt) {
-                compileFunctionCall(stmt);
-            }
+            compileStatement(statement);
         }
 
         code.append("end\n");
+    }
+
+    private void compileStatement(Statement statement) {
+        if (statement instanceof VariableDeclareStatement stmt) {
+            code.append("  define_var ").append(stmt.getName()).append("\n");
+            var ass = (PostfixExpression) stmt.getValue();
+
+            compileExpression(ass, stmt.getName());
+        } else if (statement instanceof VariableAssignStatement stmt) {
+            compileExpression((PostfixExpression) stmt.getValue(), stmt.getName());
+        } else if (statement instanceof FunctionCall stmt) {
+            compileFunctionCall(stmt);
+        } else if (statement instanceof IfStatement stmt) {
+            compileIfStatement(stmt);
+        }
     }
 
     private void compileVariableAccess(VariableAccess var) {
@@ -78,6 +88,8 @@ public class Compiler {
                 code.append("  set $cs ").append(current.getValue()).append("\n");
                 current = current.getRight();
             }
+        } else {
+            code.append("  set $cs #cs\n");
         }
         code.append("  push_func ").append(call.getValue()).append("\n");
         Expression[] arguments = call.getArguments();
@@ -92,7 +104,11 @@ public class Compiler {
 
     private void compileExpression(PostfixExpression expression, String registry) {
         if (expression.getValue().length == 1 && expression.getValue()[0].isLiteral()) {
-            code.append("  set ").append(registry).append(" ").append(expression.getValue()[0].getValue()).append("\n");
+            String value = expression.getValue()[0].getValue() instanceof String text ?
+                    ("\"" + text + "\"")
+                    : String.valueOf(expression.getValue()[0].getValue());
+
+            code.append("  set ").append(registry).append(" ").append(value).append("\n");
             return;
         }
 
@@ -117,4 +133,28 @@ public class Compiler {
         code.append("  pop_stack\n");
         code.append("  set ").append(registry).append(" $exp1\n");
     }
+
+    private void compileIfStatement(IfStatement statement) {
+        compileExpression((PostfixExpression) statement.getCondition(), "$exp1");
+        code.append("  if $exp1 true\n");
+        code.append("  begin\n");
+        for (var stmt : statement.getBody()) {
+            compileStatement(stmt);
+        }
+        code.append("  end\n");
+
+        if (statement.getElseBody().length > 0 || statement.getElseIf() != null) {
+            code.append("  else\n");
+            code.append("  begin\n");
+            if (statement.getElseIf() != null) {
+                compileIfStatement(statement.getElseIf());
+            } else {
+                for (var stmt : statement.getElseBody()) {
+                    compileStatement(stmt);
+                }
+            }
+            code.append("  end\n");
+        }
+    }
+
 }

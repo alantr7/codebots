@@ -101,8 +101,6 @@ public class RuntimeCodeBlock extends RuntimeObject {
         var tokens = ((RuntimeSentence) sentence).getTokens();
         var instruction = tokens[0];
 
-        System.out.println(environment.getProgram().getMainModule() + ": " + Arrays.toString(tokens));
-
         switch (instruction) {
             case "import" -> {
                 var relative = tokens[1];
@@ -149,7 +147,10 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
             case "push_stack" -> environment.getTokenStack().push(new Stack<>());
             case "pop_stack" -> environment.getTokenStack().pop();
-            case "push" -> environment.getTokenStack().peek().push(String.valueOf(getValue(tokens[1])));
+            case "push" -> {
+                System.out.println("Pushing: " + String.valueOf(getValue(tokens[1])));
+                environment.getTokenStack().peek().push(String.valueOf(getValue(tokens[1])));
+            }
 
             case "eval" -> {
                 var expression = Arrays.copyOfRange(tokens, 2, tokens.length);
@@ -177,6 +178,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
             case "call" -> {
                 var function = functionStack.getLast();
                 var functionBlock = function.getScope().getFunction(function.getFunction());
+                System.out.println("Calling function : " + function.getFunction());
                 functionBlock.reset();
 
                 environment.getBlockStack().add(functionBlock);
@@ -226,7 +228,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                     environment.getBlockStack().add(nextBlock);
                     return;
                 } else {
-                    System.out.println("NOT TRUE: " + getValue(tokens[1]) + " != " + getValue(tokens[3]));
+                    System.out.println("NOT TRUE: " + getValue(tokens[1]) + " != " + getValue(tokens[2]));
                     i++; // Skip next!
                     flagElse = true;
 
@@ -305,7 +307,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
     private void evaluateExpression(String registry, String[] expressions) throws Exception {
         System.out.println("Evaluating expression: " + Arrays.toString(expressions));
-        var stack = new Stack<Object>();
+        var stack = new Stack<>();
         var tokenStack = environment.getTokenStack().peek();
 
         Object operand1, operand2;
@@ -414,25 +416,9 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
     private boolean testIfStatement(String[] tokens) throws ExecutionException {
         var value1 = getValue(tokens[1]);
-        var value2 = getValue(tokens[3]);
+        var value2 = getValue(tokens[2]);
 
-        return switch (tokens[2]) {
-            case ">" -> {
-                Assertions.assertType(value1, ValueType.INT, "Cannot use '>' operator on \"%s\"".formatted(ValueType.of(value1)));
-                Assertions.assertType(value2, ValueType.INT, "Cannot use '>' operator on \"%s\"".formatted(ValueType.of(value2)));
-                yield (int) value1 > (int) value2;
-            }
-            case "<" -> {
-                Assertions.assertType(value1, ValueType.INT, "Cannot use '>' operator on \"%s\"".formatted(ValueType.of(value1)));
-                Assertions.assertType(value2, ValueType.INT, "Cannot use '>' operator on \"%s\"".formatted(ValueType.of(value2)));
-                yield (int) value1 < (int) value2;
-            }
-            case "=" -> Objects.equals(value1, value2);
-            case "!=" -> !Objects.equals(value1, value2);
-            case ">=" -> (int) value1 >= (int) value2;
-            case "<=" -> (int) value1 <= (int) value2;
-            default -> false;
-        };
+        return Objects.equals(value1, value2);
     }
 
     private String[] generateStackTrace() {
