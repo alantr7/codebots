@@ -304,7 +304,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
     private void evaluateExpression(String registry, String[] expressions) throws Exception {
         System.out.println("Evaluating expression: " + Arrays.toString(expressions));
-        var stack = new Stack<Integer>();
+        var stack = new Stack<Object>();
         var tokenStack = environment.getTokenStack().peek();
 
         int operand1, operand2;
@@ -315,17 +315,29 @@ public class RuntimeCodeBlock extends RuntimeObject {
             } else if (literal.equals("pop")) {
                 var pop = tokenStack.pop();
                 System.out.println("Popped: " + pop);
-                stack.push(Integer.parseInt(pop));
+
+                // TODO: Improve this
+                if (pop.matches("\\d+")) {
+                    stack.push(Integer.parseInt(pop));
+                } else {
+                    stack.push(Boolean.parseBoolean(pop));
+                }
             } else {
                 // It's an operator
-                operand2 = stack.pop();
-                operand1 = stack.pop();
+                operand2 = (int) stack.pop();
+                operand1 = (int) stack.pop();
 
                 switch (literal) {
                     case "+" -> stack.push(operand1 + operand2);
                     case "-" -> stack.push(operand1 - operand2);
                     case "*" -> stack.push(operand1 * operand2);
                     case "/" -> stack.push(operand1 / operand2);
+                    case "==" -> stack.push(operand1 == operand2);
+                    case "!=" -> stack.push(operand1 != operand2);
+                    case "<" -> stack.push(operand1 < operand2);
+                    case ">" -> stack.push(operand1 > operand2);
+                    case "<=" -> stack.push(operand1 <= operand2);
+                    case ">=" -> stack.push(operand1 >= operand2);
                 }
             }
         }

@@ -242,7 +242,7 @@ public class Parser {
                     if (next.equals(")")) {
                         if (stack.isEmpty())
                             return null;
-                        
+
                         while (!stack.peek().equals("(")) {
                             var popInParenthesis = stack.pop();
                             System.out.println("Pop in parenthesis: " + popInParenthesis);
@@ -268,7 +268,7 @@ public class Parser {
 //                }
                     }
                 }
-            } else {
+            } else  {
 
                 queue.rollback();
                 var memberAccess = nextMemberAccessOrCall();

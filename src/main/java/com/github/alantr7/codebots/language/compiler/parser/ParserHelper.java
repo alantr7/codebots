@@ -3,10 +3,11 @@ package com.github.alantr7.codebots.language.compiler.parser;
 public class ParserHelper {
 
     public static boolean isOperator(String input) {
-        if (input.length() != 1)
+        if (input.length() > 2 || input.isEmpty())
             return false;
 
-        return input.equals("+") || input.equals("-") || input.equals("*") || input.equals("/");
+        return input.equals("+") || input.equals("-") || input.equals("*") || input.equals("/") || input.equals("==") || input.equals("!=") ||
+                input.equals(">") || input.equals("<") || input.equals(">=") || input.equals("<=");
     }
 
     public static boolean isNumber(String input) {
@@ -14,10 +15,11 @@ public class ParserHelper {
     }
 
     public static int getPrecedence(String input) {
-        return switch (input.charAt(0)) {
-            case '+', '-' -> 2;
-            case '*', '/' -> 3;
-            case '(', ')', '#' -> 1;
+        return switch (input) {
+            case "+", "-" -> 3;
+            case "*", "/" -> 4;
+            case "<", ">", "==", "!=", "<=", ">=" -> 2;
+            case "(", ")", "#" -> 1;
             default -> 0;
         };
     }

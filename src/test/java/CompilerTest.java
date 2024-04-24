@@ -33,7 +33,7 @@ public class CompilerTest {
                 import turtle
                 
                 function main() {
-                    var a = 5+random(10)
+                    var a = 5+random(10)>3
                     var b = 3
                     
                     print(5)

@@ -115,5 +115,6 @@ public class Compiler {
 
         code.append("  eval $exp1 ").append(String.join(" ", tokens.toArray(String[]::new))).append("\n");
         code.append("  pop_stack\n");
+        code.append("  set ").append(registry).append(" $exp1\n");
     }
 }

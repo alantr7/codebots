@@ -1,5 +1,7 @@
 package com.github.alantr7.codebots.language.compiler;
 
+import com.github.alantr7.codebots.language.compiler.parser.ParserHelper;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public class Tokenizer {
         return tokenize(new String[]{input});
     }
 
-    private static final String SYMBOLS = " (){}<>,.\n+-?*/";
+    private static final String SYMBOLS = " (){}<>=!,.\n+-?*/";
 
     private static boolean isSymbol(char ch) {
         return SYMBOLS.contains(String.valueOf(ch));
@@ -32,6 +34,7 @@ public class Tokenizer {
         var tokens = new LinkedList<String>();
         boolean quotes = false;
         int start = 0;
+
         for (int i = 1; i < line.length(); i++) {
             var character = line.charAt(i);
             if (character == '"') {
@@ -46,13 +49,27 @@ public class Tokenizer {
                 continue;
 
             if (isSymbol(character)) {
-                var token = line.substring(start, i);
+                String token = null;
+
+                if (character == '=' && tokens.peekLast() != null) {
+                    String multicharSymbols = "<>=!";
+                    System.out.println("Multi char :D " + tokens.peekLast());
+                    if (multicharSymbols.contains(tokens.getLast())) {
+                        System.out.println("It is a multichar!");
+                        token = tokens.removeLast() + character;
+                    }
+                }
+
+                if (token == null) {
+                    token = line.substring(start, i);
+                }
+
                 if (!token.isBlank())
                     tokens.add(token);
 
                 start = i + 1;
 
-                if (character != ' ')
+                if (character != ' ' && !ParserHelper.isOperator(token))
                     tokens.add(String.valueOf(character));
             }
         }
