@@ -1,5 +1,6 @@
 package com.github.alantr7.codebots.language.runtime;
 
+import com.github.alantr7.codebots.language.compiler.parser.ParserHelper;
 import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
@@ -307,11 +308,13 @@ public class RuntimeCodeBlock extends RuntimeObject {
         var stack = new Stack<Object>();
         var tokenStack = environment.getTokenStack().peek();
 
-        int operand1, operand2;
+        Object operand1, operand2;
 
         for (var literal : expressions) {
             if (literal.matches("\\d+")) {
                 stack.push(Integer.parseInt(literal));
+            } else if (ParserHelper.isBoolean(literal)) {
+                stack.push(Boolean.parseBoolean(literal));
             } else if (literal.equals("pop")) {
                 var pop = tokenStack.pop();
                 System.out.println("Popped: " + pop);
@@ -324,20 +327,20 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 }
             } else {
                 // It's an operator
-                operand2 = (int) stack.pop();
-                operand1 = (int) stack.pop();
+                operand2 = stack.pop();
+                operand1 = stack.pop();
 
                 switch (literal) {
-                    case "+" -> stack.push(operand1 + operand2);
-                    case "-" -> stack.push(operand1 - operand2);
-                    case "*" -> stack.push(operand1 * operand2);
-                    case "/" -> stack.push(operand1 / operand2);
+                    case "+" -> stack.push((int) operand1 + (int) operand2);
+                    case "-" -> stack.push((int) operand1 - (int) operand2);
+                    case "*" -> stack.push((int) operand1 * (int) operand2);
+                    case "/" -> stack.push((int) operand1 / (int) operand2);
                     case "==" -> stack.push(operand1 == operand2);
                     case "!=" -> stack.push(operand1 != operand2);
-                    case "<" -> stack.push(operand1 < operand2);
-                    case ">" -> stack.push(operand1 > operand2);
-                    case "<=" -> stack.push(operand1 <= operand2);
-                    case ">=" -> stack.push(operand1 >= operand2);
+                    case "<" -> stack.push((int) operand1 < (int) operand2);
+                    case ">" -> stack.push((int) operand1 > (int) operand2);
+                    case "<=" -> stack.push((int) operand1 <= (int) operand2);
+                    case ">=" -> stack.push((int) operand1 >= (int) operand2);
                 }
             }
         }

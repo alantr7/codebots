@@ -14,6 +14,10 @@ public class ParserHelper {
         return input.matches("\\d+");
     }
 
+    public static boolean isBoolean(String input) {
+        return input.equals("true") || input.equals("false");
+    }
+
     public static int getPrecedence(String input) {
         return switch (input) {
             case "+", "-" -> 3;

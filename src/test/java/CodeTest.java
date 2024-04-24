@@ -17,8 +17,8 @@ public class CodeTest {
     public void testVariableAssignWithExpressions() throws Exception {
         testCode("""
                 function main() {
-                  var a = 5 != 3 + 2
-                  print(a)
+                  var a = 10 + 1 == 11 - 1 * 0
+                  print(a == true)
                 }
                 """
         );

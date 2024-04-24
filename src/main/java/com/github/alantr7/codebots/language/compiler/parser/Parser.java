@@ -234,6 +234,11 @@ public class Parser {
                 j++;
 
                 expectsOperator = true;
+            } else if (ParserHelper.isBoolean(next)) {
+                postfix.add(new LiteralExpression(Boolean.parseBoolean(next), LiteralExpression.BOOL));
+                j++;
+
+                expectsOperator = true;
             } else if (ParserHelper.isOperator(next)) {
                 if (next.equals("(")) {
                     stack.push(next);
