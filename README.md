@@ -10,6 +10,7 @@ Script language is still very experimental, and many features are missing! Pleas
 
 #### Yet to be implemented
 - Recursiveness
+- String concatenation
 - Logic operators (AND, OR) for boolean expressions
 - Loops (for, while)
 - Importing user modules
@@ -20,6 +21,7 @@ Script language is still very experimental, and many features are missing! Pleas
 - More standard modules
 - Web editor for writing scripts
 - Bot networks using routers
+- Ton of optimization
 
 ## Language examples
 
