@@ -1,22 +1,44 @@
-## Language examples
+### Disclaimer:
+Script language is still very experimental, and many features are missing! Please read the to-do list below to see what's implemented and what's still missing.
 
+## Todo List
+#### Done and being tested:
+- Variables
+- Functions
+- If, else-if, else statements
+- Importing standard modules
+
+#### Yet to be implemented
+- Recursiveness
+- Logic operators (AND, OR) for boolean expressions
+- Loops (for, while)
+- Importing user modules
+- Types for variables, parameters, etc. (dynamic will be the default)
+- Error handling
+
+#### Future plans
+- More standard modules
+- Web editor for writing scripts
+- Bot networks using routers
+
+## Language examples
 
 ### Main function
 Main function is called as soon as the Bot starts.
 ```ts
 function main() {
-    print("Hello world!");
+    print("Hello world!")
 }
 ```
 
 ### Variables
 Variables can be declared using the `var` keyword. Variables are dynamically typed. They can also be declared without a value. Variables can be declared outside a function too, which makes them accessible from all functions.
 ```ts
-var name = "Alan";
+var name = "Alan"
 
 function main() {
-    var greeting = "Hello ";
-    print(greeting + name);
+    var greeting = "Hello "
+    print(greeting + name)
 }
 ```
 
@@ -26,11 +48,11 @@ You can use `and`, `or` and `not` operators.
 If the expression is false, the `else`/`else if` block will be executed if present.
 ```ts
 function main() {
-    var foo = "bar";
+    var foo = "bar"
     if (foo == "bar") {
-        print("foo is bar");
+        print("foo is bar")
     } else {
-        print("foo is not bar");
+        print("foo is not bar")
     }
 }
 ```
@@ -47,8 +69,8 @@ If you'd like to use a different name for an imported module, you can use the `a
 import turtle;
 
 function main() {
-    print("Moving forward.");
-    turtle.move("forward");
+    print("Moving forward.")
+    turtle.move("forward")
 }
 ```
 
@@ -57,24 +79,24 @@ function main() {
 import turtle;
 
 function main() {
-    var blocksMined = 0;
+    var blocksMined = 0
     while (blocksMined < 5) {
-        var result = mineBelow();
+        var result = mineBelow()
         if (!result)
-            break;
+            break
         
-        turtle.move("down");
-        blocksMined = blocksMined + 1;
+        turtle.move("down")
+        blocksMined = blocksMined + 1
     }
 }
 
 function mineBelow() {
-    var blockUnder = turtle.getBlock("down");
+    var blockUnder = turtle.getBlock("down")
     if (blockUnder == "dirt") {
-        turtle.mine("down");
-        return true;
+        turtle.mine("down")
+        return true
     }
     
-    return false;
+    return false
 }
 ```
