@@ -53,9 +53,7 @@ public class Tokenizer {
 
                 if (character == '=' && tokens.peekLast() != null) {
                     String multicharSymbols = "<>=!";
-                    System.out.println("Multi char :D " + tokens.peekLast());
                     if (multicharSymbols.contains(tokens.getLast())) {
-                        System.out.println("It is a multichar!");
                         token = tokens.removeLast() + character;
                     }
                 }

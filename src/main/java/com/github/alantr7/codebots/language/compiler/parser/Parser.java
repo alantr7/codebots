@@ -174,12 +174,10 @@ public class Parser {
             return null;
         }
 
-        System.out.println("VARIABLE ASSIGN!");
         queue.advance();
         var value = nextExpression();
 
         if (value == null) {
-            System.out.println("Expression is null!");
             return null;
         }
 
@@ -189,8 +187,6 @@ public class Parser {
     private IfStatement nextIfStatement() {
         if (!queue.peek().equals("if"))
             return null;
-
-        System.out.println("IF STATEMENT!");
 
         queue.advance();
         if (!queue.peek().equals("(")) {
@@ -289,11 +285,8 @@ public class Parser {
             var next = queue.peek();
 
             queue.advance();
-            System.out.println("Expecting operator: " + expectsOperator);
-            System.out.println("Next: " + next);
 
             if (expectsOperator && !ParserHelper.isOperator(next)) {
-                System.err.println("Expected operator, got: " + next);
                 queue.rollback();
                 break;
             }
@@ -347,14 +340,12 @@ public class Parser {
 
                 if (next.startsWith("\"") && next.endsWith("\"")) {
                     postfix.add(new LiteralExpression(next.substring(1, next.length() - 1), LiteralExpression.STRING));
-                    System.out.println("It's a string :>");
                 } else {
                     queue.rollback();
                     var memberAccess = nextMemberAccessOrCall();
                     if (memberAccess == null) {
                         break;
                     } else {
-                        System.out.println("IT IS A MEMBER ACCESS :O");
                         postfix.add(memberAccess);
                     }
                 }
@@ -367,12 +358,9 @@ public class Parser {
 
         while (!stack.peek().equals("#")) {
             var pop = stack.pop();
-            System.out.println("Loop pop: " + pop);
             postfix.add(new LiteralExpression(pop, LiteralExpression.OPERATOR));
             j++;
         }
-
-        System.out.println("Postfix: " + postfix);
 
         return new PostfixExpression(postfix.toArray(Expression[]::new));
     }
