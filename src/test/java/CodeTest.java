@@ -48,22 +48,25 @@ public class CodeTest {
                   counter = counter + 1
                  
                   if (rand == input) {
-                    print("Took me X tries:")
-                    print(counter)
-                    
                     return counter
-                    print("I'm after return lol")
                   } else {
-                    getTriesUntilMatch(input, counter)
+                    return getTriesUntilMatch(input, counter)
                   }
+                }
+                
+                function noReturn() {
+                  print("I have no return :D")
                 }
                 
                 function main() {
                   var number = 17
                   var tries = getTriesUntilMatch(number, 0)
                   
-                  print("Tries: :O")
+                  print("Tries:")
                   print(tries)
+                  
+                  print("No return result:")
+                  print(noReturn())
                 }
                 """
         );

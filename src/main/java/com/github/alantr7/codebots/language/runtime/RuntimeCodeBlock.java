@@ -166,6 +166,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
             case "pop_func" -> {
                 functionStack.removeLast();
+                environment.REGISTRY_RETURN_VALUE.setValue(null);
             }
             case "call" -> {
                 var function = functionStack.getLast();
@@ -319,6 +320,8 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 // TODO: Improve this
                 if (pop.matches("\\d+")) {
                     stack.push(Integer.parseInt(pop));
+                } else if (pop.equals("null")) {
+                    stack.push(null);
                 } else {
                     stack.push(Boolean.parseBoolean(pop));
                 }

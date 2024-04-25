@@ -62,7 +62,7 @@ public class Compiler {
         } else if (statement instanceof VariableAssignStatement stmt) {
             compileExpression((PostfixExpression) stmt.getValue(), stmt.getName());
         } else if (statement instanceof FunctionCall stmt) {
-            compileFunctionCall(stmt);
+            compileFunctionCall(stmt, false);
         } else if (statement instanceof IfStatement stmt) {
             compileIfStatement(stmt);
         } else if (statement instanceof ReturnStatement stmt) {
@@ -83,7 +83,7 @@ public class Compiler {
         code.append("  push *").append(var.getName()).append("\n");
     }
 
-    private void compileFunctionCall(FunctionCall call) {
+    private void compileFunctionCall(FunctionCall call, boolean push) {
         if (!call.getTarget().getValue().equals("this")) {
             MemberAccess current = call.getTarget();
             while (current != null) {
@@ -101,9 +101,15 @@ public class Compiler {
             code.append("  set_arg ").append(i).append(" $exp1\n");
         }
 
-        code.append("  call\n  pop_func\n");
+        code.append("  call\n");
+        if (push) {
+            code.append("  push $rv\n");
+        }
+        code.append("  pop_func\n");
     }
 
+    // TODO: Problem with using $rv is that if there's no return value on a function,
+    //       $rv will have a value of a function that last returned it
     private void compileExpression(PostfixExpression expression, String registry) {
         if (expression.getValue().length == 1 && expression.getValue()[0].isLiteral()) {
             String value = expression.getValue()[0].getValue() instanceof String text ?
@@ -120,8 +126,7 @@ public class Compiler {
 
         for (var element : expression.getValue()) {
             if (element instanceof FunctionCall call) {
-                compileFunctionCall(call);
-                code.append("  push $rv\n");
+                compileFunctionCall(call, true);
                 tokens.push("pop");
             } else if (element instanceof VariableAccess member) {
                 compileVariableAccess(member);
