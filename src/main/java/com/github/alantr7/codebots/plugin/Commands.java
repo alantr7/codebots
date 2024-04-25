@@ -6,7 +6,9 @@ import com.github.alantr7.bukkitplugin.annotations.generative.Command;
 import com.github.alantr7.bukkitplugin.commands.annotations.CommandHandler;
 import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
 import com.github.alantr7.codebots.language.parser.AssemblyParser;
+import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.BlockScope;
+import com.github.alantr7.codebots.language.runtime.BlockStackEntry;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.modules.FileModule;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
@@ -83,7 +85,7 @@ public class Commands {
 
                     program.setMainModule(module);
 
-                    program.getEnvironment().getBlockStack().add(mainBlock);
+                    program.getEnvironment().getBlockStack().add(new BlockStackEntry(mainBlock, new BlockContext()));
 
                 } catch (Exception e) {
                     e.printStackTrace();

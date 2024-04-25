@@ -1,9 +1,6 @@
 package com.github.alantr7.codebots.language.runtime.modules;
 
-import com.github.alantr7.codebots.language.runtime.BlockScope;
-import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.language.runtime.RuntimeCodeBlock;
-import com.github.alantr7.codebots.language.runtime.RuntimeEnvironment;
+import com.github.alantr7.codebots.language.runtime.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,8 +30,8 @@ public abstract class Module {
 
     public void next() {
         var block = environment.getBlockStack().getLast();
-        if (block.hasNext()) {
-            block.next();
+        if (block.block().hasNext(block.context())) {
+            block.block().next(block.context());
         } else {
             environment.getBlockStack().removeLast();
         }

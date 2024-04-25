@@ -2,6 +2,7 @@ package com.github.alantr7.codebots.plugin.codeint.functions;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
+import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.plugin.BotRegistry;
@@ -40,12 +41,12 @@ public class RotateFunction extends RuntimeNativeFunction {
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNext(BlockContext context) {
         return !hasRotated;
     }
 
     @Override
-    public void next() {
+    public void next(BlockContext context) {
         var entity = bot.getEntity();
         if (ticks == 0) {
             this.initialTransformation = bot.getEntity().getTransformation();
@@ -115,12 +116,6 @@ public class RotateFunction extends RuntimeNativeFunction {
 
     public Transformation getTargetTransformation() {
         return null;
-    }
-
-    @Override
-    public void reset() {
-        this.hasRotated = false;
-        this.ticks = 0;
     }
 
 }

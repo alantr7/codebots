@@ -1,6 +1,7 @@
 package com.github.alantr7.codebots.plugin.codeint.functions;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.plugin.BotRegistry;
@@ -36,12 +37,12 @@ public class MoveFunction extends RuntimeNativeFunction {
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNext(BlockContext context) {
         return !hasMoved;
     }
 
     @Override
-    public void next() {
+    public void next(BlockContext context) {
         var bot = BotRegistry.instance.getBots().entrySet().iterator().next().getValue();
         if (ticks == 0) {
             entity = bot.getEntity();
@@ -81,12 +82,6 @@ public class MoveFunction extends RuntimeNativeFunction {
         ));
         entity.teleport(entity.getLocation().add(direction));
         hasMoved = true;
-    }
-
-    @Override
-    public void reset() {
-        this.hasMoved = false;
-        this.ticks = 0;
     }
 
 }

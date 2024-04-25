@@ -19,7 +19,7 @@ public class RuntimeEnvironment {
     private final Deque<FunctionCall> callStack = new LinkedList<>();
 
     @Getter
-    private final Deque<RuntimeCodeBlock> blockStack = new LinkedList<>();
+    private final Deque<BlockStackEntry> blockStack = new LinkedList<>();
 
     @Getter
     private final Stack<Stack<String>> tokenStack = new Stack<>();

@@ -26,12 +26,6 @@ public class RuntimeCodeBlock extends RuntimeObject {
     @Getter
     private final BlockType blockType;
 
-    private int i;
-
-    private boolean flagElse = false;
-
-    private boolean flagElseSatisfied = false;
-
     private boolean isFunction = false;
 
     @Getter @Setter
@@ -59,13 +53,14 @@ public class RuntimeCodeBlock extends RuntimeObject {
         environment.REGISTRY_CURRENT_SCOPE.setValue(this);
     }
 
-    public boolean hasNext() {
-        return i < block.length;
+    public boolean hasNext(BlockContext context) {
+        return context.getLineIndex() < block.length;
     }
 
-    public void next() {
+    public void next(BlockContext context) {
+        int i = context.getLineIndex();
         try {
-            _execute();
+            _execute(context);
         } catch (ExecutionException e) {
             var stackTrace = generateStackTrace();
             System.err.println("Error while executing \"" + block[i] + "\": " + e.getMessage());
@@ -79,21 +74,16 @@ public class RuntimeCodeBlock extends RuntimeObject {
             environment.getBlockStack().clear();
         } finally {
         }
-        i++;
+        context.advance();
     }
 
-    public void reset() {
-        i = 0;
-    }
-
-    private void _execute() throws Exception {
+    private void _execute(BlockContext context) throws Exception {
         var functionStack = environment.getCallStack();
 
+        final int i = context.getLineIndex();
         var sentence = block[i];
         if (sentence instanceof RuntimeCodeBlock block1) {
-            block1.reset();
-            environment.getBlockStack().add(block1);
-
+            environment.getBlockStack().add(new BlockStackEntry(block1, new BlockContext()));
             environment.REGISTRY_CURRENT_SCOPE.setValue(block1);
             return;
         }
@@ -111,7 +101,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 holder.setValue(module.getBlock());
                 setValue(tokens[2], holder);
 
-                environment.getBlockStack().add(module.getBlock());
+                environment.getBlockStack().add(new BlockStackEntry(module.getBlock(), new BlockContext()));
             }
 
             case "define_var" -> {
@@ -143,7 +133,10 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 Assertions.assertType(environment.REGISTRY_CURRENT_VALUE, ValueType.STRING, "Type mismatch.");
                 setValue(tokens[1], ((String) scope.getVariable(tokens[1]).getValue()) + environment.REGISTRY_CURRENT_VALUE.getValue());
             }
-            case "sleep" -> environment.getBlockStack().add(new RuntimeSleepFunction(program, Integer.parseInt(tokens[1])));
+            case "sleep" -> environment.getBlockStack().add(new BlockStackEntry(
+                    new RuntimeSleepFunction(program, Integer.parseInt(tokens[1])),
+                    new BlockContext())
+            );
 
             case "push_stack" -> environment.getTokenStack().push(new Stack<>());
             case "pop_stack" -> environment.getTokenStack().pop();
@@ -179,9 +172,8 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 var function = functionStack.getLast();
                 var functionBlock = function.getScope().getFunction(function.getFunction());
                 System.out.println("Calling function : " + function.getFunction());
-                functionBlock.reset();
 
-                environment.getBlockStack().add(functionBlock);
+                environment.getBlockStack().add(new BlockStackEntry(functionBlock, new BlockContext()));
             }
             case "define_func" -> {
                 var name = tokens[1];
@@ -191,7 +183,8 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
                 scope.setFunction(name, functionBody);
                 // Skip the next part
-                i++;
+
+                context.advance();
             }
             case "return" -> {
                 // So, here, it should remove all code blocks from stack until it reaches a function
@@ -202,7 +195,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                     var block = iterator.next();
                     iterator.remove();
 
-                    if (block.isFunction) {
+                    if (block.block().isFunction) {
                         break;
                     }
                 }
@@ -222,27 +215,29 @@ public class RuntimeCodeBlock extends RuntimeObject {
             case "if" -> {
                 if (testIfStatement(tokens)) {
                     System.out.println("TRUE!");
-                    var nextBlock = ((RuntimeCodeBlock) block[++i]);
-                    nextBlock.reset();
+                    var nextBlock = ((RuntimeCodeBlock) block[context.advanceAndGet()]);
 
-                    environment.getBlockStack().add(nextBlock);
+                    environment.getBlockStack().add(new BlockStackEntry(nextBlock, new BlockContext()));
                     return;
                 } else {
                     System.out.println("NOT TRUE: " + getValue(tokens[1]) + " != " + getValue(tokens[2]));
-                    i++; // Skip next!
-                    flagElse = true;
+                    context.advance(); // Skip next!
+                    context.setFlag(BlockContext.FLAG_ELSE, true);
 
                     return;
                 }
             }
 
             case "else" -> {
-                if (!flagElse) {
-                    i++;
+                if (!context.getFlag(BlockContext.FLAG_ELSE)) {
+                    System.out.println("SKIPPING ELSE: " + this.block[context.getLineIndex() + 1]);
+                    context.advance();
                     return;
+                } else {
+                    System.out.println("ELSE FLAG IS TRUE!");
                 }
 
-                flagElseSatisfied = true;
+                context.setFlag(BlockContext.FLAG_ELSE_SATISFIED, true);
             }
 
             case "goto" -> {
@@ -251,12 +246,14 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
                 var iterator = environment.getBlockStack().descendingIterator();
                 while (iterator.hasNext()) {
-                    var block = iterator.next();
+                    var block = iterator.next().block();
                     var position = block.labelPositions.get(label);
 
                     if (position != null) {
+                        /*
                         block.i = position;
                         ((RuntimeCodeBlock) block.block[position]).reset();
+                         */
                         break;
                     } else {
                         iterator.remove();
@@ -273,7 +270,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 var iterator = environment.getBlockStack().descendingIterator();
                 while (iterator.hasNext()) {
                     var block = iterator.next();
-                    var position = block.labelPositions.get(label);
+                    var position = block.block().labelPositions.get(label);
 
                     if (position != null) {
                         break;
@@ -288,12 +285,9 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
         }
 
-        if (flagElse && !flagElseSatisfied) {
-            flagElse = false;
+        if (context.getFlag(BlockContext.FLAG_ELSE) && !context.getFlag(BlockContext.FLAG_ELSE_SATISFIED)) {
+            context.setFlag(BlockContext.FLAG_ELSE, false);
         }
-
-        int a = 5;
-        a++;
     }
 
     private void mathOperation(String[] tokens, int operationIndex) throws Exception {
@@ -427,18 +421,18 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
         int i = 0;
 
-        for (Iterator<RuntimeCodeBlock> it = stack.descendingIterator(); it.hasNext(); i++) {
+        for (Iterator<BlockStackEntry> it = stack.descendingIterator(); it.hasNext(); i++) {
             var entry = it.next();
             RuntimeInstruction lastInstruction;
 
             if (i == 0) {
-                lastInstruction = entry.block[entry.i];
+                lastInstruction = entry.block().block[entry.context().getLineIndex()];
             } else {
-                lastInstruction = entry.block[entry.i - 1];
+                lastInstruction = entry.block().block[entry.context().getLineIndex() - 1];
             }
 
-            if (entry.isFunction) {
-                trace[i] = entry.functionName + "(): " + lastInstruction.toString();
+            if (entry.block().isFunction) {
+                trace[i] = entry.block().functionName + "(): " + lastInstruction.toString();
             } else {
                 trace[i] = entry.toString() + ": " + lastInstruction.toString();
             }

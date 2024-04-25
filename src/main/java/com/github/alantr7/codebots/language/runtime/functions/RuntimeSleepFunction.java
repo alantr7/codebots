@@ -1,10 +1,9 @@
 package com.github.alantr7.codebots.language.runtime.functions;
 
+import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.Program;
 
 public class RuntimeSleepFunction extends RuntimeNativeFunction {
-
-    private int ticks = 0;
 
     private final int duration;
 
@@ -14,18 +13,13 @@ public class RuntimeSleepFunction extends RuntimeNativeFunction {
     }
 
     @Override
-    public boolean hasNext() {
-        return ticks < duration;
+    public boolean hasNext(BlockContext context) {
+        return context.getLineIndex() < duration;
     }
 
     @Override
-    public void next() {
-        ticks++;
-    }
-
-    @Override
-    public void reset() {
-        ticks = 0;
+    public void next(BlockContext context) {
+        context.advance();
     }
 
 }

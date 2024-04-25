@@ -6,8 +6,6 @@ import java.util.function.Function;
 
 public class RuntimeNativeFunction extends RuntimeCodeBlock {
 
-    private boolean isExecuted = false;
-
     private final Function<Object[], Object> handler;
 
     public RuntimeNativeFunction(Program program, String label, Function<Object[], Object> handler) {
@@ -16,23 +14,17 @@ public class RuntimeNativeFunction extends RuntimeCodeBlock {
     }
 
     @Override
-    public boolean hasNext() {
-        return !isExecuted;
+    public boolean hasNext(BlockContext context) {
+        return context.getLineIndex() == 0;
     }
 
     @Override
-    public void next() {
+    public void next(BlockContext context) {
         var function = environment.getCallStack().getLast();
         var result = handler.apply(function.getArguments());
 
         environment.REGISTRY_RETURN_VALUE.setValue(result);
-        isExecuted = true;
-    }
-
-    @Override
-    public void reset() {
-        super.reset();
-        isExecuted = false;
+        context.advance();
     }
 
 }

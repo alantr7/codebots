@@ -2,6 +2,8 @@ import com.github.alantr7.codebots.language.compiler.Compiler;
 import com.github.alantr7.codebots.language.compiler.Tokenizer;
 import com.github.alantr7.codebots.language.compiler.parser.Parser;
 import com.github.alantr7.codebots.language.parser.AssemblyParser;
+import com.github.alantr7.codebots.language.runtime.BlockContext;
+import com.github.alantr7.codebots.language.runtime.BlockStackEntry;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.modules.MemoryModule;
@@ -15,7 +17,11 @@ public class CodeTest {
 
     @Test
     public void testIfElseIfElse() throws Exception {
-        testCode("""                
+        testCode("""
+                function a(counter) {
+                  
+                }
+                                
                 function main() {
                   var number = random(100)
                   if (number < 30) {
@@ -26,8 +32,9 @@ public class CodeTest {
                   }
                   else {
                     print("Less than 100!")
-                    main()
                   }
+                  
+                  a(0)
                 }
                 """
         );
@@ -37,19 +44,14 @@ public class CodeTest {
     public void testRecursiveness() throws Exception {
         testCode("""
                 function getTriesUntilMatch(input, counter) {
-                  var rand = random(50)
+                  var rand = random(20)
                   counter = counter + 1
-                  
-                  if (rand < input) {
-                    print("IT IS LESS THAN THAT!")
+                 
+                  if (rand == input) {
+                    print("Took me X tries:")
                     print(counter)
                   } else {
-                    if (counter < 100) {
-                      getTriesUntilMatch(input, counter)
-                    } else {
-                      print(counter)
-                      print("Counter is greater than 100")
-                    }
+                    getTriesUntilMatch(input, counter)
                   }
                 }
                 
@@ -74,13 +76,13 @@ public class CodeTest {
 
         program.registerNativeModule("math", new MathModule(program));
         program.setMainModule(new MemoryModule(program, block));
-        program.getEnvironment().getBlockStack().add(block);
+        program.getEnvironment().getBlockStack().add(new BlockStackEntry(block, new BlockContext()));
         program.getRootScope().setFunction("random", program.getOrLoadModule("math").getBlock().getFunction("random"));
 
         program.executeEverything();
 
         var main = block.getFunction("main");
-        program.getEnvironment().getBlockStack().add(main);
+        program.getEnvironment().getBlockStack().add(new BlockStackEntry(main, new BlockContext()));
         program.getEnvironment().getCallStack().add(new FunctionCall(main.getScope(), "main"));
 
         program.executeEverything();
