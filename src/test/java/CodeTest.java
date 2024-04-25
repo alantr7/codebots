@@ -50,6 +50,9 @@ public class CodeTest {
                   if (rand == input) {
                     print("Took me X tries:")
                     print(counter)
+                    
+                    return counter
+                    print("I'm after return lol")
                   } else {
                     getTriesUntilMatch(input, counter)
                   }
@@ -57,7 +60,10 @@ public class CodeTest {
                 
                 function main() {
                   var number = 17
-                  getTriesUntilMatch(number, 0)
+                  var tries = getTriesUntilMatch(number, 0)
+                  
+                  print("Tries: :O")
+                  print(tries)
                 }
                 """
         );

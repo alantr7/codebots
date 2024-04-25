@@ -115,10 +115,15 @@ public class Parser {
         return new Function(name, parameters.toArray(new String[0]), statements.toArray(new Statement[0]));
     }
 
+    // TODO: Parse statement by peeking at the next identifier
     private Statement nextStatement() {
         Statement stmt;
 
         stmt = nextVariableDeclare();
+        if (stmt != null)
+            return stmt;
+
+        stmt = nextReturnStatement();
         if (stmt != null)
             return stmt;
 
@@ -253,6 +258,21 @@ public class Parser {
         }
 
         return new IfStatement(condition, statements.toArray(new Statement[0]), nextIf, elseStatements.toArray(new Statement[0]));
+    }
+
+    private Statement nextReturnStatement() {
+        if (!queue.peek().equals("return"))
+            return null;
+
+        queue.advance();
+
+        var value = nextExpression();
+        if (value == null) {
+            System.err.println("Invalid expression for return statement.");
+            return null;
+        }
+
+        return new ReturnStatement(value);
     }
 
     private Expression nextExpression() {

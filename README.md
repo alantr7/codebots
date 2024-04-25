@@ -8,6 +8,7 @@ Script language is still very experimental, and many features are missing! Pleas
 - If, else-if, else statements
 - Importing standard modules
 - Recursiveness
+- Return statements
 
 #### Yet to be implemented
 - String concatenation

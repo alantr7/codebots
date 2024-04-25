@@ -280,6 +280,17 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 }
             }
 
+            case "exit_func" -> {
+                var iterator = environment.getBlockStack().descendingIterator();
+                while (iterator.hasNext()) {
+                    var block = iterator.next();
+                    iterator.remove();
+                    if (block.block().isFunction) {
+                        break;
+                    }
+                }
+            }
+
             default -> {
                 System.err.println("Unknown instruction: " + instruction);;
             }

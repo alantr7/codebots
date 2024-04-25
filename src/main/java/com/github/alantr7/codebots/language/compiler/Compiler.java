@@ -65,6 +65,8 @@ public class Compiler {
             compileFunctionCall(stmt);
         } else if (statement instanceof IfStatement stmt) {
             compileIfStatement(stmt);
+        } else if (statement instanceof ReturnStatement stmt) {
+            compileReturnStatement(stmt);
         }
     }
 
@@ -155,6 +157,11 @@ public class Compiler {
             }
             code.append("  end\n");
         }
+    }
+
+    private void compileReturnStatement(ReturnStatement stmt) {
+        compileExpression((PostfixExpression) stmt.getValue(), "$rv");
+        code.append("  exit_func\n");
     }
 
 }
