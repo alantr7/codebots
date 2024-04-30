@@ -241,14 +241,15 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
                 var iterator = environment.getBlockStack().descendingIterator();
                 while (iterator.hasNext()) {
-                    var block = iterator.next().block();
-                    var position = block.labelPositions.get(label);
+                    var entry = iterator.next();
+                    var position = entry.block().labelPositions.get(label);
 
                     if (position != null) {
-                        /*
-                        block.i = position;
-                        ((RuntimeCodeBlock) block.block[position]).reset();
-                         */
+                        var ctx = new BlockContext(entry.context().getScope());
+                        ctx.setLineIndex(position);
+
+                        iterator.remove();
+                        environment.getBlockStack().add(new BlockStackEntry(entry.block(), ctx));
                         break;
                     } else {
                         iterator.remove();

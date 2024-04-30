@@ -91,6 +91,31 @@ public class CodeTest {
                 """);
     }
 
+    @Test
+    public void testWhileLoop() throws Exception {
+        testCode("""
+                function getTriesUntilMatch(input) {
+                  var counter = 1
+                  var number = random(20)
+                  
+                  while (number != input) {
+                    number = random(20)
+                    counter = counter + 1
+                  }
+                  
+                  return counter
+                }
+                
+                function main() {
+                  var toMatch = 15
+                  print("Matching: " + toMatch)
+                  print("----------------")
+                  
+                  print("Took " + getTriesUntilMatch(toMatch) + " random attempts to match the given number")
+                }
+                """);
+    }
+
     private void testCode(String code) throws Exception {
         var tokens = Tokenizer.tokenize(code.split("\n"));
         var parser = new Parser();

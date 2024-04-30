@@ -135,6 +135,10 @@ public class Parser {
         if (stmt != null)
             return stmt;
 
+        stmt = nextWhileLoop();
+        if (stmt != null)
+            return stmt;
+
         stmt = (Statement) nextFunctionCall();
         if (stmt == null)
             return null;
@@ -269,6 +273,53 @@ public class Parser {
         }
 
         return new ReturnStatement(value);
+    }
+
+    private WhileLoopStatement nextWhileLoop() {
+        if (!queue.peek().equals("while"))
+            return null;
+
+        queue.advance();
+        if (!queue.peek().equals("(")) {
+            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '('.");
+            return null;
+        }
+        queue.advance();
+
+        var condition = nextExpression();
+        if (condition == null) {
+            System.err.println("Invalid syntax!");
+            return null;
+        }
+
+        if (!queue.peek().equals(")")) {
+            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting ')'.");
+            return null;
+        }
+        queue.advance();
+
+        if (!queue.peek().equals("{")) {
+            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '{'.");
+            return null;
+        }
+        queue.advance();
+
+        var statements = new LinkedList<Statement>();
+        while (true) {
+            var stmt = nextStatement();
+            if (stmt == null)
+                break;
+
+            statements.add(stmt);
+        }
+
+        if (!queue.peek().equals("}")) {
+            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '}'.");
+            return null;
+        }
+        queue.advance();
+
+        return new WhileLoopStatement(condition, statements.toArray(new Statement[0]));
     }
 
     private Expression nextExpression() {

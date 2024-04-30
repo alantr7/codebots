@@ -1,10 +1,11 @@
 package com.github.alantr7.codebots.language.runtime;
 
 import lombok.Getter;
+import lombok.Setter;
 
 public class BlockContext {
 
-    @Getter
+    @Getter @Setter
     private int lineIndex = 0;
 
     private int flags = 0;

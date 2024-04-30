@@ -67,6 +67,8 @@ public class Compiler {
             compileIfStatement(stmt);
         } else if (statement instanceof ReturnStatement stmt) {
             compileReturnStatement(stmt);
+        } else if (statement instanceof WhileLoopStatement stmt) {
+            compileWhileLoop(stmt);
         }
     }
 
@@ -106,6 +108,22 @@ public class Compiler {
             code.append("  push $rv\n");
         }
         code.append("  pop_func\n");
+    }
+
+    private void compileWhileLoop(WhileLoopStatement loop) {
+        code.append("  begin loop1\n");
+        compileExpression((PostfixExpression) loop.getExpression(), "$exp1");
+        code.append("  if $exp1 false\n");
+        code.append("  begin\n");
+        code.append("  exit loop1\n");
+        code.append("  end\n");
+
+        for (var stmt : loop.getBody()) {
+            compileStatement(stmt);
+        }
+
+        code.append("  goto loop1\n");
+        code.append("  end\n");
     }
 
     // TODO: Problem with using $rv is that if there's no return value on a function,
