@@ -96,8 +96,7 @@ public class Program {
         var module = new FileModule(program, file, moduleBlock);
         program.setMainModule(module);
 
-        program.getEnvironment().getBlockStack().add(new BlockStackEntry(moduleBlock, new BlockContext()));
-
+        program.getEnvironment().getBlockStack().add(new BlockStackEntry(moduleBlock, new BlockContext(BlockScope.nestIn(program.getRootScope()))));
         return program;
     }
 

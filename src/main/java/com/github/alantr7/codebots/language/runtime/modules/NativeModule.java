@@ -9,7 +9,7 @@ public class NativeModule extends Module {
     }
 
     private NativeModule(Program program, BlockScope scope) {
-        super(program, scope, new RuntimeCodeBlock(program, "__main__", scope, BlockType.MAIN, new RuntimeInstruction[0]));
+        super(program, scope, new RuntimeCodeBlock(program, "__main__", BlockType.MAIN, new RuntimeInstruction[0]));
     }
 
 }

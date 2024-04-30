@@ -3,6 +3,7 @@ import com.github.alantr7.codebots.language.compiler.Tokenizer;
 import com.github.alantr7.codebots.language.compiler.parser.Parser;
 import com.github.alantr7.codebots.language.parser.AssemblyParser;
 import com.github.alantr7.codebots.language.runtime.BlockContext;
+import com.github.alantr7.codebots.language.runtime.BlockScope;
 import com.github.alantr7.codebots.language.runtime.BlockStackEntry;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
@@ -14,6 +15,26 @@ import org.junit.Test;
 import java.io.File;
 
 public class CodeTest {
+
+    @Test
+    public void testVariableScopes() throws Exception {
+        testCode("""                
+                function testIfPersists(num) {
+                  var a = 20
+                  if (num == 0) {
+                    a = 10
+                    testIfPersists(1)
+                  }
+                  
+                  print("Attempt #" + num)
+                  print(a)
+                }
+                
+                function main() {
+                  testIfPersists(0)
+                }
+                """);
+    }
 
     @Test
     public void testIfElseIfElse() throws Exception {
@@ -54,19 +75,11 @@ public class CodeTest {
                   }
                 }
                 
-                function noReturn() {
-                  print("I have no return :D")
-                }
-                
                 function main() {
                   var number = 17
                   var tries = getTriesUntilMatch(number, 0)
                   
-                  print("Tries:")
-                  print(tries)
-                  
-                  print("No return result:")
-                  print(noReturn())
+                  print("Tries: " + tries)
                 }
                 """
         );
@@ -84,15 +97,21 @@ public class CodeTest {
         var block = AssemblyParser.parseCodeBlock(program, compiled);
 
         program.registerNativeModule("math", new MathModule(program));
-        program.setMainModule(new MemoryModule(program, block));
-        program.getEnvironment().getBlockStack().add(new BlockStackEntry(block, new BlockContext()));
-        program.getRootScope().setFunction("random", program.getOrLoadModule("math").getBlock().getFunction("random"));
+
+        var module = new MemoryModule(program, block);
+        program.setMainModule(module);
+        module.getRootScope().setModule(module);
+
+        program.getEnvironment().getBlockStack().add(new BlockStackEntry(block, new BlockContext(module.getRootScope())));
+        program.getRootScope().setFunction("random", program.getOrLoadModule("math").getRootScope().getFunction("random"));
 
         program.executeEverything();
 
-        var main = block.getFunction("main");
-        program.getEnvironment().getBlockStack().add(new BlockStackEntry(main, new BlockContext()));
-        program.getEnvironment().getCallStack().add(new FunctionCall(main.getScope(), "main"));
+        var main = module.getRootScope().getFunction("main");
+        System.out.println("Main function: " + main);
+
+        program.getEnvironment().getBlockStack().add(new BlockStackEntry(main, new BlockContext(BlockScope.nestIn(module.getRootScope()))));
+        program.getEnvironment().getCallStack().add(new FunctionCall(module.getRootScope(), "main"));
 
         program.executeEverything();
     }

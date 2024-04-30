@@ -9,7 +9,7 @@ public class RuntimeNativeFunction extends RuntimeCodeBlock {
     private final Function<Object[], Object> handler;
 
     public RuntimeNativeFunction(Program program, String label, Function<Object[], Object> handler) {
-        super(program, label, program.getRootScope(), BlockType.FUNCTION, new RuntimeInstruction[0]);
+        super(program, label, BlockType.FUNCTION, new RuntimeInstruction[0]);
         this.handler = handler;
     }
 

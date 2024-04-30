@@ -18,7 +18,7 @@ public class Compiler {
                     .append(importS.getAlias())
                     .append("\n")
                     .append("import ").append(importS.getName())
-                    .append(" $").append(importS.getAlias())
+                    .append(" ").append(importS.getAlias())
                     .append("\n");
         }
 
@@ -87,11 +87,11 @@ public class Compiler {
         if (!call.getTarget().getValue().equals("this")) {
             MemberAccess current = call.getTarget();
             while (current != null) {
-                code.append("  set $cs ").append(current.getValue()).append("\n");
+                code.append("  set $cs *").append(current.getValue()).append("\n");
                 current = current.getRight();
             }
         } else {
-            code.append("  set $cs #cs\n");
+            code.append("  set $cs #this_module\n");
         }
         code.append("  push_func ").append(call.getValue()).append("\n");
         Expression[] arguments = call.getArguments();
@@ -130,6 +130,9 @@ public class Compiler {
                 tokens.push("pop");
             } else if (element instanceof VariableAccess member) {
                 compileVariableAccess(member);
+                tokens.push("pop");
+            } else if (element instanceof LiteralExpression literal && literal.getValue() instanceof String text && text.contains(" ")) {
+                code.append("  push \"").append(text).append("\"\n");
                 tokens.push("pop");
             } else {
                 tokens.push(element.getValue().toString());

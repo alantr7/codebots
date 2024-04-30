@@ -30,6 +30,7 @@ public abstract class Module {
 
     public void next() {
         var block = environment.getBlockStack().getLast();
+
         if (block.block().hasNext(block.context())) {
             block.block().next(block.context());
         } else {

@@ -2,6 +2,7 @@ package com.github.alantr7.codebots.language.parser;
 
 import com.github.alantr7.codebots.language.runtime.*;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
+import com.github.alantr7.codebots.language.runtime.modules.Module;
 
 import java.util.Arrays;
 import java.util.Deque;
@@ -64,7 +65,7 @@ public class AssemblyParser {
 
             if (instruction.equals("end")) {
                 return new ParseResult(
-                        new RuntimeCodeBlock(program, label, scope, type, block.toArray(new RuntimeInstruction[0])),
+                        new RuntimeCodeBlock(program, label, type, block.toArray(new RuntimeInstruction[0])),
                         i
                 );
             }
@@ -75,7 +76,7 @@ public class AssemblyParser {
 //        var blockScope = new BlockScope();
 //        blockScope.setParent(scope);
         return new ParseResult(
-                new RuntimeCodeBlock(program, label, scope, type, block.toArray(RuntimeInstruction[]::new)),
+                new RuntimeCodeBlock(program, label, type, block.toArray(RuntimeInstruction[]::new)),
                 input.length
         );
     }

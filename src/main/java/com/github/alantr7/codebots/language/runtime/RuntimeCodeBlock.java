@@ -5,6 +5,7 @@ import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeSleepFunction;
+import com.github.alantr7.codebots.language.runtime.modules.Module;
 import com.github.alantr7.codebots.language.runtime.utils.Calculator;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,14 +22,12 @@ public class RuntimeCodeBlock extends RuntimeObject {
     private final RuntimeInstruction[] block;
 
     @Getter
-    private final BlockScope scope;
-
-    @Getter
     private final BlockType blockType;
 
     private boolean isFunction = false;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private String functionName;
 
     @Getter
@@ -36,11 +35,10 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
     private final Map<String, Integer> labelPositions = new LinkedHashMap<>();
 
-    public RuntimeCodeBlock(Program program, String label, BlockScope scope, BlockType blockType, RuntimeInstruction[] block) {
+    public RuntimeCodeBlock(Program program, String label, BlockType blockType, RuntimeInstruction[] block) {
         this.program = program;
         this.environment = program.getEnvironment();
         this.label = label;
-        this.scope = scope;
         this.blockType = blockType;
         this.block = block;
 
@@ -82,9 +80,12 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
         final int i = context.getLineIndex();
         var sentence = block[i];
+
+        var scope = context.getScope();
         if (sentence instanceof RuntimeCodeBlock block1) {
-            environment.getBlockStack().add(new BlockStackEntry(block1, new BlockContext()));
+            environment.getBlockStack().add(new BlockStackEntry(block1, new BlockContext(BlockScope.nestIn(scope))));
             environment.REGISTRY_CURRENT_SCOPE.setValue(block1);
+
             return;
         }
 
@@ -97,11 +98,11 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 var module = program.getOrLoadModule(relative);
                 Assertions.assertNotNull(module, "Module not found.");
 
-                var holder = new RuntimeVariable(ValueType.CODE_BLOCK);
-                holder.setValue(module.getBlock());
-                setValue(tokens[2], holder);
+                var holder = new RuntimeVariable(ValueType.MODULE);
+                holder.setValue(module);
+                setValue(context, tokens[2], holder);
 
-                environment.getBlockStack().add(new BlockStackEntry(module.getBlock(), new BlockContext()));
+                environment.getBlockStack().add(new BlockStackEntry(module.getBlock(), new BlockContext(BlockScope.nestIn(program.getRootScope()))));
             }
 
             case "define_var" -> {
@@ -110,48 +111,49 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 scope.setVariable(tokens[1], new RuntimeVariable(ValueType.ANY));
             }
             case "add" -> {
-                mathOperation(tokens, 0);
+                mathOperation(context, tokens, 0);
             }
             case "sub" -> {
-                mathOperation(tokens, 1);
+                mathOperation(context, tokens, 1);
             }
             case "mul" -> {
-                mathOperation(tokens, 2);
+                mathOperation(context, tokens, 2);
             }
             case "div" -> {
-                mathOperation(tokens, 3);
+                mathOperation(context, tokens, 3);
             }
             case "mod" -> {
                 scope.getVariable(tokens[1])
-                        .setValue((int) scope.getVariable(tokens[1]).getValue() % (int) getValue(tokens[2]));
+                        .setValue((int) scope.getVariable(tokens[1]).getValue() % (int) getValue(context, tokens[2]));
             }
             case "inc" -> {
-                System.out.println("I: " + getVariable("i"));
+                System.out.println("I: " + scope.getVariable("i"));
                 scope.getVariable(tokens[1]).setValue(((int) scope.getVariable(tokens[1]).getValue()) + 1);
             }
             case "concat" -> {
                 Assertions.assertType(environment.REGISTRY_CURRENT_VALUE, ValueType.STRING, "Type mismatch.");
-                setValue(tokens[1], ((String) scope.getVariable(tokens[1]).getValue()) + environment.REGISTRY_CURRENT_VALUE.getValue());
+                setValue(context, tokens[1], ((String) scope.getVariable(tokens[1]).getValue()) + environment.REGISTRY_CURRENT_VALUE.getValue());
             }
             case "sleep" -> environment.getBlockStack().add(new BlockStackEntry(
                     new RuntimeSleepFunction(program, Integer.parseInt(tokens[1])),
-                    new BlockContext())
+                    new BlockContext(BlockScope.nestIn(program.getRootScope())))
             );
 
             case "push_stack" -> environment.getTokenStack().push(new Stack<>());
             case "pop_stack" -> environment.getTokenStack().pop();
             case "push" -> {
-                environment.getTokenStack().peek().push(String.valueOf(getValue(tokens[1])));
+                environment.getTokenStack().peek().push(String.valueOf(getValue(context, tokens[1])));
             }
 
             case "eval" -> {
                 var expression = Arrays.copyOfRange(tokens, 2, tokens.length);
-                evaluateExpression(tokens[1], expression);
+                evaluateExpression(context, tokens[1], expression);
             }
 
             case "push_func" -> {
-                var object = (RuntimeCodeBlock) environment.REGISTRY_CURRENT_SCOPE.getValue();
-                functionStack.add(new FunctionCall(object.scope, tokens[1]));
+                // TODO: Function calls
+                var object = environment.REGISTRY_CURRENT_SCOPE.getValue();
+                functionStack.add(new FunctionCall(((Module) object).getRootScope(), tokens[1]));
             }
             case "use_arg" -> {
                 var function = functionStack.getLast();
@@ -159,10 +161,10 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
             case "unload_arg" -> {
                 var function = functionStack.getLast();
-                setValue(tokens[2], function.getArguments()[Integer.parseInt(tokens[1])]);
+                setValue(context, tokens[2], function.getArguments()[Integer.parseInt(tokens[1])]);
             }
             case "set_arg" -> {
-                functionStack.getLast().setArgument(Integer.parseInt(tokens[1]), getValue(tokens[2]));
+                functionStack.getLast().setArgument(Integer.parseInt(tokens[1]), getValue(context, tokens[2]));
             }
             case "pop_func" -> {
                 functionStack.removeLast();
@@ -172,7 +174,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 var function = functionStack.getLast();
                 var functionBlock = function.getScope().getFunction(function.getFunction());
 
-                environment.getBlockStack().add(new BlockStackEntry(functionBlock, new BlockContext()));
+                environment.getBlockStack().add(new BlockStackEntry(functionBlock, new BlockContext(BlockScope.nestIn(function.getScope()))));
             }
             case "define_func" -> {
                 var name = tokens[1];
@@ -187,7 +189,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
             case "return" -> {
                 // So, here, it should remove all code blocks from stack until it reaches a function
-                setValue("$rv", getValue(tokens[1]));
+                setValue(context, "$rv", getValue(context, tokens[1]));
 
                 var iterator = environment.getBlockStack().descendingIterator();
                 while (iterator.hasNext()) {
@@ -200,11 +202,11 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 }
             }
             case "unload_rv" -> {
-                setValue(tokens[1], environment.REGISTRY_RETURN_VALUE.getValue());
+                setValue(context, tokens[1], environment.REGISTRY_RETURN_VALUE.getValue());
             }
 
             case "set" -> {
-                setValue(tokens[1], getValue(tokens[2]));
+                setValue(context, tokens[1], getValue(context, tokens[2]));
             }
             case "reset" -> {
                 // TODO: Use 'set $cv NULL'
@@ -212,9 +214,9 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
 
             case "if" -> {
-                if (testIfStatement(tokens)) {
+                if (testIfStatement(context, tokens)) {
                     var nextBlock = ((RuntimeCodeBlock) block[context.advanceAndGet()]);
-                    environment.getBlockStack().add(new BlockStackEntry(nextBlock, new BlockContext()));
+                    environment.getBlockStack().add(new BlockStackEntry(nextBlock, new BlockContext(BlockScope.nestIn(scope))));
                     return;
                 } else {
                     context.advance(); // Skip next!
@@ -285,7 +287,8 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
 
             default -> {
-                System.err.println("Unknown instruction: " + instruction);;
+                System.err.println("Unknown instruction: " + instruction);
+                ;
             }
         }
 
@@ -294,16 +297,16 @@ public class RuntimeCodeBlock extends RuntimeObject {
         }
     }
 
-    private void mathOperation(String[] tokens, int operationIndex) throws Exception {
+    private void mathOperation(BlockContext context, String[] tokens, int operationIndex) throws Exception {
         var operation = Calculator.operations()[operationIndex];
-        var num1 = getValue(tokens[2]);
-        var num2 = getValue(tokens[3]);
+        var num1 = getValue(context, tokens[2]);
+        var num2 = getValue(context, tokens[3]);
 
         var result = operation.perform(num1, num2);
-        setValue(tokens[1], result);
+        setValue(context, tokens[1], result);
     }
 
-    private void evaluateExpression(String registry, String[] expressions) throws Exception {
+    private void evaluateExpression(BlockContext context, String registry, String[] expressions) throws Exception {
         var stack = new Stack<>();
         var tokenStack = environment.getTokenStack().peek();
 
@@ -318,38 +321,49 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 var pop = tokenStack.pop();
 
                 // TODO: Improve this
-                if (pop.matches("\\d+")) {
+                if (ParserHelper.isNumber(pop)) {
                     stack.push(Integer.parseInt(pop));
+                } else if (ParserHelper.isBoolean(pop)) {
+                    stack.push(Boolean.parseBoolean(pop));
                 } else if (pop.equals("null")) {
                     stack.push(null);
                 } else {
-                    stack.push(Boolean.parseBoolean(pop));
+                    stack.push(pop);
                 }
             } else {
                 // It's an operator
                 operand2 = stack.pop();
                 operand1 = stack.pop();
 
-                switch (literal) {
-                    case "+" -> stack.push((int) operand1 + (int) operand2);
-                    case "-" -> stack.push((int) operand1 - (int) operand2);
-                    case "*" -> stack.push((int) operand1 * (int) operand2);
-                    case "/" -> stack.push((int) operand1 / (int) operand2);
-                    case "==" -> stack.push(operand1 == operand2);
-                    case "!=" -> stack.push(operand1 != operand2);
-                    case "<" -> stack.push((int) operand1 < (int) operand2);
-                    case ">" -> stack.push((int) operand1 > (int) operand2);
-                    case "<=" -> stack.push((int) operand1 <= (int) operand2);
-                    case ">=" -> stack.push((int) operand1 >= (int) operand2);
+                if (operand1 instanceof String || operand2 instanceof String) {
+                    switch (literal) {
+                        case "+" -> stack.push(String.valueOf(operand2) + operand1);
+                        case "==" -> stack.push(Objects.equals(operand1, operand2));
+                        case "!=" -> stack.push(!Objects.equals(operand1, operand2));
+                    }
+                } else {
+                    switch (literal) {
+                        case "+" -> stack.push((int) operand1 + (int) operand2);
+                        case "-" -> stack.push((int) operand1 - (int) operand2);
+                        case "*" -> stack.push((int) operand1 * (int) operand2);
+                        case "/" -> stack.push((int) operand1 / (int) operand2);
+                        case "==" -> stack.push(operand1 == operand2);
+                        case "!=" -> stack.push(operand1 != operand2);
+                        case "<" -> stack.push((int) operand1 < (int) operand2);
+                        case ">" -> stack.push((int) operand1 > (int) operand2);
+                        case "<=" -> stack.push((int) operand1 <= (int) operand2);
+                        case ">=" -> stack.push((int) operand1 >= (int) operand2);
+                    }
                 }
             }
         }
 
-        setValue(registry, stack.peek());
+        setValue(context, registry, stack.peek());
 //        System.out.println("Evaluated expression. Result: " + stack.peek());
     }
 
-    private Object getValue(String raw) {
+    private Object getValue(BlockContext context, String raw) {
+        var scope = context.getScope();
         char firstCharacter = raw.charAt(0);
         return switch (firstCharacter) {
             case '$' -> {
@@ -359,7 +373,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
             case '&' -> scope.getVariable(raw.substring(1));
             case '*' -> scope.getVariable(raw.substring(1)).getValue();
-            case '#' -> this;
+            case '#' -> scope.getModule();
             default -> switch (raw) {
                 case "true" -> true;
                 case "false" -> false;
@@ -373,20 +387,8 @@ public class RuntimeCodeBlock extends RuntimeObject {
         };
     }
 
-    protected RuntimeVariable findVariableInScope(String raw) {
-        char firstCharacter = raw.charAt(0);
-        return switch (firstCharacter) {
-            case '$' -> {
-                // Get value from the registry
-                var name = raw.substring(1);
-                yield environment.getRegistry(name); // Added getValue()
-            }
-            case '&' -> scope.getVariable(raw.substring(1));
-            default -> scope.getVariable(raw);
-        };
-    }
-
-    protected void setValue(String key, Object value) throws ExecutionException {
+    protected void setValue(BlockContext context, String key, Object value) throws ExecutionException {
+        var scope = context.getScope();
         boolean isReference = value instanceof RuntimeVariable;
         RuntimeVariable registry;
 
@@ -412,9 +414,9 @@ public class RuntimeCodeBlock extends RuntimeObject {
         }
     }
 
-    private boolean testIfStatement(String[] tokens) throws ExecutionException {
-        var value1 = getValue(tokens[1]);
-        var value2 = getValue(tokens[2]);
+    private boolean testIfStatement(BlockContext context, String[] tokens) throws ExecutionException {
+        var value1 = getValue(context, tokens[1]);
+        var value2 = getValue(context, tokens[2]);
 
         return Objects.equals(value1, value2);
     }
@@ -443,16 +445,6 @@ public class RuntimeCodeBlock extends RuntimeObject {
         }
 
         return trace;
-    }
-
-    @Override
-    public Object getVariable(String name) {
-        return scope.getVariable(name);
-    }
-
-    @Override
-    public RuntimeCodeBlock getFunction(String function) {
-        return scope.getFunction(function);
     }
 
     @Override

@@ -9,6 +9,13 @@ public class BlockContext {
 
     private int flags = 0;
 
+    @Getter
+    private final BlockScope scope;
+
+    public BlockContext(BlockScope scope) {
+        this.scope = scope;
+    }
+
     public int advance() {
         return lineIndex++;
     }

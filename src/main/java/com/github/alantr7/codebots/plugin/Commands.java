@@ -84,8 +84,7 @@ public class Commands {
                     program.registerNativeModule("bot", botModule);
 
                     program.setMainModule(module);
-
-                    program.getEnvironment().getBlockStack().add(new BlockStackEntry(mainBlock, new BlockContext()));
+                    program.getEnvironment().getBlockStack().add(new BlockStackEntry(mainBlock, new BlockContext(BlockScope.nestIn(program.getRootScope()))));
 
                 } catch (Exception e) {
                     e.printStackTrace();

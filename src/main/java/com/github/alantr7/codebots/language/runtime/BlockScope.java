@@ -1,11 +1,17 @@
 package com.github.alantr7.codebots.language.runtime;
 
+import com.github.alantr7.codebots.language.runtime.modules.Module;
+import lombok.Getter;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class BlockScope {
 
+    @Getter
     private BlockScope parent;
+
+    private Module module;
 
     private final Map<String, RuntimeVariable> variables = new LinkedHashMap<>();
 
@@ -29,6 +35,14 @@ public class BlockScope {
 
     public void setParent(BlockScope parent) {
         this.parent = parent;
+    }
+
+    public void setModule(Module module) {
+        this.module = module;
+    }
+
+    public Module getModule() {
+        return module != null ? module : (parent != null ? parent.getModule() : null);
     }
 
     public static BlockScope nestIn(BlockScope parent) {
