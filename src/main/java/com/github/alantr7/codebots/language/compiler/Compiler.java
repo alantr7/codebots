@@ -131,8 +131,8 @@ public class Compiler {
             } else if (element instanceof VariableAccess member) {
                 compileVariableAccess(member);
                 tokens.push("pop");
-            } else if (element instanceof LiteralExpression literal && literal.getValue() instanceof String text && text.contains(" ")) {
-                code.append("  push \"").append(text).append("\"\n");
+            } else if (element instanceof LiteralExpression literal && literal.getLiteralType() == LiteralExpression.STRING) {
+                code.append("  push \"").append(literal.getValue()).append("\"\n");
                 tokens.push("pop");
             } else {
                 tokens.push(element.getValue().toString());

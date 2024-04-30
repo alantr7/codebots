@@ -139,7 +139,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                     new BlockContext(BlockScope.nestIn(program.getRootScope())))
             );
 
-            case "push_stack" -> environment.getTokenStack().push(new Stack<>());
+            case "push_stack" -> environment.getTokenStack().push(new LinkedList<>());
             case "pop_stack" -> environment.getTokenStack().pop();
             case "push" -> {
                 environment.getTokenStack().peek().push(String.valueOf(getValue(context, tokens[1])));
@@ -310,7 +310,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
         var stack = new Stack<>();
         var tokenStack = environment.getTokenStack().peek();
 
-        Object operand1, operand2;
+        Object operand2, operand1;
 
         for (var literal : expressions) {
             if (literal.matches("\\d+")) {
@@ -318,7 +318,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
             } else if (ParserHelper.isBoolean(literal)) {
                 stack.push(Boolean.parseBoolean(literal));
             } else if (literal.equals("pop")) {
-                var pop = tokenStack.pop();
+                var pop = tokenStack.removeLast();
 
                 // TODO: Improve this
                 if (ParserHelper.isNumber(pop)) {
@@ -337,7 +337,9 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
                 if (operand1 instanceof String || operand2 instanceof String) {
                     switch (literal) {
-                        case "+" -> stack.push(String.valueOf(operand2) + operand1);
+                        case "+" -> {
+                            stack.push(String.valueOf(operand1) + operand2);
+                        }
                         case "==" -> stack.push(Objects.equals(operand1, operand2));
                         case "!=" -> stack.push(!Objects.equals(operand1, operand2));
                     }

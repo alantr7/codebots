@@ -9,9 +9,9 @@ Script language is still very experimental, and many features are missing! Pleas
 - Importing standard modules
 - Recursiveness
 - Return statements
+- String concatenation
 
 #### Yet to be implemented
-- String concatenation
 - Logic operators (AND, OR) for boolean expressions
 - Loops (for, while)
 - Importing user modules

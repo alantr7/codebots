@@ -29,7 +29,7 @@ public class CodeTest {
                   print("Attempt #" + num)
                   print(a)
                 }
-                
+                                
                 function main() {
                   testIfPersists(0)
                 }
@@ -38,11 +38,7 @@ public class CodeTest {
 
     @Test
     public void testIfElseIfElse() throws Exception {
-        testCode("""
-                function a(counter) {
-                  
-                }
-                                
+        testCode("""                                
                 function main() {
                   var number = random(100)
                   if (number < 30) {
@@ -54,8 +50,6 @@ public class CodeTest {
                   else {
                     print("Less than 100!")
                   }
-                  
-                  a(0)
                 }
                 """
         );
@@ -74,7 +68,7 @@ public class CodeTest {
                     return getTriesUntilMatch(input, counter)
                   }
                 }
-                
+                                
                 function main() {
                   var number = 17
                   var tries = getTriesUntilMatch(number, 0)
@@ -83,6 +77,18 @@ public class CodeTest {
                 }
                 """
         );
+    }
+
+    @Test
+    public void testStringConcat() throws Exception {
+        testCode("""
+                function main() {
+                  print("Hello " + "Alan")
+                  print("I am " + 21 + " years old")
+                  print("It's year " + 20 + 24 + " now!")
+                  print(12 + ":" + 30 + "pm")
+                }
+                """);
     }
 
     private void testCode(String code) throws Exception {
