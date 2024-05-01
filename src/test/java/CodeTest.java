@@ -197,10 +197,17 @@ public class CodeTest {
     public void testArrays() throws Exception {
         testCode("""                                
                 function main() {
-                  var arr = array()
-                  arr[2] = "Alan"
+                  var first = array()
+                  var second = array()
+                  var third = array()
                   
-                  print(arr[1] + " " + arr[2])
+                  first[0] = second
+                  second[0] = third
+                  
+                  first[0][0][1] = "Alanka"
+                  first[0][0][2] = "Palanka"
+                  
+                  print(third[1] + " " + first[0][0][2])
                 }
                 """);
     }

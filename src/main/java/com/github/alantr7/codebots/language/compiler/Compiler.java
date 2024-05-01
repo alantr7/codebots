@@ -65,9 +65,22 @@ public class Compiler {
         } else if (statement instanceof VariableAssignStatement stmt) {
             compileExpression((PostfixExpression) stmt.getValue(), stmt.getTarget().getName());
         } else if (statement instanceof ArrayAssignStatement stmt) {
-            compileExpression((PostfixExpression) stmt.getTarget().getIndex(), "$exp1");
-            compileExpression((PostfixExpression) stmt.getValue(), "$exp2");
-            code.append("  array_set *").append(stmt.getTarget().getName()).append(" $exp1 $exp2\n");
+            code.append("\n");
+            code.append("  set $cs #cs\n");
+            code.append("  set $exp1 *").append(stmt.getTarget().getName()).append("\n");
+
+            var iterator = Arrays.stream(stmt.getTarget().getIndices()).iterator();
+            while (iterator.hasNext()) {
+                var index = iterator.next();
+                compileExpression((PostfixExpression) index, "$exp2");
+
+                if (iterator.hasNext())
+                    code.append("  array_get $exp1 $exp2 $exp1\n");
+            }
+
+            compileExpression((PostfixExpression) stmt.getValue(), "$exp3");
+            code.append("  array_set $exp1 $exp2 $exp3\n");
+            code.append("\n");
         } else if (statement instanceof FunctionCall stmt) {
             compileFunctionCall(stmt, false);
         } else if (statement instanceof IfStatement stmt) {
@@ -94,11 +107,22 @@ public class Compiler {
         }
 
         if (var instanceof ArrayAccess array) {
-            compileExpression((PostfixExpression) array.getIndex(), "$exp1");
-            code.append("  array_get *").append(var.getName()).append(" ").append("$exp1 $exp1\n");
-            code.append("  push $exp1\n");
+            code.append("\n");
+            code.append("  set $cs #cs\n");
+            code.append("  set $exp1 *").append(array.getName()).append("\n");
 
-            return;
+            var iterator = Arrays.stream(array.getIndices()).iterator();
+            while (iterator.hasNext()) {
+                var index = iterator.next();
+                compileExpression((PostfixExpression) index, "$exp2");
+
+                if (iterator.hasNext())
+                    code.append("  array_get $exp1 $exp2 $exp1\n");
+            }
+
+            code.append("  array_get $exp1 $exp2 $exp1\n");
+            code.append("  push $exp1\n");
+            code.append("\n");
         } else {
             code.append("  push *").append(var.getName()).append("\n");
         }
@@ -216,9 +240,8 @@ public class Compiler {
             }
         }
 
-        code.append("  eval $exp1 ").append(String.join(" ", tokens.toArray(String[]::new))).append("\n");
+        code.append("  eval ").append(registry).append(" ").append(String.join(" ", tokens.toArray(String[]::new))).append("\n");
         code.append("  pop_stack\n");
-        code.append("  set ").append(registry).append(" $exp1\n");
     }
 
     private void compileIfStatement(IfStatement statement) {

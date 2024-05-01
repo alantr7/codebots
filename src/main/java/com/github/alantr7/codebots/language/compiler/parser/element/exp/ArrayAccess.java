@@ -2,14 +2,16 @@ package com.github.alantr7.codebots.language.compiler.parser.element.exp;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 public class ArrayAccess extends VariableAccess {
 
     @Getter
-    private final Expression index;
+    private final Expression[] indices;
 
-    public ArrayAccess(MemberAccess target, String name, Expression index) {
+    public ArrayAccess(MemberAccess target, String name, Expression[] indices) {
         super(target, name);
-        this.index = index;
+        this.indices = indices;
     }
 
     @Override
@@ -24,7 +26,7 @@ public class ArrayAccess extends VariableAccess {
 
     @Override
     protected String toString(int indent) {
-        return super.toString(indent) + "[" + index + "]";
+        return super.toString(indent) + Arrays.toString(indices);
     }
 
 }

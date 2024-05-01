@@ -13,13 +13,13 @@ Script language is still very experimental, and many features are missing! Pleas
 - While and do-while loops
 - For loops
 - Grouping expressions with parentheses
+- Arrays
 
 #### Yet to be implemented
 - Logic operators (AND, OR) for boolean expressions
 - Importing user modules
 - Types for variables, parameters, etc. (dynamic will be the default)
 - Error handling
-- Arrays
 
 #### Future plans
 - More standard modules

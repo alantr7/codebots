@@ -157,18 +157,27 @@ public class Parser {
             return null;
         }
 
-        VariableAccess target;
+        VariableAccess target = null;
+        var indices = new LinkedList<Expression>();
 
         // Accessing a variable
-        if (queue.peek().equals("[")) {
+        while (queue.peek().equals("[")) {
             queue.advance();
             var index = nextExpression();
 
             expect(queue.peek(), "]");
             queue.advance();
 
-            target = new ArrayAccess(new MemberAccess("this", null), next, index);
+            indices.add(index);
+        }
+
+        if (indices.isEmpty()) {
+            target = new VariableAccess(new MemberAccess("this", null), next);
         } else {
+            target = new ArrayAccess(new MemberAccess("this", null), next, indices.toArray(Expression[]::new));
+        }
+
+        if (target == null) {
             target = new VariableAccess(new MemberAccess("this", null), next);
         }
 
@@ -468,7 +477,7 @@ public class Parser {
 //                }
                     }
                 }
-            } else  {
+            } else {
 
                 if (next.startsWith("\"") && next.endsWith("\"")) {
                     postfix.add(new LiteralExpression(next.substring(1, next.length() - 1), LiteralExpression.STRING));
@@ -641,19 +650,23 @@ public class Parser {
             return null;
         }
 
-        queue.advance();
+        var indices = new LinkedList<Expression>();
+        while (queue.peek().equals("[")) {
+            queue.advance();
+            var index = (PostfixExpression) nextExpression();
+            if (index == null) {
+                return null;
+            }
 
-        var index = (PostfixExpression) nextExpression();
-        if (index == null) {
-            return null;
+            if (!queue.peek().equals("]")) {
+                return null;
+            }
+
+            indices.add(index);
+            queue.advance();
         }
 
-        if (!queue.peek().equals("]")) {
-            return null;
-        }
-
-        queue.advance();
-        return new ArrayAccess(target.getTarget(), target.getName(), index);
+        return new ArrayAccess(target.getTarget(), target.getName(), indices.toArray(Expression[]::new));
     }
 
 }

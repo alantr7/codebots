@@ -37,6 +37,8 @@ public class RuntimeEnvironment {
 
     public RuntimeVariable REGISTRY_EXPRESSION_2 = new RuntimeVariable(ValueType.ANY);
 
+    public RuntimeVariable REGISTRY_EXPRESSION_3 = new RuntimeVariable(ValueType.ANY);
+
     public RuntimeVariable getRegistry(String name) {
         return switch (name) {
             case "cv" -> REGISTRY_CURRENT_VALUE;
@@ -44,6 +46,7 @@ public class RuntimeEnvironment {
             case "rv" -> REGISTRY_RETURN_VALUE;
             case "exp1" -> REGISTRY_EXPRESSION_1;
             case "exp2" -> REGISTRY_EXPRESSION_2;
+            case "exp3" -> REGISTRY_EXPRESSION_3;
             default -> null;
         };
     }
