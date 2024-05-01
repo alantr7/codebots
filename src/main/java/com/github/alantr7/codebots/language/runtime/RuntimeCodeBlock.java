@@ -142,7 +142,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
             case "push_stack" -> environment.getTokenStack().push(new LinkedList<>());
             case "pop_stack" -> environment.getTokenStack().pop();
             case "push" -> {
-                environment.getTokenStack().peek().push(String.valueOf(getValue(context, tokens[1])));
+                environment.getTokenStack().peek().push(getValue(context, tokens[1]));
             }
 
             case "eval" -> {
@@ -208,6 +208,25 @@ public class RuntimeCodeBlock extends RuntimeObject {
             case "set" -> {
                 setValue(context, tokens[1], getValue(context, tokens[2]));
             }
+
+            // Takes a value from an array, and stores it into a variable/registry
+            case "array_get" -> {
+                var array = getValue(context, tokens[1]);
+                var index = (int) getValue(context, tokens[2]);
+
+                var element = array instanceof String text ? text.charAt(index) : ((Object[]) array)[index];
+                setValue(context, tokens[3], element);
+            }
+
+            // Takes a value from a variable/registry, and stores it into an array
+            case "array_set" -> {
+                var array = getValue(context, tokens[1]);
+                var index = (int) getValue(context, tokens[2]);
+                var value = getValue(context, tokens[3]);
+
+                ((Object[]) array)[index] = value;
+            }
+
             case "reset" -> {
                 // TODO: Use 'set $cv NULL'
                 environment.REGISTRY_CURRENT_VALUE.setValue(null);
@@ -287,10 +306,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 }
             }
 
-            default -> {
-                System.err.println("Unknown instruction: " + instruction);
-                ;
-            }
+            default -> System.err.println("Unknown instruction: " + instruction);
         }
 
         if (context.getFlag(BlockContext.FLAG_ELSE) && !context.getFlag(BlockContext.FLAG_ELSE_SATISFIED)) {
@@ -322,12 +338,16 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 var pop = tokenStack.removeLast();
 
                 // TODO: Improve this
-                if (ParserHelper.isNumber(pop)) {
-                    stack.push(Integer.parseInt(pop));
-                } else if (ParserHelper.isBoolean(pop)) {
-                    stack.push(Boolean.parseBoolean(pop));
-                } else if (pop.equals("null")) {
-                    stack.push(null);
+                if (pop instanceof String) {
+                    if (ParserHelper.isNumber((String) pop)) {
+                        stack.push(Integer.parseInt((String) pop));
+                    } else if (ParserHelper.isBoolean((String) pop)) {
+                        stack.push(Boolean.parseBoolean((String) pop));
+                    } else if (pop.equals("null")) {
+                        stack.push(null);
+                    } else {
+                        stack.push(pop);
+                    }
                 } else {
                     stack.push(pop);
                 }
@@ -367,6 +387,9 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
     private Object getValue(BlockContext context, String raw) {
         var scope = context.getScope();
+        if (raw.isEmpty())
+            return "";
+
         char firstCharacter = raw.charAt(0);
         return switch (firstCharacter) {
             case '$' -> {

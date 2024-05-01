@@ -24,7 +24,7 @@ public class Tokenizer {
         return tokenize(new String[]{input});
     }
 
-    private static final String SYMBOLS = " (){}<>=!,.\n+-?*/;";
+    private static final String SYMBOLS = " ()[]{}<>=!,.\n+-?*/;";
 
     private static boolean isSymbol(char ch) {
         return SYMBOLS.contains(String.valueOf(ch));

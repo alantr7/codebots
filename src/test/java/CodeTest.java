@@ -7,6 +7,7 @@ import com.github.alantr7.codebots.language.runtime.BlockScope;
 import com.github.alantr7.codebots.language.runtime.BlockStackEntry;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
+import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.language.runtime.modules.MemoryModule;
 import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
 import com.github.alantr7.codebots.language.runtime.modules.standard.MathModule;
@@ -173,7 +174,6 @@ public class CodeTest {
         testCode("""                                
                 function pow(num, pow) {
                   var result = 1
-                  var point = new Point(0, 0)
                   
                   while (pow > 0) {
                     result = result * num
@@ -193,10 +193,15 @@ public class CodeTest {
                 """);
     }
 
-
-    public void testStructs() throws Exception {
-        testCode("""
-                
+    @Test
+    public void testArrays() throws Exception {
+        testCode("""                                
+                function main() {
+                  var arr = array()
+                  arr[2] = "Alan"
+                  
+                  print(arr[1] + " " + arr[2])
+                }
                 """);
     }
 
@@ -219,6 +224,9 @@ public class CodeTest {
 
         program.getEnvironment().getBlockStack().add(new BlockStackEntry(block, new BlockContext(module.getRootScope())));
         program.getRootScope().setFunction("random", program.getOrLoadModule("math").getRootScope().getFunction("random"));
+        program.getRootScope().setFunction("array", new RuntimeNativeFunction(program, "array", (args) -> {
+            return new Object[] { null, "Hello", "World", null, null, null, null, null };
+        }));
 
         program.executeEverything();
 

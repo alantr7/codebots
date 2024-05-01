@@ -22,7 +22,7 @@ public class RuntimeEnvironment {
     private final Deque<BlockStackEntry> blockStack = new LinkedList<>();
 
     @Getter
-    private final Stack<LinkedList<String>> tokenStack = new Stack<>();
+    private final Stack<LinkedList<Object>> tokenStack = new Stack<>();
 
     @Getter
     private final Map<String, RuntimeNativeFunction> nativeFunctions = new LinkedHashMap<>();

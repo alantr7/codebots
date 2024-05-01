@@ -63,7 +63,11 @@ public class Compiler {
             if (ass != null)
                 compileExpression(ass, stmt.getName());
         } else if (statement instanceof VariableAssignStatement stmt) {
-            compileExpression((PostfixExpression) stmt.getValue(), stmt.getName());
+            compileExpression((PostfixExpression) stmt.getValue(), stmt.getTarget().getName());
+        } else if (statement instanceof ArrayAssignStatement stmt) {
+            compileExpression((PostfixExpression) stmt.getTarget().getIndex(), "$exp1");
+            compileExpression((PostfixExpression) stmt.getValue(), "$exp2");
+            code.append("  array_set *").append(stmt.getTarget().getName()).append(" $exp1 $exp2\n");
         } else if (statement instanceof FunctionCall stmt) {
             compileFunctionCall(stmt, false);
         } else if (statement instanceof IfStatement stmt) {
@@ -89,7 +93,15 @@ public class Compiler {
             }
         }
 
-        code.append("  push *").append(var.getName()).append("\n");
+        if (var instanceof ArrayAccess array) {
+            compileExpression((PostfixExpression) array.getIndex(), "$exp1");
+            code.append("  array_get *").append(var.getName()).append(" ").append("$exp1 $exp1\n");
+            code.append("  push $exp1\n");
+
+            return;
+        } else {
+            code.append("  push *").append(var.getName()).append("\n");
+        }
     }
 
     private void compileFunctionCall(FunctionCall call, boolean push) {

@@ -50,6 +50,10 @@ public class TokenQueue {
         }
     }
 
+    public int getLine() {
+        return row + 1;
+    }
+
     public boolean isEmpty() {
         return row >= queue.length;
     }

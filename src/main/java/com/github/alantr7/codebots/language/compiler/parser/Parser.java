@@ -19,7 +19,12 @@ public class Parser {
 
     public Module parse(TokenQueue tokens) throws ParserException {
         this.queue = tokens;
-        return parseModule();
+        try {
+            return parseModule();
+        } catch (ParserException exception) {
+            System.err.println("Encountered an exception while parsing line " + queue.getLine());
+            throw exception;
+        }
     }
 
     private Module parseModule() throws ParserException {
@@ -152,6 +157,21 @@ public class Parser {
             return null;
         }
 
+        VariableAccess target;
+
+        // Accessing a variable
+        if (queue.peek().equals("[")) {
+            queue.advance();
+            var index = nextExpression();
+
+            expect(queue.peek(), "]");
+            queue.advance();
+
+            target = new ArrayAccess(new MemberAccess("this", null), next, index);
+        } else {
+            target = new VariableAccess(new MemberAccess("this", null), next);
+        }
+
         if (!queue.peek().equals("=")) {
             queue.rollback();
             return null;
@@ -164,7 +184,11 @@ public class Parser {
             throw new ParserException("Invalid expression for variable assignment!");
         }
 
-        return new VariableAssignStatement(new MemberAccess("this", null), next, value);
+        if (target instanceof ArrayAccess) {
+            return new ArrayAssignStatement((ArrayAccess) target, value);
+        } else {
+            return new VariableAssignStatement(target, value);
+        }
     }
 
     private IfStatement nextIfStatement() throws ParserException {
@@ -450,10 +474,11 @@ public class Parser {
                     postfix.add(new LiteralExpression(next.substring(1, next.length() - 1), LiteralExpression.STRING));
                 } else {
                     queue.rollback();
-                    var memberAccess = nextMemberAccessOrCall();
+                    var memberAccess = nextMemberAccessOrArrayOrCall();
                     if (memberAccess == null) {
                         break;
                     } else {
+                        System.out.println("Member access: " + memberAccess);
                         postfix.add(memberAccess);
                     }
                 }
@@ -540,7 +565,7 @@ public class Parser {
         return new FunctionCall(target, name, arguments.toArray(new Expression[0]));
     }
 
-    private Expression nextMemberAccessOrCall() {
+    private Expression nextMemberAccessOrArrayOrCall() {
         String identifier = nextIdentifier();
         if (identifier == null) {
             return null;
@@ -578,6 +603,10 @@ public class Parser {
             }
         }
 
+        if (queue.peek().equals("[")) {
+            return nextArrayAccess(new VariableAccess(target, name));
+        }
+
         if (!queue.peek().equals("(")) {
             return new VariableAccess(target, name);
         }
@@ -605,6 +634,26 @@ public class Parser {
 
         queue.advance();
         return new FunctionCall(target, name, arguments.toArray(new Expression[0]));
+    }
+
+    private ArrayAccess nextArrayAccess(VariableAccess target) {
+        if (!queue.peek().equals("[")) {
+            return null;
+        }
+
+        queue.advance();
+
+        var index = (PostfixExpression) nextExpression();
+        if (index == null) {
+            return null;
+        }
+
+        if (!queue.peek().equals("]")) {
+            return null;
+        }
+
+        queue.advance();
+        return new ArrayAccess(target.getTarget(), target.getName(), index);
     }
 
 }

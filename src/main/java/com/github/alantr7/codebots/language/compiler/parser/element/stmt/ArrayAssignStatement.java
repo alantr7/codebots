@@ -1,18 +1,18 @@
 package com.github.alantr7.codebots.language.compiler.parser.element.stmt;
 
+import com.github.alantr7.codebots.language.compiler.parser.element.exp.ArrayAccess;
 import com.github.alantr7.codebots.language.compiler.parser.element.exp.Expression;
-import com.github.alantr7.codebots.language.compiler.parser.element.exp.MemberAccess;
 import com.github.alantr7.codebots.language.compiler.parser.element.exp.VariableAccess;
 import lombok.Getter;
 
 @Getter
-public class VariableAssignStatement implements Statement {
+public class ArrayAssignStatement implements Statement {
 
-    private final VariableAccess target;
+    private final ArrayAccess target;
 
     private final Expression value;
 
-    public VariableAssignStatement(VariableAccess target, Expression value) {
+    public ArrayAssignStatement(ArrayAccess target, Expression value) {
         this.target = target;
         this.value = value;
     }
