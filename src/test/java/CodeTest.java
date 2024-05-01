@@ -116,6 +116,33 @@ public class CodeTest {
                 """);
     }
 
+    @Test
+    public void testDoWhileLoop() throws Exception {
+        testCode("""
+                function getTriesUntilMatch(input) {
+                  var counter = 0
+                  var number = 0
+                  
+                  do {
+                    number = random(20)
+                    counter = counter + 1
+                  } while (number != input)
+                  
+                  print(number + " = " + input)
+                  
+                  return counter
+                }
+                
+                function main() {
+                  var toMatch = 15
+                  print("Matching: " + toMatch)
+                  print("----------------")
+                  
+                  print("Took " + getTriesUntilMatch(toMatch) + " random attempts to match the given number")
+                }
+                """);
+    }
+
     private void testCode(String code) throws Exception {
         var tokens = Tokenizer.tokenize(code.split("\n"));
         var parser = new Parser();

@@ -69,6 +69,8 @@ public class Compiler {
             compileReturnStatement(stmt);
         } else if (statement instanceof WhileLoopStatement stmt) {
             compileWhileLoop(stmt);
+        } else if (statement instanceof DoWhileLoopStatement stmt) {
+            compileDoWhileLoop(stmt);
         }
     }
 
@@ -121,6 +123,22 @@ public class Compiler {
         for (var stmt : loop.getBody()) {
             compileStatement(stmt);
         }
+
+        code.append("  goto loop1\n");
+        code.append("  end\n");
+    }
+
+    private void compileDoWhileLoop(DoWhileLoopStatement loop) {
+        code.append("  begin loop1\n");
+        for (var stmt : loop.getBody()) {
+            compileStatement(stmt);
+        }
+
+        compileExpression((PostfixExpression) loop.getExpression(), "$exp1");
+        code.append("  if $exp1 false\n");
+        code.append("  begin\n");
+        code.append("  exit loop1\n");
+        code.append("  end\n");
 
         code.append("  goto loop1\n");
         code.append("  end\n");
