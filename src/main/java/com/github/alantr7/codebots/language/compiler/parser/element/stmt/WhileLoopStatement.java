@@ -15,4 +15,9 @@ public class WhileLoopStatement implements Statement {
         this.body = body;
     }
 
+    @Override
+    public int getStatementType() {
+        return Statement.WHILE_LOOP;
+    }
+
 }

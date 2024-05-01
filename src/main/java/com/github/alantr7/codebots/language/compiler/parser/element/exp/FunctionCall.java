@@ -37,4 +37,9 @@ public class FunctionCall extends Expression implements Statement {
         return "function_call";
     }
 
+    @Override
+    public int getStatementType() {
+        return Statement.FUNCTION_CALL;
+    }
+
 }

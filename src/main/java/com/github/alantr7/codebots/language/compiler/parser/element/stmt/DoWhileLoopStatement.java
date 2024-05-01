@@ -15,4 +15,9 @@ public class DoWhileLoopStatement implements Statement {
         this.body = body;
     }
 
+    @Override
+    public int getStatementType() {
+        return Statement.DO_WHILE_LOOP;
+    }
+
 }

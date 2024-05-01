@@ -6,14 +6,6 @@ public class CompileContext {
 
     private int nextLoopEntryId = 0;
 
-    public String currentLoop() {
-        return "loop_" + nextLoopId;
-    }
-
-    public String currentLoopEntry() {
-        return "loop_entry_" + nextLoopEntryId;
-    }
-
     public String nextLoopEntryName() {
         return "loop_entry_" + ++nextLoopEntryId;
     }

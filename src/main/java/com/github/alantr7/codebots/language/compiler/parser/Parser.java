@@ -104,7 +104,6 @@ public class Parser {
         return new Function(name, parameters.toArray(new String[0]), statements.toArray(new Statement[0]));
     }
 
-    // TODO: Parse statement by peeking at the next identifier
     private Statement nextStatement() throws ParserException {
         return switch (queue.peek()) {
             case "var" -> nextVariableDeclare();

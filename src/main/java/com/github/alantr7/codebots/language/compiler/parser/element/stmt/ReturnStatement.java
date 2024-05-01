@@ -12,4 +12,9 @@ public class ReturnStatement implements Statement {
         this.value = value;
     }
 
+    @Override
+    public int getStatementType() {
+        return Statement.RETURN;
+    }
+
 }

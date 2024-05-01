@@ -21,4 +21,9 @@ public class ForLoopStatement implements Statement {
         this.body = body;
     }
 
+    @Override
+    public int getStatementType() {
+        return Statement.FOR_LOOP;
+    }
+
 }

@@ -144,11 +144,37 @@ public class CodeTest {
     }
 
     @Test
-    public void testExpressionGroups() throws Exception {
+    public void testForLoop() throws Exception {
         testCode("""
+                function getTriesUntilMatch(input) {
+                  var counter = 0
+                  var number
+                  
+                  for (number = random(20); number != input; number = random(20)) {
+                    counter = counter + 1
+                  }
+                  
+                  print(number + " = " + input)
+                  return counter
+                }
+                                
+                function main() {
+                  var toMatch = 15
+                  print("Matching: " + toMatch)
+                  print("----------------")
+                  
+                  print("Took " + getTriesUntilMatch(toMatch) + " random attempts to match the given number")
+                }
+                """);
+    }
+
+    @Test
+    public void testExpressionGroups() throws Exception {
+        testCode("""                                
                 function pow(num, pow) {
                   var result = 1
-                   
+                  var point = new Point(0, 0)
+                  
                   while (pow > 0) {
                     result = result * num
                     pow = pow - 1
@@ -158,26 +184,19 @@ public class CodeTest {
                 }
                                 
                 function main() {
-                  var a = (10 + 20) * 2
-                  var b = 10 + 20 * 2
-                  var c = (10 + (20 - pow(2, pow(2, 2)))) * 2
-                  print(a)
-                  print(b)
-                  print(c)
+                  var result = (10 + (20 - pow(2, pow(2, 2)))) * 2
+                  print(result)
+                  
+                  print("2^3 = " + pow(2, 3))
+                  print("(2 + 3) * 2 = " + (2 + 3) * 2 + "!")
                 }
                 """);
     }
 
-    @Test
-    public void testForLoop() throws Exception {
+
+    public void testStructs() throws Exception {
         testCode("""
-                function main() {
-                  for (var i = 0; i < 10; i = i + 1) {
-                    for (var j = 0; j < 3; j = j + 1) {
-                      print("i: " + i + ", j: " + j)
-                    }
-                  }
-                }
+                
                 """);
     }
 

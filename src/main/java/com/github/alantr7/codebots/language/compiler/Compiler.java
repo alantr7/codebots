@@ -175,8 +175,6 @@ public class Compiler {
         code.append("  end\n");
     }
 
-    // TODO: Problem with using $rv is that if there's no return value on a function,
-    //       $rv will have a value of a function that last returned it
     private void compileExpression(PostfixExpression expression, String registry) {
         if (expression.getValue().length == 1 && expression.getValue()[0].isLiteral()) {
             String value = expression.getValue()[0].getValue() instanceof String text ?

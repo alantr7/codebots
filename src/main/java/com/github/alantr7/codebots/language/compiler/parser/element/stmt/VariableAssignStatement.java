@@ -19,4 +19,9 @@ public class VariableAssignStatement implements Statement {
         this.value = value;
     }
 
+    @Override
+    public int getStatementType() {
+        return Statement.VARIABLE_ASSIGN;
+    }
+
 }

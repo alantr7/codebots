@@ -31,4 +31,10 @@ public class IfStatement implements Statement {
     public String toString() {
         return "if (" + condition + ") {\n" + String.join("\n", Arrays.stream(body).map(b -> b.toString()).collect(Collectors.toList())) + "\n" + "}";
     }
+
+    @Override
+    public int getStatementType() {
+        return Statement.IF_STATEMENT;
+    }
+
 }

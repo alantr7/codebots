@@ -26,4 +26,9 @@ public class VariableDeclareStatement implements Statement {
         return value;
     }
 
+    @Override
+    public int getStatementType() {
+        return Statement.VARIABLE_DECLARE;
+    }
+
 }
