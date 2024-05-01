@@ -19,6 +19,7 @@ Script language is still very experimental, and many features are missing! Pleas
 - Importing user modules
 - Types for variables, parameters, etc. (dynamic will be the default)
 - Error handling
+- Arrays
 
 #### Future plans
 - More standard modules
