@@ -7,7 +7,7 @@ public class ParserHelper {
             return false;
 
         return input.equals("+") || input.equals("-") || input.equals("*") || input.equals("/") || input.equals("==") || input.equals("!=") ||
-                input.equals(">") || input.equals("<") || input.equals(">=") || input.equals("<=");
+                input.equals(">") || input.equals("<") || input.equals(">=") || input.equals("<=") || input.equals("(") || input.equals(")");
     }
 
     public static boolean isNumber(String input) {

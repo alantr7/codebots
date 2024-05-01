@@ -389,6 +389,7 @@ public class Parser {
         stack.push("#");
 
         boolean expectsOperator = false;
+        int parenthesisOpen = 0;
 
         while (!queue.isEmpty()) {
             var next = queue.peek();
@@ -396,6 +397,11 @@ public class Parser {
             queue.advance();
 
             if (expectsOperator && !ParserHelper.isOperator(next)) {
+                queue.rollback();
+                break;
+            }
+
+            if (next.equals(")") && parenthesisOpen == 0) {
                 queue.rollback();
                 break;
             }
@@ -414,6 +420,7 @@ public class Parser {
             } else if (ParserHelper.isOperator(next)) {
                 if (next.equals("(")) {
                     stack.push(next);
+                    parenthesisOpen++;
 //                }
                 } else {
                     if (next.equals(")")) {

@@ -105,7 +105,7 @@ public class CodeTest {
                   
                   return counter
                 }
-                
+                                
                 function main() {
                   var toMatch = 15
                   print("Matching: " + toMatch)
@@ -132,13 +132,38 @@ public class CodeTest {
                   
                   return counter
                 }
-                
+                                
                 function main() {
                   var toMatch = 15
                   print("Matching: " + toMatch)
                   print("----------------")
                   
                   print("Took " + getTriesUntilMatch(toMatch) + " random attempts to match the given number")
+                }
+                """);
+    }
+
+    @Test
+    public void testExpressionGroups() throws Exception {
+        testCode("""
+                function pow(num, pow) {
+                  var result = 1
+                   
+                  while (pow > 0) {
+                    result = result * num
+                    pow = pow - 1
+                  }
+                    
+                  return result
+                }
+                                
+                function main() {
+                  var a = (10 + 20) * 2
+                  var b = 10 + 20 * 2
+                  var c = (10 + (20 - pow(2, pow(2, 2)))) * 2
+                  print(a)
+                  print(b)
+                  print(c)
                 }
                 """);
     }
