@@ -6,7 +6,7 @@ import org.junit.Test;
 public class CompilerTest {
 
     @Test
-    public void testCompiler2() {
+    public void testCompiler2() throws Exception {
 //        new Compiler().parse(Tokenizer.tokenize("function main(){5+rand(5,hello(2,hi(3)))}"));
 //        new Compiler().parse(Tokenizer.tokenize("function main(){ rand(5,hello(2,hi(3)))}"));
         /*var tree = new Parser().parse(Tokenizer.tokenize(

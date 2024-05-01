@@ -1,5 +1,7 @@
 package com.github.alantr7.codebots.language.compiler.parser;
 
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
+
 public class ParserHelper {
 
     public static boolean isOperator(String input) {
@@ -26,6 +28,16 @@ public class ParserHelper {
             case "(", ")", "#" -> 1;
             default -> 0;
         };
+    }
+
+    public static void expect(String token, String expected) throws ParserException {
+        if (!token.equals(expected)) {
+            throw new ParserException("Unexpected token: \"" + token + "\". Was expecting \"" + expected + "\".");
+        }
+    }
+
+    public static void error(String message) throws ParserException {
+        throw new ParserException(message);
     }
 
 }

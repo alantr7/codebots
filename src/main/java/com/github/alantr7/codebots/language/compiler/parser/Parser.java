@@ -4,21 +4,25 @@ import com.github.alantr7.codebots.language.compiler.TokenQueue;
 import com.github.alantr7.codebots.language.compiler.parser.element.Module;
 import com.github.alantr7.codebots.language.compiler.parser.element.exp.*;
 import com.github.alantr7.codebots.language.compiler.parser.element.stmt.*;
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import static com.github.alantr7.codebots.language.compiler.parser.ParserHelper.error;
+import static com.github.alantr7.codebots.language.compiler.parser.ParserHelper.expect;
+
 public class Parser {
 
     private TokenQueue queue;
 
-    public Module parse(TokenQueue tokens) {
+    public Module parse(TokenQueue tokens) throws ParserException {
         this.queue = tokens;
         return parseModule();
     }
 
-    private Module parseModule() {
+    private Module parseModule() throws ParserException {
         List<ImportStatement> imports = new LinkedList<>();
         List<Function> functions = new LinkedList<>();
 
@@ -26,9 +30,6 @@ public class Parser {
             var keyword = queue.peek();
             if (keyword.equals("function")) {
                 var func = nextFunction();
-                if (func == null)
-                    break;
-
                 functions.add(func);
             } else if (keyword.equals("import")) {
                 var module = nextImport();
@@ -61,14 +62,11 @@ public class Parser {
         return new ImportStatement(name, alias);
     }
 
-    private Function nextFunction() {
+    private Function nextFunction() throws ParserException {
         queue.next();
         var name = nextIdentifier();
 
-        if (!queue.peek().equals("(")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '('.");
-            return null;
-        }
+        expect(queue.peek(), "(");
         queue.advance();
 
         var parameters = new LinkedList<String>();
@@ -85,16 +83,10 @@ public class Parser {
             break;
         }
 
-        if (!queue.peek().equals(")")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting ')'.");
-            return null;
-        }
+        expect(queue.peek(), ")");
         queue.advance();
 
-        if (!queue.peek().equals("{")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '{'.");
-            return null;
-        }
+        expect(queue.peek(), "{");
         queue.advance();
 
         var statements = new LinkedList<Statement>();
@@ -106,55 +98,36 @@ public class Parser {
             statements.add(stmt);
         }
 
-        if (!queue.peek().equals("}")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '}'.");
-            return null;
-        }
+        expect(queue.peek(), "}");
         queue.advance();
 
         return new Function(name, parameters.toArray(new String[0]), statements.toArray(new Statement[0]));
     }
 
     // TODO: Parse statement by peeking at the next identifier
-    private Statement nextStatement() {
-        Statement stmt;
+    private Statement nextStatement() throws ParserException {
+        return switch (queue.peek()) {
+            case "var" -> nextVariableDeclare();
+            case "return" -> nextReturnStatement();
+            case "if" -> nextIfStatement();
+            case "while" -> nextWhileLoop();
+            case "do" -> nextDoWhileLoop();
+            case "for" -> nextForLoop();
+            default -> {
+                var stmt = nextVariableAssign();
+                if (stmt != null)
+                    yield stmt;
 
-        stmt = nextVariableDeclare();
-        if (stmt != null)
-            return stmt;
+                stmt = (Statement) nextFunctionCall();
+                if (stmt != null)
+                    yield stmt;
 
-        stmt = nextReturnStatement();
-        if (stmt != null)
-            return stmt;
-
-        stmt = nextVariableAssign();
-        if (stmt != null)
-            return stmt;
-
-        stmt = nextIfStatement();
-        if (stmt != null)
-            return stmt;
-
-        stmt = nextWhileLoop();
-        if (stmt != null)
-            return stmt;
-
-        stmt = nextDoWhileLoop();
-        if (stmt != null)
-            return stmt;
-
-        stmt = nextForLoop();
-        if (stmt != null)
-            return stmt;
-
-        stmt = (Statement) nextFunctionCall();
-        if (stmt == null)
-            return null;
-
-        return stmt;
+                yield null;
+            }
+        };
     }
 
-    private Statement nextVariableDeclare() {
+    private Statement nextVariableDeclare() throws ParserException {
         if (!queue.peek().equals("var"))
             return null;
 
@@ -168,21 +141,17 @@ public class Parser {
 
         var value = nextExpression();
         if (value == null) {
-            System.err.println("Invalid syntax!");
-            return null;
+            throw new ParserException("Invalid expression for variable assignment!");
         }
 
         return new VariableDeclareStatement(name, value);
     }
 
-    private Statement nextVariableAssign() {
+    private Statement nextVariableAssign() throws ParserException {
         var next = nextIdentifier();
         if (next == null) {
             return null;
         }
-
-        System.out.println("Assigning " + next);
-        System.out.println("Next: " + queue.peek());
 
         if (!queue.peek().equals("=")) {
             queue.rollback();
@@ -193,40 +162,30 @@ public class Parser {
         var value = nextExpression();
 
         if (value == null) {
-            System.err.println("Invalid expression for variable assignment!");
-            return null;
+            throw new ParserException("Invalid expression for variable assignment!");
         }
 
         return new VariableAssignStatement(new MemberAccess("this", null), next, value);
     }
 
-    private IfStatement nextIfStatement() {
+    private IfStatement nextIfStatement() throws ParserException {
         if (!queue.peek().equals("if"))
             return null;
 
         queue.advance();
-        if (!queue.peek().equals("(")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '('.");
-            return null;
-        }
+
+        expect(queue.peek(), "(");
         queue.advance();
 
         var condition = nextExpression();
         if (condition == null) {
-            System.err.println("Invalid syntax!");
-            return null;
+            error("Invalid expression for if statement!");
         }
 
-        if (!queue.peek().equals(")")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting ')'.");
-            return null;
-        }
+        expect(queue.peek(), ")");
         queue.advance();
 
-        if (!queue.peek().equals("{")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '{'.");
-            return null;
-        }
+        expect(queue.peek(), "{");
         queue.advance();
 
         var statements = new LinkedList<Statement>();
@@ -238,10 +197,7 @@ public class Parser {
             statements.add(stmt);
         }
 
-        if (!queue.peek().equals("}")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '}'.");
-            return null;
-        }
+        expect(queue.peek(), "}");
         queue.advance();
 
         var elseStatements = new LinkedList<Statement>();
@@ -272,7 +228,7 @@ public class Parser {
         return new IfStatement(condition, statements.toArray(new Statement[0]), nextIf, elseStatements.toArray(new Statement[0]));
     }
 
-    private Statement nextReturnStatement() {
+    private Statement nextReturnStatement() throws ParserException {
         if (!queue.peek().equals("return"))
             return null;
 
@@ -280,40 +236,30 @@ public class Parser {
 
         var value = nextExpression();
         if (value == null) {
-            System.err.println("Invalid expression for return statement.");
-            return null;
+            error("Invalid expression for return statement.");
         }
 
         return new ReturnStatement(value);
     }
 
-    private WhileLoopStatement nextWhileLoop() {
+    private WhileLoopStatement nextWhileLoop() throws ParserException {
         if (!queue.peek().equals("while"))
             return null;
 
         queue.advance();
-        if (!queue.peek().equals("(")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '('.");
-            return null;
-        }
+
+        expect(queue.peek(), "(");
         queue.advance();
 
         var condition = nextExpression();
         if (condition == null) {
-            System.err.println("Invalid syntax!");
-            return null;
+            error("Invalid condition for while loop!");
         }
 
-        if (!queue.peek().equals(")")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting ')'.");
-            return null;
-        }
+        expect(queue.peek(), ")");
         queue.advance();
 
-        if (!queue.peek().equals("{")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '{'.");
-            return null;
-        }
+        expect(queue.peek(), "{");
         queue.advance();
 
         var statements = new LinkedList<Statement>();
@@ -325,25 +271,19 @@ public class Parser {
             statements.add(stmt);
         }
 
-        if (!queue.peek().equals("}")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '}'.");
-            return null;
-        }
+        expect(queue.peek(), "}");
         queue.advance();
 
         return new WhileLoopStatement(condition, statements.toArray(new Statement[0]));
     }
 
-    private DoWhileLoopStatement nextDoWhileLoop() {
+    private DoWhileLoopStatement nextDoWhileLoop() throws ParserException {
         if (!queue.peek().equals("do"))
             return null;
 
         queue.advance();
 
-        if (!queue.peek().equals("{")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '{'.");
-            return null;
-        }
+        expect(queue.peek(), "{");
         queue.advance();
 
         var statements = new LinkedList<Statement>();
@@ -355,90 +295,61 @@ public class Parser {
             statements.add(stmt);
         }
 
-        if (!queue.peek().equals("}")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '}'.");
-            return null;
-        }
+        expect(queue.peek(), "}");
         queue.advance();
 
-        if (!queue.peek().equals("while")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting 'while'.");
-            return null;
-        }
+        expect(queue.peek(), "while");
         queue.advance();
 
-        if (!queue.peek().equals("(")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '('.");
-            return null;
-        }
+        expect(queue.peek(), "(");
         queue.advance();
 
         var condition = nextExpression();
         if (condition == null) {
-            System.err.println("Invalid syntax!");
+            error("Invalid condition for do-while loop!");
             return null;
         }
 
-        if (!queue.peek().equals(")")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting ')'.");
-            return null;
-        }
+        expect(queue.peek(), ")");
         queue.advance();
 
         return new DoWhileLoopStatement(condition, statements.toArray(new Statement[0]));
     }
 
-    private ForLoopStatement nextForLoop() {
+    private ForLoopStatement nextForLoop() throws ParserException {
         if (!queue.peek().equals("for"))
             return null;
 
         queue.advance();
-        if (!queue.peek().equals("(")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '('.");
-            return null;
-        }
+
+        expect(queue.peek(), "(");
         queue.advance();
 
         var init = nextStatement();
         if (init == null) {
-            System.err.println("Invalid loop init statement!");
-            return null;
+            error("Invalid loop init statement!");
         }
 
-        if (!queue.peek().equals(";")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting ';'.");
-            return null;
-        }
+        expect(queue.peek(), ";");
         queue.advance();
 
         var condition = nextExpression();
         if (condition == null) {
-            System.err.println("Invalid loop condition!");
-            return null;
+            error("Invalid loop condition!");
         }
 
-        if (!queue.peek().equals(";")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting ';'.");
-            return null;
-        }
+        expect(queue.peek(), ";");
         queue.advance();
 
         var update = nextStatement();
         if (update == null) {
-            System.err.println("Invalid loop update statement!");
-            return null;
+            error("Invalid loop update statement!");
         }
 
-        if (!queue.peek().equals(")")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting ')'.");
-            return null;
-        }
+        expect(queue.peek(), ")");
         queue.advance();
 
-        if (!queue.peek().equals("{")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '{'.");
-            return null;
-        }
+        expect(queue.peek(), "{");
         queue.advance();
 
         var statements = new LinkedList<Statement>();
@@ -450,10 +361,7 @@ public class Parser {
             statements.add(stmt);
         }
 
-        if (!queue.peek().equals("}")) {
-            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '}'.");
-            return null;
-        }
+        expect(queue.peek(), "}");
         queue.advance();
 
         return new ForLoopStatement(init, condition, update, statements.toArray(new Statement[0]));
@@ -513,7 +421,6 @@ public class Parser {
 
                         while (!stack.peek().equals("(")) {
                             var popInParenthesis = stack.pop();
-                            System.out.println("Pop in parenthesis: " + popInParenthesis);
                             postfix.add(new LiteralExpression(popInParenthesis, LiteralExpression.INT));
                             j++;
                         }
@@ -565,17 +472,6 @@ public class Parser {
         }
 
         return new PostfixExpression(postfix.toArray(Expression[]::new));
-    }
-
-    private Integer nextNumber() {
-        var token = queue.peek();
-        var number = token.matches("\\d+") ? Integer.parseInt(token) : null;
-
-        if (number == null)
-            return null;
-
-        queue.advance();
-        return number;
     }
 
     private String nextIdentifier() {
