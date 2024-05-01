@@ -173,7 +173,9 @@ public class CodeTest {
         testCode("""
                 function main() {
                   for (var i = 0; i < 10; i = i + 1) {
-                    print("Iteration #" + i)
+                    for (var j = 0; j < 3; j = j + 1) {
+                      print("i: " + i + ", j: " + j)
+                    }
                   }
                 }
                 """);

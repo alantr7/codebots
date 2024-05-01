@@ -10,7 +10,9 @@ import java.util.Stack;
 
 public class Compiler {
 
-    StringBuilder code = new StringBuilder();
+    final StringBuilder code = new StringBuilder();
+
+    final CompileContext context = new CompileContext();
 
     public String compile(Module module) {
         for (var importS : module.getImports()) {
@@ -116,23 +118,25 @@ public class Compiler {
     }
 
     private void compileWhileLoop(WhileLoopStatement loop) {
-        code.append("  begin loop1\n");
+        var name = context.nextLoopName();
+        code.append("  begin ").append(name).append("\n");
         compileExpression((PostfixExpression) loop.getExpression(), "$exp1");
         code.append("  if $exp1 false\n");
         code.append("  begin\n");
-        code.append("  exit loop1\n");
+        code.append("  exit ").append(name).append("\n");
         code.append("  end\n");
 
         for (var stmt : loop.getBody()) {
             compileStatement(stmt);
         }
 
-        code.append("  goto loop1\n");
+        code.append("  goto ").append(name).append("\n");
         code.append("  end\n");
     }
 
     private void compileDoWhileLoop(DoWhileLoopStatement loop) {
-        code.append("  begin loop1\n");
+        var name = context.nextLoopName();
+        code.append("  begin ").append(name).append("\n");
         for (var stmt : loop.getBody()) {
             compileStatement(stmt);
         }
@@ -140,23 +144,25 @@ public class Compiler {
         compileExpression((PostfixExpression) loop.getExpression(), "$exp1");
         code.append("  if $exp1 false\n");
         code.append("  begin\n");
-        code.append("  exit loop1\n");
+        code.append("  exit ").append(name).append("\n");
         code.append("  end\n");
 
-        code.append("  goto loop1\n");
+        code.append("  goto ").append(name).append("\n");
         code.append("  end\n");
     }
 
     private void compileForLoop(ForLoopStatement loop) {
-        code.append("  begin loop_entry1\n");
+        var entry = context.nextLoopEntryName();
+        var name = context.nextLoopName();
+        code.append("  begin ").append(entry).append("\n");
         compileStatement(loop.getStatement1());
 
-        code.append("  begin loop1\n");
+        code.append("  begin ").append(name).append("\n");
         compileExpression((PostfixExpression) loop.getCondition(), "$exp1");
 
         code.append("  if $exp1 false\n");
         code.append("  begin\n");
-        code.append("  exit loop_entry1\n");
+        code.append("  exit ").append(entry).append("\n");
         code.append("  end\n");
 
         for (var stmt : loop.getBody()) {
@@ -164,7 +170,7 @@ public class Compiler {
         }
 
         compileStatement(loop.getStatement2());
-        code.append("  goto loop1\n");
+        code.append("  goto ").append(name).append("\n");
         code.append("  end\n");
         code.append("  end\n");
     }
