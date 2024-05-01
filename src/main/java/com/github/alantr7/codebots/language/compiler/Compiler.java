@@ -58,7 +58,8 @@ public class Compiler {
             code.append("  define_var ").append(stmt.getName()).append("\n");
             var ass = (PostfixExpression) stmt.getValue();
 
-            compileExpression(ass, stmt.getName());
+            if (ass != null)
+                compileExpression(ass, stmt.getName());
         } else if (statement instanceof VariableAssignStatement stmt) {
             compileExpression((PostfixExpression) stmt.getValue(), stmt.getName());
         } else if (statement instanceof FunctionCall stmt) {

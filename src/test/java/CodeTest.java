@@ -121,7 +121,7 @@ public class CodeTest {
         testCode("""
                 function getTriesUntilMatch(input) {
                   var counter = 0
-                  var number = 0
+                  var number
                   
                   do {
                     number = random(20)
