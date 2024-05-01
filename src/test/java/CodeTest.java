@@ -168,6 +168,17 @@ public class CodeTest {
                 """);
     }
 
+    @Test
+    public void testForLoop() throws Exception {
+        testCode("""
+                function main() {
+                  for (var i = 0; i < 10; i = i + 1) {
+                    print("Iteration #" + i)
+                  }
+                }
+                """);
+    }
+
     private void testCode(String code) throws Exception {
         var tokens = Tokenizer.tokenize(code.split("\n"));
         var parser = new Parser();

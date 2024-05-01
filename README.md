@@ -11,11 +11,11 @@ Script language is still very experimental, and many features are missing! Pleas
 - Return statements
 - String concatenation
 - While and do-while loops
+- For loops
 - Grouping expressions with parentheses
 
 #### Yet to be implemented
 - Logic operators (AND, OR) for boolean expressions
-- For loops
 - Importing user modules
 - Types for variables, parameters, etc. (dynamic will be the default)
 - Error handling

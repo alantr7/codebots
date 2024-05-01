@@ -143,6 +143,10 @@ public class Parser {
         if (stmt != null)
             return stmt;
 
+        stmt = nextForLoop();
+        if (stmt != null)
+            return stmt;
+
         stmt = (Statement) nextFunctionCall();
         if (stmt == null)
             return null;
@@ -177,6 +181,9 @@ public class Parser {
             return null;
         }
 
+        System.out.println("Assigning " + next);
+        System.out.println("Next: " + queue.peek());
+
         if (!queue.peek().equals("=")) {
             queue.rollback();
             return null;
@@ -186,6 +193,7 @@ public class Parser {
         var value = nextExpression();
 
         if (value == null) {
+            System.err.println("Invalid expression for variable assignment!");
             return null;
         }
 
@@ -380,6 +388,77 @@ public class Parser {
         return new DoWhileLoopStatement(condition, statements.toArray(new Statement[0]));
     }
 
+    private ForLoopStatement nextForLoop() {
+        if (!queue.peek().equals("for"))
+            return null;
+
+        queue.advance();
+        if (!queue.peek().equals("(")) {
+            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '('.");
+            return null;
+        }
+        queue.advance();
+
+        var init = nextStatement();
+        if (init == null) {
+            System.err.println("Invalid loop init statement!");
+            return null;
+        }
+
+        if (!queue.peek().equals(";")) {
+            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting ';'.");
+            return null;
+        }
+        queue.advance();
+
+        var condition = nextExpression();
+        if (condition == null) {
+            System.err.println("Invalid loop condition!");
+            return null;
+        }
+
+        if (!queue.peek().equals(";")) {
+            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting ';'.");
+            return null;
+        }
+        queue.advance();
+
+        var update = nextStatement();
+        if (update == null) {
+            System.err.println("Invalid loop update statement!");
+            return null;
+        }
+
+        if (!queue.peek().equals(")")) {
+            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting ')'.");
+            return null;
+        }
+        queue.advance();
+
+        if (!queue.peek().equals("{")) {
+            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '{'.");
+            return null;
+        }
+        queue.advance();
+
+        var statements = new LinkedList<Statement>();
+        while (true) {
+            var stmt = nextStatement();
+            if (stmt == null)
+                break;
+
+            statements.add(stmt);
+        }
+
+        if (!queue.peek().equals("}")) {
+            System.err.println("Unexpected symbol: " + queue.peek() + ". Was expecting '}'.");
+            return null;
+        }
+        queue.advance();
+
+        return new ForLoopStatement(init, condition, update, statements.toArray(new Statement[0]));
+    }
+
     private Expression nextExpression() {
         int j = 0;
         var stack = new Stack<String>();
@@ -402,6 +481,11 @@ public class Parser {
             }
 
             if (next.equals(")") && parenthesisOpen == 0) {
+                queue.rollback();
+                break;
+            }
+
+            if (next.equals(";")) {
                 queue.rollback();
                 break;
             }
@@ -433,6 +517,8 @@ public class Parser {
                             postfix.add(new LiteralExpression(popInParenthesis, LiteralExpression.INT));
                             j++;
                         }
+
+                        parenthesisOpen--;
                         stack.pop(); // pop out '('
                     } else {
 
