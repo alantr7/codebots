@@ -28,6 +28,7 @@ Script language is still very experimental, and many features are missing! Pleas
 - Ton of optimization
 
 ## Language examples
+<hr />
 
 ### Main function
 Main function is called as soon as the Bot starts.
@@ -36,6 +37,7 @@ function main() {
     print("Hello world!")
 }
 ```
+<hr />
 
 ### Variables
 Variables can be declared using the `var` keyword. Variables are dynamically typed. They can also be declared without a value. Variables can be declared outside a function too, which makes them accessible from all functions.
@@ -47,6 +49,7 @@ function main() {
     print(greeting + name)
 }
 ```
+<hr />
 
 ### If statements
 Expressions must be surrounded by parentheses.
@@ -62,6 +65,7 @@ function main() {
     }
 }
 ```
+<hr />
 
 ### Arrays
 Arrays can be created using `array()` function.
@@ -84,6 +88,7 @@ To get the length of an array, use the `length(array)` function.
 ```ts
 print(length(numbers))
 ```
+<hr />
 
 ### Dictionaries
 Dictionaries are a datatype that can store key-value pairs. They are defined using `dict()` function.
@@ -103,7 +108,7 @@ To remove a key-value pair from a dictionary, use the `dict_unset(dict, key)` fu
 ```ts
 dict_unset(locations, "farm")
 ```
-
+<hr />
 
 ### Records
 Records are a datatype that can store multiple values. They are defined using `record` keyword.
@@ -123,7 +128,7 @@ To access a property of a record, use the dot operator.
 var x = location.x
 var z = location.z
 ```
-
+<hr />
 
 ### Importing modules
 You can import modules using the `import` keyword. There are a few modules that are available by default:
@@ -142,6 +147,7 @@ function main() {
     turtle.move("forward")
 }
 ```
+<hr />
 
 ### A bit complex example
 ```ts
