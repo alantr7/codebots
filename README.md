@@ -66,6 +66,8 @@ function main() {
 ### Arrays
 Arrays can be created using `array()` function.
 Default capacity for arrays is 8. You can also specify the capacity as an argument, it is limited to 20 by default. 
+
+By default, all elements in the array have a value of `null`.
 ```ts
 var numbers = array()
 var numbers2 = array(10)
@@ -82,6 +84,26 @@ To get the length of an array, use the `length(array)` function.
 ```ts
 print(length(numbers))
 ```
+
+### Dictionaries
+Dictionaries are a datatype that can store key-value pairs. They are defined using `dict()` function.
+```ts
+var locations = dict()
+```
+
+To add a key-value pair to a dictionary, use the square brackets. Key can only be of string type (subject to change). You can also use `dict_set(dict, key, value)`
+```ts
+locations["home"] = new Location(12, 20, -12)
+locations["farm"] = new Location(123, 20, 456)
+
+dict_set(locations, "farm", new Location(123, 20, 456))
+```
+
+To remove a key-value pair from a dictionary, use the `dict_unset(dict, key)` function.
+```ts
+dict_unset(locations, "farm")
+```
+
 
 ### Records
 Records are a datatype that can store multiple values. They are defined using `record` keyword.
