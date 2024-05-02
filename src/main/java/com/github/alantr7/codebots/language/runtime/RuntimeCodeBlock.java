@@ -71,6 +71,12 @@ public class RuntimeCodeBlock extends RuntimeObject {
             environment.getBlockStack().clear();
         } catch (Exception e) {
             e.printStackTrace();
+            var stackTrace = generateStackTrace();
+            System.err.println("Error while executing \"" + block[i] + "\": " + e.getMessage());
+            System.err.println("Stack trace:");
+            for (var entry : stackTrace) {
+                System.err.println("  at " + entry.toString());
+            }
             environment.getBlockStack().clear();
         } finally {
         }
@@ -86,8 +92,6 @@ public class RuntimeCodeBlock extends RuntimeObject {
         var scope = context.getScope();
         if (sentence instanceof RuntimeCodeBlock block1) {
             environment.getBlockStack().add(new BlockStackEntry(block1, new BlockContext(BlockScope.nestIn(scope))));
-//            environment.REGISTRY_CURRENT_SCOPE.setValue(block1);
-
             return;
         }
 
@@ -162,13 +166,8 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
 
             case "push_func" -> {
-                // TODO: Function calls
                 var object = environment.REGISTRY_CURRENT_SCOPE.getValue();
-                if (object instanceof RuntimeNativeFunction f) {
-                    throw new ParserException("NATIVE FUNCTION FOR SOME REASON! " + f.getFunctionName());
-                }
-
-                functionStack.add(new FunctionCall(((Module) object).getRootScope(), tokens[1]));
+                functionStack.add(new FunctionCall(((Module) object).getRootScope(), tokens[1], Integer.parseInt(tokens[2])));
             }
             case "use_arg" -> {
                 var function = functionStack.getLast();
@@ -225,21 +224,41 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
 
             // Takes a value from an array, and stores it into a variable/registry
+            // Or a dictionary!
             case "array_get" -> {
                 var array = getValue(context, tokens[1]);
-                var index = (int) getValue(context, tokens[2]);
+                var key = getValue(context, tokens[2]);
 
-                var element = array instanceof String text ? text.charAt(index) : ((Object[]) array)[index];
+                System.out.println("Finding array: " + tokens[1]);
+                System.out.println("Index: " + key);
+
+                var element = array instanceof String text
+                        ? text.charAt((int) key)
+                        : key instanceof String dictKey ? ((Map<?, ?>) array).get(dictKey) : ((Object[]) array)[(int) key];
+
                 setValue(context, tokens[3], element);
             }
 
             // Takes a value from a variable/registry, and stores it into an array
             case "array_set" -> {
                 var array = getValue(context, tokens[1]);
-                var index = (int) getValue(context, tokens[2]);
+                var key = getValue(context, tokens[2]);
                 var value = getValue(context, tokens[3]);
 
-                ((Object[]) array)[index] = value;
+                System.out.println("Setting array: " + array);
+                System.out.println(Arrays.toString(tokens));
+                System.out.println("Index: " + key);
+                System.out.println("Value: " + value);
+
+                if (array == value) {
+                    System.out.println("Array equals the value.. weird.");
+                }
+
+                if (key instanceof String dictKey) {
+                    ((Map<String, Object>) array).put(dictKey, value);
+                } else if (key instanceof Integer in) {
+                    ((Object[]) array)[in] = value;
+                }
             }
 
             case "reset" -> {

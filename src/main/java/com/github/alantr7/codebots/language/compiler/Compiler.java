@@ -67,6 +67,9 @@ public class Compiler {
         } else if (statement instanceof VariableAssignStatement stmt) {
             code.append("\n");
             code.append("  set $cs #this_module\n");
+
+            compileExpression((PostfixExpression) stmt.getValue(), "$exp3");
+
             code.append("  set $exp1 *").append(stmt.getTarget().getName()).append("\n");
 
             var iterator = Arrays.stream(stmt.getTarget().getIndices()).iterator();
@@ -78,7 +81,6 @@ public class Compiler {
                     code.append("  array_get $exp1 $exp2 $exp1\n");
             }
 
-            compileExpression((PostfixExpression) stmt.getValue(), "$exp3");
             code.append("  array_set $exp1 $exp2 $exp3\n");
             code.append("\n");
         } else if (statement instanceof FunctionCall stmt) {
@@ -138,7 +140,7 @@ public class Compiler {
         } else {
             code.append("  set $cs #this_module\n");
         }
-        code.append("  push_func ").append(call.getValue()).append("\n");
+        code.append("  push_func ").append(call.getValue()).append(" ").append(call.getArguments().length).append("\n");
         Expression[] arguments = call.getArguments();
         for (int i = 0; i < arguments.length; i++) {
             var argument = arguments[i];

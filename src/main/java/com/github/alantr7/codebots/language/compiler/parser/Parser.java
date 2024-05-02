@@ -497,7 +497,7 @@ public class Parser {
     }
 
     private String nextIdentifier() {
-        return queue.peek().matches("[a-zA-Z]+") ? queue.next() : null;
+        return queue.peek().matches("[a-zA-Z_]+") ? queue.next() : null;
     }
 
     private Expression nextFunctionCall() {

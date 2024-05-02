@@ -213,6 +213,68 @@ public class CodeTest {
                 """);
     }
 
+    @Test
+    public void testArrays2() throws Exception {
+        testCode("""
+                function c() {
+                  return 10
+                }
+                
+                function b() {
+                  return c()
+                }
+                
+                function a() {
+                  var arr = array(1)
+                  arr[0] = 0
+                  
+                  return arr
+                }
+                
+                function main() {
+                  var arr = array(2)
+                  arr[0] = a()
+                  arr[1] = b()
+                  
+                  print("First: " + arr[0])
+                  print("Second: " + arr[1])
+                }
+                """);
+    }
+
+    @Test
+    public void testDicts() throws Exception {
+        testCode("""
+                function location(x, y, z) {
+                  var array = array(3)
+                  array[0] = x
+                  array[1] = y
+                  array[2] = z
+                  
+                  return array
+                }
+                
+                function a() {
+                  var location = location(123, 20, 456)
+                  return location
+                }
+                
+                function main() {
+                  var locations = dict()
+                  var locationsarr = array()
+                  
+                  var home = location(12, 20, 12)
+                  var farm = location(123, 20, 456)
+                  
+                  locations["home"] = home
+                  locations["farm"] = a()
+                  
+                  print("Home's X is: " + locations["home"][0])
+                  print("Farm is at: " + locations["farm"][0])
+                }
+                """);
+    }
+
     private void testCode(String code) throws Exception {
         var inline = Compiler.compileModule(code);
 

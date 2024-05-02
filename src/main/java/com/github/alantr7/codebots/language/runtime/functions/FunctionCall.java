@@ -12,11 +12,12 @@ public class FunctionCall {
     private final String function;
 
     @Getter
-    private final Object[] arguments = new Object[8];
+    private final Object[] arguments;
 
-    public FunctionCall(BlockScope scope, String function) {
+    public FunctionCall(BlockScope scope, String function, int argumentsLength) {
         this.scope = scope;
         this.function = function;
+        this.arguments = new Object[argumentsLength];
     }
 
     public void setArgument(int index, Object value) {

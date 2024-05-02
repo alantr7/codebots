@@ -117,7 +117,7 @@ public class Program {
 
     public void prepareMainFunction() {
         getEnvironment().getBlockStack().add(new BlockStackEntry(mainModule.getRootScope().getFunction("main"), new BlockContext(BlockScope.nestIn(mainModule.getRootScope()))));
-        getEnvironment().getCallStack().add(new FunctionCall(mainModule.getRootScope(), "main"));
+        getEnvironment().getCallStack().add(new FunctionCall(mainModule.getRootScope(), "main", 0));
     }
 
     public static Program createFromFileModule(File file) throws Exception {
