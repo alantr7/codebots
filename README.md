@@ -63,16 +63,38 @@ function main() {
 }
 ```
 
+### Arrays
+Arrays can be created using `array()` function.
+Default capacity for arrays is 8. You can also specify the capacity as an argument, it is limited to 20 by default. 
+```ts
+var numbers = array()
+var numbers2 = array(10)
+```
+
+To access, or set an element in an array, use the square brackets.
+
+```ts
+numbers[0] = 5
+print(numbers[0])
+```
+
+To get the length of an array, use the `length(array)` function.
+```ts
+print(length(numbers))
+```
+
+
 ### Importing modules
 You can import modules using the `import` keyword. There are a few modules that are available by default:
 - `turtle` - provides functions for controlling the turtle
 - `math` - provides math functions
+- `lang` - module for language functions. All functions from this module are available by default, so importing it is unnecessary.
 
 You can also import your own modules. *(Work in progress)*
 
 If you'd like to use a different name for an imported module, you can use the `as` keyword, like so: `import turtle as t;`
 ```ts
-import turtle;
+import turtle
 
 function main() {
     print("Moving forward.")
@@ -82,7 +104,7 @@ function main() {
 
 ### A bit complex example
 ```ts
-import turtle;
+import turtle
 
 function main() {
     var blocksMined = 0
