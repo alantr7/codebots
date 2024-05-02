@@ -108,6 +108,12 @@ To remove a key-value pair from a dictionary, use the `dict_unset(dict, key)` fu
 ```ts
 dict_unset(locations, "farm")
 ```
+
+To get the length of a dict, use the `length(dict)` function.
+```ts
+print(length(locations))
+```
+
 <hr />
 
 ### Records
