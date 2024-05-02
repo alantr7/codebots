@@ -34,6 +34,16 @@ public class LangModule extends NativeModule {
 
             return null;
         });
+        registerFunction("dict_unset", args -> {
+            Assertions.assertEquals(args.length, 2, "dict_unset requires 2 arguments");
+            Assertions.assertEquals(args[0] instanceof LinkedHashMap<?,?>, true, "dict_unset requires a dictionary as the first argument");
+
+            @SuppressWarnings("unchecked")
+            var dict = (LinkedHashMap<String, Object>) args[0];
+            dict.remove((String) args[1]);
+
+            return null;
+        });
 
         registerFunction("length", args -> {
             var object = args[0];

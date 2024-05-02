@@ -254,23 +254,18 @@ public class CodeTest {
                   return array
                 }
                 
-                function a() {
-                  var location = location(123, 20, 456)
-                  return location
-                }
-                
                 function main() {
                   var locations = dict()
-                  var locationsarr = array()
                   
-                  var home = location(12, 20, 12)
-                  var farm = location(123, 20, 456)
-                  
-                  locations["home"] = home
-                  locations["farm"] = a()
+                  locations["home"] = location(12, 20, 12)
+                  locations["farm"] = location(123, 20, 456)
                   
                   print("Home's X is: " + locations["home"][0])
                   print("Farm is at: " + locations["farm"][0])
+                  
+                  dict_unset(locations, "farm")
+                  
+                  print("Farm is now at: " + locations["farm"])
                 }
                 """);
     }

@@ -57,29 +57,6 @@ begin
   pop_stack
   exit_func
 end
-define_func a
-begin
-  define_var location
-  push_stack
-  push_func location 3
-  set $exp1 123
-  set_arg 0 $exp1
-  set $exp1 20
-  set_arg 1 $exp1
-  set $exp1 456
-  set_arg 2 $exp1
-  call
-  push $rv
-  pop_func
-  eval location pop
-  pop_stack
-  push_stack
-  set $cs #this_module
-  push *location
-  eval $rv pop
-  pop_stack
-  exit_func
-end
 define_func main
 begin
   define_var locations
@@ -90,47 +67,19 @@ begin
   pop_func
   eval locations pop
   pop_stack
-  define_var locationsarr
-  push_stack
-  push_func array 0
-  call
-  push $rv
-  pop_func
-  eval locationsarr pop
-  pop_stack
-  define_var home
-  push_stack
-  push_func location 3
-  set $exp1 12
-  set_arg 0 $exp1
-  set $exp1 20
-  set_arg 1 $exp1
-  set $exp1 12
-  set_arg 2 $exp1
-  call
-  push $rv
-  pop_func
-  eval home pop
-  pop_stack
-  define_var farm
-  push_stack
-  push_func location 3
-  set $exp1 123
-  set_arg 0 $exp1
-  set $exp1 20
-  set_arg 1 $exp1
-  set $exp1 456
-  set_arg 2 $exp1
-  call
-  push $rv
-  pop_func
-  eval farm pop
-  pop_stack
 
   set $cs #this_module
   push_stack
-  set $cs #this_module
-  push *home
+  push_func location 3
+  set $exp1 12
+  set_arg 0 $exp1
+  set $exp1 20
+  set_arg 1 $exp1
+  set $exp1 12
+  set_arg 2 $exp1
+  call
+  push $rv
+  pop_func
   eval $exp3 pop
   pop_stack
   set $exp1 *locations
@@ -140,7 +89,13 @@ begin
 
   set $cs #this_module
   push_stack
-  push_func a 0
+  push_func location 3
+  set $exp1 123
+  set_arg 0 $exp1
+  set $exp1 20
+  set_arg 1 $exp1
+  set $exp1 456
+  set_arg 2 $exp1
   call
   push $rv
   pop_func
@@ -178,6 +133,33 @@ begin
   set $exp2 "farm"
   array_get $exp1 $exp2 $exp1
   set $exp2 0
+  array_get $exp1 $exp2 $exp1
+  push $exp1
+
+  eval $exp1 pop pop +
+  pop_stack
+  set_arg 0 $exp1
+  call
+  pop_func
+  push_func dict_unset 2
+  push_stack
+  set $cs #this_module
+  push *locations
+  eval $exp1 pop
+  pop_stack
+  set_arg 0 $exp1
+  set $exp1 "farm"
+  set_arg 1 $exp1
+  call
+  pop_func
+  push_func print 1
+  push_stack
+  push "Farm is now at: "
+  set $cs #this_module
+
+  set $cs #this_module
+  set $exp1 *locations
+  set $exp2 "farm"
   array_get $exp1 $exp2 $exp1
   push $exp1
 
