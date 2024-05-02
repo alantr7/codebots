@@ -8,6 +8,7 @@ public class MemoryModule extends Module {
 
     public MemoryModule(Program program, RuntimeCodeBlock block) {
         super(program, new BlockScope(), block);
+        this.getRootScope().setModule(this);
     }
 
 }

@@ -12,7 +12,7 @@ public class FunctionCall {
     private final String function;
 
     @Getter
-    private final Object[] arguments = new Object[5];
+    private final Object[] arguments = new Object[8];
 
     public FunctionCall(BlockScope scope, String function) {
         this.scope = scope;

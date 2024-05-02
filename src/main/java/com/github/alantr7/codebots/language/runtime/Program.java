@@ -1,8 +1,12 @@
 package com.github.alantr7.codebots.language.runtime;
 
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.language.parser.AssemblyParser;
+import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
+import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.language.runtime.modules.FileModule;
+import com.github.alantr7.codebots.language.runtime.modules.MemoryModule;
 import com.github.alantr7.codebots.language.runtime.modules.Module;
 import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
 import lombok.Getter;
@@ -19,7 +23,7 @@ public class Program {
     @Getter
     private final RuntimeEnvironment environment = new RuntimeEnvironment(this);
 
-    @Getter @Setter
+    @Getter
     private Module mainModule;
 
     @Getter
@@ -85,6 +89,35 @@ public class Program {
 
     public Object getExtra(String key) {
         return this.extra.get(key);
+    }
+
+    public void registerDefaultFunctionsFromModule(Module module) {
+        for (var function : module.getRootScope().getFunctions()) {
+            this.rootScope.setFunction(function.getLabel(), function);
+        }
+    }
+
+    public void setMainModule(Module module) {
+        this.mainModule = module;
+        this.getEnvironment().REGISTRY_CURRENT_SCOPE.setValue(mainModule);
+        this.getEnvironment().getBlockStack().clear();
+        this.getEnvironment().getCallStack().clear();
+
+        // Add module to the block stack, and prepare it for execution
+        this.getEnvironment().getBlockStack().add(new BlockStackEntry(module.getBlock(), new BlockContext(module.getRootScope())));
+    }
+
+    public void loadAndSetMainModule(String assembly) throws ParseException {
+        var block = AssemblyParser.parseCodeBlock(this, assembly.split("\n"));
+        var module = new MemoryModule(this, block);
+
+        setMainModule(module);
+        executeEverything();
+    }
+
+    public void prepareMainFunction() {
+        getEnvironment().getBlockStack().add(new BlockStackEntry(mainModule.getRootScope().getFunction("main"), new BlockContext(BlockScope.nestIn(mainModule.getRootScope()))));
+        getEnvironment().getCallStack().add(new FunctionCall(mainModule.getRootScope(), "main"));
     }
 
     public static Program createFromFileModule(File file) throws Exception {

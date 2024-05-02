@@ -560,7 +560,7 @@ public class Parser {
             return null;
 
         queue.advance();
-        return new FunctionCall(target, name, arguments.toArray(new Expression[0]));
+        return new FunctionCall(new VariableAccess(target, name, new Expression[0]), arguments.toArray(new Expression[0]));
     }
 
     private Expression nextMemberAccessOrArrayOrCall() {
@@ -646,7 +646,7 @@ public class Parser {
             return null;
 
         queue.advance();
-        return new FunctionCall(target, name, arguments.toArray(new Expression[0]));
+        return new FunctionCall(new VariableAccess(target, name, new Expression[0]), arguments.toArray(new Expression[0]));
     }
 
 }

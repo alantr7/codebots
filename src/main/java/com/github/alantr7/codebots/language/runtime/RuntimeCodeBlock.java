@@ -1,9 +1,11 @@
 package com.github.alantr7.codebots.language.runtime;
 
 import com.github.alantr7.codebots.language.compiler.parser.ParserHelper;
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
+import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeSleepFunction;
 import com.github.alantr7.codebots.language.runtime.modules.Module;
 import com.github.alantr7.codebots.language.runtime.utils.Calculator;
@@ -48,7 +50,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 labelPositions.put(block1.label, j);
         }
 
-        environment.REGISTRY_CURRENT_SCOPE.setValue(this);
+//        environment.REGISTRY_CURRENT_SCOPE.setValue(this);
     }
 
     public boolean hasNext(BlockContext context) {
@@ -84,7 +86,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
         var scope = context.getScope();
         if (sentence instanceof RuntimeCodeBlock block1) {
             environment.getBlockStack().add(new BlockStackEntry(block1, new BlockContext(BlockScope.nestIn(scope))));
-            environment.REGISTRY_CURRENT_SCOPE.setValue(block1);
+//            environment.REGISTRY_CURRENT_SCOPE.setValue(block1);
 
             return;
         }
@@ -162,6 +164,10 @@ public class RuntimeCodeBlock extends RuntimeObject {
             case "push_func" -> {
                 // TODO: Function calls
                 var object = environment.REGISTRY_CURRENT_SCOPE.getValue();
+                if (object instanceof RuntimeNativeFunction f) {
+                    throw new ParserException("NATIVE FUNCTION FOR SOME REASON! " + f.getFunctionName());
+                }
+
                 functionStack.add(new FunctionCall(((Module) object).getRootScope(), tokens[1]));
             }
             case "use_arg" -> {
@@ -408,7 +414,15 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 yield environment.getRegistry(name).getValue(); // Added getValue()
             }
             case '&' -> scope.getVariable(raw.substring(1));
-            case '*' -> scope.getVariable(raw.substring(1)).getValue();
+            case '*' -> {
+                var variable = scope.getVariable(raw.substring(1));
+                if (variable == null) {
+                    System.err.println("Trying to access a variable that does not exist!: " + raw);
+                    yield null;
+                }
+
+                yield variable.getValue();
+            }
             case '#' -> scope.getModule();
             default -> switch (raw) {
                 case "true" -> true;
@@ -438,6 +452,11 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
         if (registry == environment.REGISTRY_CURRENT_SCOPE) {
             environment.REGISTRY_CURRENT_SCOPE.setValue(value);
+
+            if (value instanceof RuntimeNativeFunction f) {
+                System.err.println("Someone setting to function lol. Caught you bitch!");
+                System.err.println(this.block[context.getLineIndex()]);
+            }
             return;
         }
 

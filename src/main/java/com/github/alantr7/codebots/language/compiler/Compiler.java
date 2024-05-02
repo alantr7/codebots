@@ -1,8 +1,10 @@
 package com.github.alantr7.codebots.language.compiler;
 
+import com.github.alantr7.codebots.language.compiler.parser.Parser;
 import com.github.alantr7.codebots.language.compiler.parser.element.Module;
 import com.github.alantr7.codebots.language.compiler.parser.element.exp.*;
 import com.github.alantr7.codebots.language.compiler.parser.element.stmt.*;
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -63,11 +65,8 @@ public class Compiler {
             if (ass != null)
                 compileExpression(ass, stmt.getName());
         } else if (statement instanceof VariableAssignStatement stmt) {
-            // TODO: BACKUP!!!
-//            compileExpression((PostfixExpression) stmt.getValue(), stmt.getTarget().getName());
-
             code.append("\n");
-            code.append("  set $cs #cs\n");
+            code.append("  set $cs #this_module\n");
             code.append("  set $exp1 *").append(stmt.getTarget().getName()).append("\n");
 
             var iterator = Arrays.stream(stmt.getTarget().getIndices()).iterator();
@@ -98,10 +97,10 @@ public class Compiler {
     }
 
     private void compileVariableAccess(VariableAccess var) {
-        code.append("  set $cs #cs\n");
+        code.append("  set $cs #this_module\n");
         if (!var.getTarget().getValue().equals("this")) {
             MemberAccess current = var.getTarget();
-            while (current != null) {
+            while (current != null && !current.getValue().equals("this")) {
                 code.append("  set $cs ").append(current.getValue()).append("\n");
                 current = current.getRight();
             }
@@ -109,7 +108,7 @@ public class Compiler {
 
         if (var.getIndices().length != 0) {
             code.append("\n");
-            code.append("  set $cs #cs\n");
+            code.append("  set $cs #this_module\n");
             code.append("  set $exp1 *").append(var.getName()).append("\n");
 
             var iterator = Arrays.stream(var.getIndices()).iterator();
@@ -131,8 +130,8 @@ public class Compiler {
 
     private void compileFunctionCall(FunctionCall call, boolean push) {
         if (!call.getTarget().getValue().equals("this")) {
-            MemberAccess current = call.getTarget();
-            while (current != null) {
+            var current = call.getTarget().getTarget();
+            while (current != null && !current.getValue().equals("this")) {
                 code.append("  set $cs *").append(current.getValue()).append("\n");
                 current = current.getRight();
             }
@@ -271,6 +270,18 @@ public class Compiler {
     private void compileReturnStatement(ReturnStatement stmt) {
         compileExpression((PostfixExpression) stmt.getValue(), "$rv");
         code.append("  exit_func\n");
+    }
+
+    public static String compileModule(String code) throws ParserException {
+        var tokens = Tokenizer.tokenize(code.split("\n"));
+        var parser = new Parser();
+
+        var parsed = parser.parse(tokens);
+        return compileModule(parsed);
+    }
+
+    public static String compileModule(Module module) {
+        return new Compiler().compile(module);
     }
 
 }

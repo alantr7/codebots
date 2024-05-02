@@ -29,6 +29,10 @@ public class BlockScope {
         return functions.getOrDefault(name, parent != null ? parent.getFunction(name) : null);
     }
 
+    public RuntimeCodeBlock[] getFunctions() {
+        return functions.values().toArray(RuntimeCodeBlock[]::new);
+    }
+
     public void setFunction(String name, RuntimeCodeBlock block) {
         functions.put(name, block);
     }

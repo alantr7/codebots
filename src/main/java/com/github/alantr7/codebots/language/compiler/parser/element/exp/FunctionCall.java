@@ -9,13 +9,13 @@ import java.util.stream.Collectors;
 public class FunctionCall extends Expression implements Statement {
 
     @Getter
-    private final MemberAccess target;
+    private final VariableAccess target;
 
     @Getter
     protected final Expression[] arguments;
 
-    public FunctionCall(MemberAccess target, String name, Expression[] arguments) {
-        super(name);
+    public FunctionCall(VariableAccess target, Expression[] arguments) {
+        super(target);
         this.target = target;
         this.arguments = arguments;
     }

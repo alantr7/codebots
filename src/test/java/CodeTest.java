@@ -6,14 +6,17 @@ import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.BlockScope;
 import com.github.alantr7.codebots.language.runtime.BlockStackEntry;
 import com.github.alantr7.codebots.language.runtime.Program;
+import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.language.runtime.modules.MemoryModule;
 import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
+import com.github.alantr7.codebots.language.runtime.modules.standard.LangModule;
 import com.github.alantr7.codebots.language.runtime.modules.standard.MathModule;
 import org.junit.Test;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.util.stream.Collectors;
 
@@ -200,25 +203,18 @@ public class CodeTest {
     public void testArrays() throws Exception {
         testCode("""
                 function main() {
-                  var first = array()
-                  var second = array()
-                  var third = array()
+                  var array = array(2)
+                  array[0] = "Hello"
+                  array[1] = "Alan!"
                   
-                  first[0] = second
-                  second[0] = third
-                  
-                  first[0][0][1] = "Alanka"
-                  first[0][0][2] = "Palanka"
-                  
-                  print(third[1] + " " + first[0][0][2])
+                  print(array[0] + " " + array[1])
+                  print("Array length: " + length(array))
                 }
                 """);
     }
 
     private void testCode(String code) throws Exception {
-        var tokens = Tokenizer.tokenize(code.split("\n"));
-        var parser = new Parser();
-        var inline = new Compiler().compile(parser.parse(tokens));
+        var inline = Compiler.compileModule(code);
 
         // Save to a file
         var testName = StackWalker.getInstance().walk(frames -> frames.collect(Collectors.toList())).get(1).getMethodName();
@@ -227,33 +223,15 @@ public class CodeTest {
         var file = new File(System.getProperty("user.dir"), testName + ".txt");
         Files.write(file.toPath(), inline.getBytes());
 
-        var compiled = inline.split("\n");
+        var program = new Program(new File("."));
+        program.registerNativeModule("math", new MathModule(program));
+        program.registerNativeModule("lang", new LangModule(program));
+        program.registerDefaultFunctionsFromModule(program.getOrLoadModule("lang"));
 
+        program.loadAndSetMainModule(inline);
         System.out.println(inline);
 
-        var program = new Program(new File("."));
-        var block = AssemblyParser.parseCodeBlock(program, compiled);
-
-        program.registerNativeModule("math", new MathModule(program));
-
-        var module = new MemoryModule(program, block);
-        program.setMainModule(module);
-        module.getRootScope().setModule(module);
-
-        program.getEnvironment().getBlockStack().add(new BlockStackEntry(block, new BlockContext(module.getRootScope())));
-        program.getRootScope().setFunction("random", program.getOrLoadModule("math").getRootScope().getFunction("random"));
-        program.getRootScope().setFunction("array", new RuntimeNativeFunction(program, "array", (args) -> {
-            return new Object[] { null, null, null, null, null, null, null, null };
-        }));
-
-        program.executeEverything();
-
-        var main = module.getRootScope().getFunction("main");
-        System.out.println("Main function: " + main);
-
-        program.getEnvironment().getBlockStack().add(new BlockStackEntry(main, new BlockContext(BlockScope.nestIn(module.getRootScope()))));
-        program.getEnvironment().getCallStack().add(new FunctionCall(module.getRootScope(), "main"));
-
+        program.prepareMainFunction();
         program.executeEverything();
     }
 
