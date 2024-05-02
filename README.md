@@ -83,6 +83,25 @@ To get the length of an array, use the `length(array)` function.
 print(length(numbers))
 ```
 
+### Records
+Records are a datatype that can store multiple values. They are defined using `record` keyword.
+Properties of the record are defined in the parentheses. Properties are read-only.
+
+Records must be defined outside a function, so in the root of a module.
+```ts
+record Location(var x, var y, var z)
+```
+
+To create an instance of a record, use the `new` keyword.
+```ts
+var location = new Location(123, 20, 456)
+```
+To access a property of a record, use the dot operator.
+```ts
+var x = location.x
+var z = location.z
+```
+
 
 ### Importing modules
 You can import modules using the `import` keyword. There are a few modules that are available by default:
