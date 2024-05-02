@@ -70,18 +70,21 @@ public class Compiler {
 
             compileExpression((PostfixExpression) stmt.getValue(), "$exp3");
 
-            code.append("  set $exp1 *").append(stmt.getTarget().getName()).append("\n");
+            if (stmt.getTarget().getIndices().length > 0) {
+                code.append("  set $exp1 *").append(stmt.getTarget().getName()).append("\n");
+                var iterator = Arrays.stream(stmt.getTarget().getIndices()).iterator();
+                while (iterator.hasNext()) {
+                    var index = iterator.next();
+                    compileExpression((PostfixExpression) index, "$exp2");
 
-            var iterator = Arrays.stream(stmt.getTarget().getIndices()).iterator();
-            while (iterator.hasNext()) {
-                var index = iterator.next();
-                compileExpression((PostfixExpression) index, "$exp2");
+                    if (iterator.hasNext())
+                        code.append("  array_get $exp1 $exp2 $exp1\n");
+                }
 
-                if (iterator.hasNext())
-                    code.append("  array_get $exp1 $exp2 $exp1\n");
+                code.append("  array_set $exp1 $exp2 $exp3\n");
+            } else {
+                code.append("  set ").append(stmt.getTarget().getName()).append(" $exp3\n");
             }
-
-            code.append("  array_set $exp1 $exp2 $exp3\n");
             code.append("\n");
         } else if (statement instanceof FunctionCall stmt) {
             compileFunctionCall(stmt, false);

@@ -269,6 +269,22 @@ public class CodeTest {
                 """);
     }
 
+    @Test
+    public void testPrintStringCharacters() throws Exception {
+        testCode("""                                
+                function main() {
+                  var message = "Hello world!"
+                  var array = array(length(message))
+                  
+                  for (var i = 0; i < length(message); i = i + 1) {
+                    array[i] = message[i]
+                  }
+                  
+                  print(array)
+                }
+                """);
+    }
+
     private void testCode(String code) throws Exception {
         var inline = Compiler.compileModule(code);
 
