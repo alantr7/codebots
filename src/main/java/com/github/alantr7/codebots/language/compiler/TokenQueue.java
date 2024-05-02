@@ -6,16 +6,22 @@ public class TokenQueue {
 
     private final String[][] queue;
 
+    private final Integer[] lines;
+
     private int row = 0;
 
     private int col = 0;
 
-    public TokenQueue(String[][] queue) {
+    public TokenQueue(String[][] queue, Integer[] lines) {
         this.queue = queue;
+        this.lines = lines;
         for (int i = 0; i < queue.length; i++) {
             var line = queue[i];
-            System.out.println("Token line #" + (1 + i) + ": " + Arrays.toString(line));
+            System.out.println("Token line #" + (lines[i]) + ": " + Arrays.toString(line));
         }
+
+        if (queue[0].length == 0)
+            advance();
     }
 
     public String peek() {
@@ -48,10 +54,13 @@ public class TokenQueue {
             row++;
             col = 0;
         }
+
+        if (!isEmpty() && queue[row].length == 0)
+            advance();
     }
 
     public int getLine() {
-        return row + 1;
+        return lines[row];
     }
 
     public boolean isEmpty() {

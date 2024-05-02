@@ -142,7 +142,16 @@ public class RuntimeCodeBlock extends RuntimeObject {
             case "push_stack" -> environment.getTokenStack().push(new LinkedList<>());
             case "pop_stack" -> environment.getTokenStack().pop();
             case "push" -> {
-                environment.getTokenStack().peek().push(getValue(context, tokens[1]));
+                var toPush = getValue(context, tokens[1]);
+                Object value;
+                if (toPush instanceof Long l) {
+                    value = (int) (long) l;
+                } else {
+                    value = toPush;
+                }
+
+                environment.getTokenStack().peek().push(value);
+
             }
 
             case "eval" -> {
@@ -336,6 +345,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 stack.push(Boolean.parseBoolean(literal));
             } else if (literal.equals("pop")) {
                 var pop = tokenStack.removeLast();
+                System.out.println("Popped: " + pop);
 
                 // TODO: Improve this
                 if (pop instanceof String) {
@@ -382,7 +392,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
         }
 
         setValue(context, registry, stack.peek());
-//        System.out.println("Evaluated expression. Result: " + stack.peek());
+        System.out.println("Evaluated expression: " + Arrays.toString(expressions) + " Result: " + stack.peek());
     }
 
     private Object getValue(BlockContext context, String raw) {

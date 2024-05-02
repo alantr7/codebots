@@ -14,6 +14,8 @@ import com.github.alantr7.codebots.language.runtime.modules.standard.MathModule;
 import org.junit.Test;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.util.stream.Collectors;
 
 public class CodeTest {
 
@@ -153,6 +155,7 @@ public class CodeTest {
                   
                   for (number = random(20); number != input; number = random(20)) {
                     counter = counter + 1
+                    print(number + " != " + input)
                   }
                   
                   print(number + " = " + input)
@@ -171,7 +174,7 @@ public class CodeTest {
 
     @Test
     public void testExpressionGroups() throws Exception {
-        testCode("""                                
+        testCode("""
                 function pow(num, pow) {
                   var result = 1
                   
@@ -195,7 +198,7 @@ public class CodeTest {
 
     @Test
     public void testArrays() throws Exception {
-        testCode("""                                
+        testCode("""
                 function main() {
                   var first = array()
                   var second = array()
@@ -216,6 +219,14 @@ public class CodeTest {
         var tokens = Tokenizer.tokenize(code.split("\n"));
         var parser = new Parser();
         var inline = new Compiler().compile(parser.parse(tokens));
+
+        // Save to a file
+        var testName = StackWalker.getInstance().walk(frames -> frames.collect(Collectors.toList())).get(1).getMethodName();
+        System.out.println("Test Name: " + testName);
+
+        var file = new File(System.getProperty("user.dir"), testName + ".txt");
+        Files.write(file.toPath(), inline.getBytes());
+
         var compiled = inline.split("\n");
 
         System.out.println(inline);
@@ -232,7 +243,7 @@ public class CodeTest {
         program.getEnvironment().getBlockStack().add(new BlockStackEntry(block, new BlockContext(module.getRootScope())));
         program.getRootScope().setFunction("random", program.getOrLoadModule("math").getRootScope().getFunction("random"));
         program.getRootScope().setFunction("array", new RuntimeNativeFunction(program, "array", (args) -> {
-            return new Object[] { null, "Hello", "World", null, null, null, null, null };
+            return new Object[] { null, null, null, null, null, null, null, null };
         }));
 
         program.executeEverything();

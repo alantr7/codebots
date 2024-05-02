@@ -39,11 +39,16 @@ public class RuntimeEnvironment {
 
     public RuntimeVariable REGISTRY_EXPRESSION_3 = new RuntimeVariable(ValueType.ANY);
 
+    public RuntimeVariable REGISTRY_LINE_NUMBER = new RuntimeVariable(ValueType.INT);
+
+    { REGISTRY_LINE_NUMBER.setValue(1); }
+
     public RuntimeVariable getRegistry(String name) {
         return switch (name) {
             case "cv" -> REGISTRY_CURRENT_VALUE;
             case "cs" -> REGISTRY_CURRENT_SCOPE;
             case "rv" -> REGISTRY_RETURN_VALUE;
+            case "line" -> REGISTRY_LINE_NUMBER;
             case "exp1" -> REGISTRY_EXPRESSION_1;
             case "exp2" -> REGISTRY_EXPRESSION_2;
             case "exp3" -> REGISTRY_EXPRESSION_3;

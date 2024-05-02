@@ -9,15 +9,19 @@ public class Tokenizer {
 
     public static TokenQueue tokenize(String[] input) {
         List<String[]> lines = new LinkedList<>();
-        for (var line : input) {
+        List<Integer> lineNumbers = new LinkedList<>();
+
+        for (int i = 0; i < input.length; i++) {
+            var line = input[i];
             var tokenized = tokenizeLine(line);
             if (tokenized.length == 0)
                 continue;
 
             lines.add(tokenized);
+            lineNumbers.add(i + 1);
         }
 
-        return new TokenQueue(lines.toArray(String[][]::new));
+        return new TokenQueue(lines.toArray(String[][]::new), lineNumbers.toArray(Integer[]::new));
     }
 
     public static TokenQueue tokenize(String input) {

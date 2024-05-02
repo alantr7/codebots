@@ -63,8 +63,9 @@ public class Compiler {
             if (ass != null)
                 compileExpression(ass, stmt.getName());
         } else if (statement instanceof VariableAssignStatement stmt) {
-            compileExpression((PostfixExpression) stmt.getValue(), stmt.getTarget().getName());
-        } else if (statement instanceof ArrayAssignStatement stmt) {
+            // TODO: BACKUP!!!
+//            compileExpression((PostfixExpression) stmt.getValue(), stmt.getTarget().getName());
+
             code.append("\n");
             code.append("  set $cs #cs\n");
             code.append("  set $exp1 *").append(stmt.getTarget().getName()).append("\n");
@@ -106,12 +107,12 @@ public class Compiler {
             }
         }
 
-        if (var instanceof ArrayAccess array) {
+        if (var.getIndices().length != 0) {
             code.append("\n");
             code.append("  set $cs #cs\n");
-            code.append("  set $exp1 *").append(array.getName()).append("\n");
+            code.append("  set $exp1 *").append(var.getName()).append("\n");
 
-            var iterator = Arrays.stream(array.getIndices()).iterator();
+            var iterator = Arrays.stream(var.getIndices()).iterator();
             while (iterator.hasNext()) {
                 var index = iterator.next();
                 compileExpression((PostfixExpression) index, "$exp2");

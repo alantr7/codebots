@@ -171,15 +171,7 @@ public class Parser {
             indices.add(index);
         }
 
-        if (indices.isEmpty()) {
-            target = new VariableAccess(new MemberAccess("this", null), next);
-        } else {
-            target = new ArrayAccess(new MemberAccess("this", null), next, indices.toArray(Expression[]::new));
-        }
-
-        if (target == null) {
-            target = new VariableAccess(new MemberAccess("this", null), next);
-        }
+        target = new VariableAccess(new MemberAccess("this", null), next, indices.toArray(Expression[]::new));
 
         if (!queue.peek().equals("=")) {
             queue.rollback();
@@ -193,11 +185,8 @@ public class Parser {
             throw new ParserException("Invalid expression for variable assignment!");
         }
 
-        if (target instanceof ArrayAccess) {
-            return new ArrayAssignStatement((ArrayAccess) target, value);
-        } else {
-            return new VariableAssignStatement(target, value);
-        }
+        return new VariableAssignStatement(target, value);
+
     }
 
     private IfStatement nextIfStatement() throws ParserException {
@@ -612,12 +601,27 @@ public class Parser {
             }
         }
 
+        var indices = new LinkedList<Expression>();
+
         if (queue.peek().equals("[")) {
-            return nextArrayAccess(new VariableAccess(target, name));
+            while (queue.peek().equals("[")) {
+                queue.advance();
+                var index = (PostfixExpression) nextExpression();
+                if (index == null) {
+                    return null;
+                }
+
+                if (!queue.peek().equals("]")) {
+                    return null;
+                }
+
+                indices.add(index);
+                queue.advance();
+            }
         }
 
         if (!queue.peek().equals("(")) {
-            return new VariableAccess(target, name);
+            return new VariableAccess(target, name, indices.toArray(new Expression[0]));
         }
 
         queue.advance();
@@ -643,30 +647,6 @@ public class Parser {
 
         queue.advance();
         return new FunctionCall(target, name, arguments.toArray(new Expression[0]));
-    }
-
-    private ArrayAccess nextArrayAccess(VariableAccess target) {
-        if (!queue.peek().equals("[")) {
-            return null;
-        }
-
-        var indices = new LinkedList<Expression>();
-        while (queue.peek().equals("[")) {
-            queue.advance();
-            var index = (PostfixExpression) nextExpression();
-            if (index == null) {
-                return null;
-            }
-
-            if (!queue.peek().equals("]")) {
-                return null;
-            }
-
-            indices.add(index);
-            queue.advance();
-        }
-
-        return new ArrayAccess(target.getTarget(), target.getName(), indices.toArray(Expression[]::new));
     }
 
 }

@@ -7,9 +7,13 @@ public class VariableAccess extends Expression {
     @Getter
     private final MemberAccess target;
 
-    public VariableAccess(MemberAccess target, String name) {
+    @Getter
+    private final Expression[] indices;
+
+    public VariableAccess(MemberAccess target, String name, Expression[] indices) {
         super(name);
         this.target = target;
+        this.indices = indices;
     }
 
     public String getName() {
