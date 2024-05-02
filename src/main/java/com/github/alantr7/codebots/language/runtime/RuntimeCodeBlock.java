@@ -370,7 +370,6 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 stack.push(Boolean.parseBoolean(literal));
             } else if (literal.equals("pop")) {
                 var pop = tokenStack.removeLast();
-                System.out.println("Popped: " + pop);
 
                 // TODO: Improve this
                 if (pop instanceof String) {

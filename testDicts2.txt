@@ -1,0 +1,76 @@
+
+define_func main
+begin
+  define_var locations
+  push_stack
+  push_func dict 0
+  call
+  push $rv
+  pop_func
+  eval locations pop
+  pop_stack
+
+  set $cs #this_module
+  push_stack
+  set $cs #this_module
+  push *locations
+  eval $exp3 pop
+  pop_stack
+  set $exp1 *locations
+  set $exp2 "location"
+  array_set $exp1 $exp2 $exp3
+
+  push_func print 1
+  push_stack
+  push "Farm is now at: "
+  set $cs #this_module
+
+  set $cs #this_module
+  set $exp1 *locations
+  set $exp2 "location"
+  array_get $exp1 $exp2 $exp1
+  set $exp2 "location"
+  array_get $exp1 $exp2 $exp1
+  set $exp2 "location"
+  array_get $exp1 $exp2 $exp1
+  push $exp1
+
+  eval $exp1 pop pop +
+  pop_stack
+  set_arg 0 $exp1
+  call
+  pop_func
+  push_func dict_unset 2
+  push_stack
+  set $cs #this_module
+
+  set $cs #this_module
+  set $exp1 *locations
+  set $exp2 "location"
+  array_get $exp1 $exp2 $exp1
+  push $exp1
+
+  eval $exp1 pop
+  pop_stack
+  set_arg 0 $exp1
+  set $exp1 "location"
+  set_arg 1 $exp1
+  call
+  pop_func
+  push_func print 1
+  push_stack
+  push "Farm is now at: "
+  set $cs #this_module
+
+  set $cs #this_module
+  set $exp1 *locations
+  set $exp2 "location"
+  array_get $exp1 $exp2 $exp1
+  push $exp1
+
+  eval $exp1 pop pop +
+  pop_stack
+  set_arg 0 $exp1
+  call
+  pop_func
+end

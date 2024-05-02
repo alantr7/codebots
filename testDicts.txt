@@ -123,24 +123,6 @@ begin
   set_arg 0 $exp1
   call
   pop_func
-  push_func print 1
-  push_stack
-  push "Farm is at: "
-  set $cs #this_module
-
-  set $cs #this_module
-  set $exp1 *locations
-  set $exp2 "farm"
-  array_get $exp1 $exp2 $exp1
-  set $exp2 0
-  array_get $exp1 $exp2 $exp1
-  push $exp1
-
-  eval $exp1 pop pop +
-  pop_stack
-  set_arg 0 $exp1
-  call
-  pop_func
   push_func dict_unset 2
   push_stack
   set $cs #this_module
@@ -164,6 +146,25 @@ begin
   push $exp1
 
   eval $exp1 pop pop +
+  pop_stack
+  set_arg 0 $exp1
+  call
+  pop_func
+  push_func print 1
+  push_stack
+  push "There are "
+  push_func length 1
+  push_stack
+  set $cs #this_module
+  push *locations
+  eval $exp1 pop
+  pop_stack
+  set_arg 0 $exp1
+  call
+  push $rv
+  pop_func
+  push " locations saved."
+  eval $exp1 pop pop + pop +
   pop_stack
   set_arg 0 $exp1
   call

@@ -219,18 +219,18 @@ public class CodeTest {
                 function c() {
                   return 10
                 }
-                
+                                
                 function b() {
                   return c()
                 }
-                
+                                
                 function a() {
                   var arr = array(1)
                   arr[0] = 0
                   
                   return arr
                 }
-                
+                                
                 function main() {
                   var arr = array(2)
                   arr[0] = a()
@@ -253,7 +253,7 @@ public class CodeTest {
                   
                   return array
                 }
-                
+                                
                 function main() {
                   var locations = dict()
                   
@@ -261,11 +261,10 @@ public class CodeTest {
                   locations["farm"] = location(123, 20, 456)
                   
                   print("Home's X is: " + locations["home"][0])
-                  print("Farm is at: " + locations["farm"][0])
-                  
                   dict_unset(locations, "farm")
                   
                   print("Farm is now at: " + locations["farm"])
+                  print("There are " + length(locations) + " locations saved.")
                 }
                 """);
     }

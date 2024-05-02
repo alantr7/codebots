@@ -9,6 +9,7 @@ import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
 
 import java.lang.reflect.Array;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class LangModule extends NativeModule {
 
@@ -52,6 +53,9 @@ public class LangModule extends NativeModule {
             }
             else if (object.getClass().isArray()) {
                 return Array.getLength(object);
+            }
+            else if (object instanceof Map<?, ?> map) {
+                return map.size();
             }
             else return 0;
         });
