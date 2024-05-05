@@ -67,8 +67,26 @@ public class Program {
     }
 
     public void executeEverything() {
-        while (mainModule.hasNext()) {
+        while (mainModule.hasNext() && !environment.isInterrupted()) {
             mainModule.next();
+        }
+
+        if (environment.isInterrupted()) {
+            var block = environment.getBlockStack().getLast().block().getBlock();
+            var context = environment.getBlockStack().getLast().context();
+
+            System.err.print("Error while executing the program.");
+            if (environment.getException() != null) {
+                System.err.println(": " + environment.getException().getMessage());
+            } else {
+                System.err.println();
+            }
+
+            System.err.println("Stack trace:");
+            var stackTrace = environment.getStackTrace();
+            for (var entry : stackTrace) {
+                System.err.println("  at " + entry.toString());
+            }
         }
     }
 

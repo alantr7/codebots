@@ -8,6 +8,7 @@ import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeSleepFunction;
 import com.github.alantr7.codebots.language.runtime.modules.Module;
+import com.github.alantr7.codebots.language.runtime.modules.standard.LangModule;
 import com.github.alantr7.codebots.language.runtime.utils.Calculator;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +28,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
     @Getter
     private final BlockType blockType;
 
+    @Getter
     private boolean isFunction = false;
 
     @Getter
@@ -63,23 +65,10 @@ public class RuntimeCodeBlock extends RuntimeObject {
         try {
             _execute(context);
         } catch (ExecutionException e) {
-            var stackTrace = generateStackTrace();
-            System.err.println("Error while executing \"" + block[i] + "\": " + e.getMessage());
-            System.err.println("Stack trace:");
-            for (var entry : stackTrace) {
-                System.err.println("  at " + entry.toString());
-            }
-            environment.getBlockStack().clear();
+            environment.interrupt(e);
         } catch (Exception e) {
             e.printStackTrace();
-            var stackTrace = generateStackTrace();
-            System.err.println("Error while executing \"" + block[i] + "\": " + e.getMessage());
-            System.err.println("Stack trace:");
-            for (var entry : stackTrace) {
-                System.err.println("  at " + entry.toString());
-            }
-            environment.getBlockStack().clear();
-        } finally {
+            environment.interrupt(e);
         }
         context.advance();
     }
@@ -394,10 +383,10 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 if (operand1 instanceof String || operand2 instanceof String) {
                     if (operand1.getClass().isArray()) {
                         // Stringify the array
-                        operand1 = stringifyArray(operand1);
+                        operand1 = LangModule.stringify(operand1);
                     }
                     if (operand2.getClass().isArray()) {
-                        operand2 = stringifyArray(operand2);
+                        operand2 = LangModule.stringify(operand2);
                     }
                     switch (literal) {
                         case "+" -> {
@@ -500,50 +489,6 @@ public class RuntimeCodeBlock extends RuntimeObject {
         var value2 = getValue(context, tokens[2]);
 
         return Objects.equals(value1, value2);
-    }
-
-    private String[] generateStackTrace() {
-        var stack = program.getEnvironment().getBlockStack();
-        var trace = new String[stack.size()];
-
-        int i = 0;
-
-        for (Iterator<BlockStackEntry> it = stack.descendingIterator(); it.hasNext(); i++) {
-            var entry = it.next();
-            RuntimeInstruction lastInstruction;
-
-            if (i == 0) {
-                lastInstruction = entry.block().block[entry.context().getLineIndex()];
-            } else {
-                lastInstruction = entry.block().block[entry.context().getLineIndex() - 1];
-            }
-
-            if (entry.block().isFunction) {
-                trace[i] = entry.block().functionName + "(): " + lastInstruction.toString();
-            } else {
-                trace[i] = entry.toString() + ": " + lastInstruction.toString();
-            }
-        }
-
-        return trace;
-    }
-
-    public static String stringifyArray(Object array) {
-        var primitiveElements = new String[Array.getLength(array)];
-        for (int i = 0; i < Array.getLength(array); i++) {
-            var element = Array.get(array, i);
-            if (element == null) {
-                primitiveElements[i] = "null";
-            } else if (element.getClass().isPrimitive()) {
-                primitiveElements[i] = String.valueOf(element);
-            } else if (element.getClass() == String.class) {
-                primitiveElements[i] = (String) element;
-            } else if (element.getClass().isArray()) {
-                primitiveElements[i] = "<array>";
-            }
-        }
-
-        return "[" + String.join(", ", primitiveElements);
     }
 
     @Override

@@ -12,6 +12,7 @@ public class RuntimeNativeFunction extends RuntimeCodeBlock {
     public RuntimeNativeFunction(Program program, String label, Handler handler) {
         super(program, label, BlockType.FUNCTION, new RuntimeInstruction[0]);
         this.handler = handler;
+        this.setFunctionName(label);
     }
 
     @Override
@@ -26,8 +27,7 @@ public class RuntimeNativeFunction extends RuntimeCodeBlock {
             var result = handler.execute(function.getArguments());
             environment.REGISTRY_RETURN_VALUE.setValue(result);
         } catch (Exception e) {
-            e.printStackTrace();
-            environment.REGISTRY_RETURN_VALUE.setValue(null);
+            environment.interrupt();
         }
 
         context.advance();

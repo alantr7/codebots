@@ -11,6 +11,15 @@ public class RuntimeEnvironment {
     @Getter
     private final Program program;
 
+    @Getter
+    private boolean isInterrupted;
+
+    @Getter
+    private String[] stackTrace;
+
+    @Getter
+    private Exception exception;
+
     public RuntimeEnvironment(Program program) {
         this.program = program;
     }
@@ -54,6 +63,47 @@ public class RuntimeEnvironment {
             case "exp3" -> REGISTRY_EXPRESSION_3;
             default -> null;
         };
+    }
+
+    public void interrupt() {
+        interrupt(null);
+    }
+
+    public void interrupt(Exception e) {
+        this.isInterrupted = true;
+        this.stackTrace = generateStackTrace();
+        this.exception = e;
+    }
+
+    public String[] generateStackTrace() {
+        var stack = program.getEnvironment().getBlockStack();
+        var trace = new String[stack.size()];
+
+        int i = 0;
+
+        for (Iterator<BlockStackEntry> it = stack.descendingIterator(); it.hasNext(); i++) {
+            var entry = it.next();
+            RuntimeInstruction lastInstruction;
+
+            if (entry.block() instanceof RuntimeNativeFunction func) {
+                trace[i] = func.getFunctionName() + "()";
+                continue;
+            }
+
+            if (i == 0) {
+                lastInstruction = entry.block().getBlock()[entry.context().getLineIndex()];
+            } else {
+                lastInstruction = entry.block().getBlock()[entry.context().getLineIndex() - 1];
+            }
+
+            if (entry.block().isFunction()) {
+                trace[i] = entry.block().getFunctionName() + "(): " + lastInstruction.toString();
+            } else {
+                trace[i] = entry.block().toString() + ": " + lastInstruction.toString();
+            }
+        }
+
+        return trace;
     }
 
 }
