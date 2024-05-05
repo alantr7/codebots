@@ -89,6 +89,16 @@ begin
   push_stack
   set $cs #this_module
   push *array
+  push ""
+  eval $exp1 pop pop +
+  pop_stack
+  set_arg 0 $exp1
+  call
+  pop_func
+  push_func print 1
+  push_stack
+  set $cs #this_module
+  push *array
   eval $exp1 pop
   pop_stack
   set_arg 0 $exp1

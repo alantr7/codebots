@@ -38,13 +38,6 @@ public class Program {
 
     public Program(File directory) {
         this.directory = directory;
-
-        environment.getNativeFunctions().put("print", new RuntimeNativeFunction(this, "print", (args) -> {
-            System.out.println(args[0]);
-            return null;
-        }));
-
-        rootScope.setFunction("print", environment.getNativeFunctions().get("print"));
     }
 
     public Module getOrLoadModule(String path) {

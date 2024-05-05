@@ -12,6 +12,7 @@ import com.github.alantr7.codebots.language.runtime.utils.Calculator;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class RuntimeCodeBlock extends RuntimeObject {
@@ -233,7 +234,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 System.out.println("Index: " + key);
 
                 var element = array instanceof String text
-                        ? text.charAt((int) key)
+                        ? String.valueOf(text.charAt((int) key))
                         : key instanceof String dictKey ? ((Map<?, ?>) array).get(dictKey) : ((Object[]) array)[(int) key];
 
                 setValue(context, tokens[3], element);
@@ -391,6 +392,13 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 operand1 = stack.pop();
 
                 if (operand1 instanceof String || operand2 instanceof String) {
+                    if (operand1.getClass().isArray()) {
+                        // Stringify the array
+                        operand1 = stringifyArray(operand1);
+                    }
+                    if (operand2.getClass().isArray()) {
+                        operand2 = stringifyArray(operand2);
+                    }
                     switch (literal) {
                         case "+" -> {
                             stack.push(String.valueOf(operand1) + operand2);
@@ -518,6 +526,24 @@ public class RuntimeCodeBlock extends RuntimeObject {
         }
 
         return trace;
+    }
+
+    public static String stringifyArray(Object array) {
+        var primitiveElements = new String[Array.getLength(array)];
+        for (int i = 0; i < Array.getLength(array); i++) {
+            var element = Array.get(array, i);
+            if (element == null) {
+                primitiveElements[i] = "null";
+            } else if (element.getClass().isPrimitive()) {
+                primitiveElements[i] = String.valueOf(element);
+            } else if (element.getClass() == String.class) {
+                primitiveElements[i] = (String) element;
+            } else if (element.getClass().isArray()) {
+                primitiveElements[i] = "<array>";
+            }
+        }
+
+        return "[" + String.join(", ", primitiveElements);
     }
 
     @Override

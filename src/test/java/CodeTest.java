@@ -11,6 +11,7 @@ import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.language.runtime.modules.MemoryModule;
 import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
+import com.github.alantr7.codebots.language.runtime.modules.standard.ConsolePrintModule;
 import com.github.alantr7.codebots.language.runtime.modules.standard.LangModule;
 import com.github.alantr7.codebots.language.runtime.modules.standard.MathModule;
 import org.junit.Test;
@@ -280,6 +281,7 @@ public class CodeTest {
                     array[i] = message[i]
                   }
                   
+                  print(array + "")
                   print(array)
                 }
                 """);
@@ -298,6 +300,7 @@ public class CodeTest {
         var program = new Program(new File("."));
         program.registerNativeModule("math", new MathModule(program));
         program.registerNativeModule("lang", new LangModule(program));
+        program.getRootScope().setFunction("print", new ConsolePrintModule(program).getRootScope().getFunction("print"));
         program.registerDefaultFunctionsFromModule(program.getOrLoadModule("lang"));
 
         program.loadAndSetMainModule(inline);
