@@ -10,13 +10,13 @@ Script language is still very experimental, and many features are missing! Pleas
 - Recursiveness
 - Return statements
 - String concatenation
-- While and do-while loops
-- For loops
+- For, while and do-while loops
 - Grouping expressions with parentheses
-- Arrays
+- Arrays and dicts
 
 #### Yet to be implemented
 - Logic operators (AND, OR) for boolean expressions
+- Records
 - Importing user modules
 - Types for variables, parameters, etc. (dynamic will be the default)
 - Error handling
