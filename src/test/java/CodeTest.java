@@ -282,7 +282,7 @@ public class CodeTest {
                   }
                   
                   print(array + "")
-                  print(array)
+                  print(to_string(array))
                 }
                 """);
     }

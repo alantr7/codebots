@@ -10,6 +10,7 @@ import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
 import java.lang.reflect.Array;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class LangModule extends NativeModule {
 
@@ -59,6 +60,43 @@ public class LangModule extends NativeModule {
             }
             else return 0;
         });
+
+        registerFunction("to_string", args -> {
+            Assertions.assertEquals(args.length, 1, "to_string requires 1 argument, but found " + args.length);
+            Assertions.assertNotNull(args[0], "value must not be null");
+
+            return stringify(args[0]);
+        });
+    }
+
+    private static final Set<String> classesWithDefaultToString = Set.of(
+            "java.lang.String",
+            "java.lang.Integer",
+            "java.lang.Double",
+            "java.lang.Float",
+            "java.lang.Long",
+            "java.lang.Short",
+            "java.lang.Byte",
+            "java.lang.Character",
+            "java.lang.Boolean"
+    );
+
+    public static String stringify(Object object) {
+        if (classesWithDefaultToString.contains(object.getClass().getName()) || object.getClass().isPrimitive())
+            return object.toString();
+
+        if (object.getClass().isArray()) {
+            var builder = new StringBuilder();
+            builder.append("[");
+            for (int i = 0; i < Array.getLength(object); i++) {
+                if (i > 0) builder.append(", ");
+                builder.append(stringify(Array.get(object, i)));
+            }
+            builder.append("]");
+            return builder.toString();
+        }
+
+        return "object";
     }
 
 }
