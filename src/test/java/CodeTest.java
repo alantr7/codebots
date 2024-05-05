@@ -287,6 +287,19 @@ public class CodeTest {
                 """);
     }
 
+    @Test
+    public void testToStringAndToInt() throws Exception {
+        testCode("""
+                function main() {
+                  var num = to_int("5")
+                  var c = to_int(to_string(3)) * num
+                  
+                  print("Result: " + c)
+                  to_int("a")
+                }
+                """);
+    }
+
     private void testCode(String code) throws Exception {
         var inline = Compiler.compileModule(code);
 

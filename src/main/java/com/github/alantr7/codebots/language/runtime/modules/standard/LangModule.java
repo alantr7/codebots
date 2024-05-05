@@ -67,6 +67,21 @@ public class LangModule extends NativeModule {
 
             return stringify(args[0]);
         });
+
+        registerFunction("to_int", args -> {
+            Assertions.assertEquals(args.length, 1, "to_int requires 1 argument, but found " + args.length);
+            Assertions.assertNotNull(args[0], "value must not be null");
+
+            if (args[0] instanceof String text) {
+                Assertions.assertEquals(text.matches("-?\\d+"), true, "provided string is not a valid number");
+                return Integer.parseInt(text);
+            }
+            else if (args[0] instanceof Number number) {
+                return number.intValue();
+            }
+
+            throw new ExecutionException("to_int only accepts string or number values");
+        });
     }
 
     private static final Set<String> classesWithDefaultToString = Set.of(
