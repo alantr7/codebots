@@ -12,11 +12,14 @@ import java.util.Stack;
 
 public class Compiler {
 
+    Module module;
+
     final StringBuilder code = new StringBuilder();
 
     final CompileContext context = new CompileContext();
 
     public String compile(Module module) {
+        this.module = module;
         for (var importS : module.getImports()) {
             code.append("define_var ")
                     .append(importS.getAlias())
@@ -158,6 +161,38 @@ public class Compiler {
         code.append("  pop_func\n");
     }
 
+    /**
+     * STEP 1: CALL DICT FUNCTION
+     * STEP 2: USE $RV TO GET THE MAP
+     * STEP 3: USE ARRAY_SET TO SET RECORD"S VALUES
+     */
+    private void compileRecordInstantiation(RecordInstantiation rec, boolean push) {
+        code.append("  push_func dict 0\n");
+        code.append("  call\n");
+
+        var record = module.getRecords().get(rec.getTarget().getName());
+        var arguments = rec.getArguments();
+
+        if (record.getFields().length != arguments.length) {
+            System.err.println("Not enough arguments!");
+            return;
+        }
+
+        for (int i = 0; i < arguments.length; i++) {
+            var field = arguments[i];
+            var name = record.getFields()[i];
+
+            compileExpression((PostfixExpression) field, "$exp2");
+            code.append("  array_set $rv \"").append(name).append("\" $exp2\n");
+        }
+
+        if (push) {
+            code.append("  push $rv\n");
+        }
+
+        code.append("  pop_func\n");
+    }
+
     private void compileWhileLoop(WhileLoopStatement loop) {
         var name = context.nextLoopName();
         code.append("  begin ").append(name).append("\n");
@@ -233,6 +268,9 @@ public class Compiler {
         for (var element : expression.getValue()) {
             if (element instanceof FunctionCall call) {
                 compileFunctionCall(call, true);
+                tokens.push("pop");
+            } else if (element instanceof RecordInstantiation rec) {
+                compileRecordInstantiation(rec, true);
                 tokens.push("pop");
             } else if (element instanceof VariableAccess member) {
                 compileVariableAccess(member);

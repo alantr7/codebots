@@ -97,8 +97,16 @@ begin
   pop_func
   push_func print 1
   push_stack
+  push_func to_string 1
+  push_stack
   set $cs #this_module
   push *array
+  eval $exp1 pop
+  pop_stack
+  set_arg 0 $exp1
+  call
+  push $rv
+  pop_func
   eval $exp1 pop
   pop_stack
   set_arg 0 $exp1

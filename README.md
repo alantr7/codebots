@@ -13,15 +13,15 @@ Script language is still very experimental, and many features are missing! Pleas
 - For, while and do-while loops
 - Grouping expressions with parentheses
 - Arrays and dicts
+- Records
 
 #### Yet to be implemented
 - Logic operators (AND, OR) for boolean expressions
-- Records
 - Importing user modules
-- Types for variables, parameters, etc. (dynamic will be the default)
 - Error handling
 
 #### Future plans
+- Final variables
 - More standard modules
 - Web editor for writing scripts
 - Bot networks using routers

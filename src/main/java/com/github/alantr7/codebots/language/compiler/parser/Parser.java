@@ -6,9 +6,8 @@ import com.github.alantr7.codebots.language.compiler.parser.element.exp.*;
 import com.github.alantr7.codebots.language.compiler.parser.element.stmt.*;
 import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.github.alantr7.codebots.language.compiler.parser.ParserHelper.error;
 import static com.github.alantr7.codebots.language.compiler.parser.ParserHelper.expect;
@@ -30,6 +29,7 @@ public class Parser {
     private Module parseModule() throws ParserException {
         List<ImportStatement> imports = new LinkedList<>();
         List<Function> functions = new LinkedList<>();
+        Map<String, RecordDefinition> records = new LinkedHashMap<>();
 
         while (!queue.isEmpty()) {
             var keyword = queue.peek();
@@ -42,12 +42,15 @@ public class Parser {
                     break;
 
                 imports.add(module);
+            } else if (keyword.equals("record")) {
+                var record = nextRecord();
+                records.put(record.getName(), record);
             } else {
-                System.err.println("Unexpected token: '" + keyword + "'. Expected 'import' or 'function'.");
+                throw new ParserException("Unexpected token: '" + keyword + "'. Expected 'import', 'function' or 'record'.");
             }
         }
 
-        return new Module(imports.toArray(new ImportStatement[0]), functions.toArray(new Function[0]));
+        return new Module(imports.toArray(new ImportStatement[0]), functions.toArray(new Function[0]), records);
     }
 
     private ImportStatement nextImport() {
@@ -107,6 +110,33 @@ public class Parser {
         queue.advance();
 
         return new Function(name, parameters.toArray(new String[0]), statements.toArray(new Statement[0]));
+    }
+
+    private RecordDefinition nextRecord() throws ParserException {
+        queue.next();
+        var name = nextIdentifier();
+
+        expect(queue.peek(), "(");
+        queue.advance();
+
+        var fields = new LinkedList<String>();
+        while (true) {
+            var field = nextIdentifier();
+            if (field == null) break;
+
+            fields.add(field);
+            if (queue.peek().equals(",")) {
+                queue.advance();
+                continue;
+            }
+
+            break;
+        }
+
+        expect(queue.peek(), ")");
+        queue.advance();
+
+        return new RecordDefinition(name, fields.toArray(String[]::new));
     }
 
     private Statement nextStatement() throws ParserException {
@@ -388,7 +418,7 @@ public class Parser {
         return new ForLoopStatement(init, condition, update, statements.toArray(new Statement[0]));
     }
 
-    private Expression nextExpression() {
+    private Expression nextExpression() throws ParserException {
         int j = 0;
         var stack = new Stack<String>();
 
@@ -468,10 +498,22 @@ public class Parser {
                 }
             } else {
 
+                // Check if it's a record instantiation
+                if (next.equals("new")) {
+                    var recordInstantiate = nextRecordInstantiate();
+                    if (recordInstantiate == null)
+                        break;
+
+                    expectsOperator = true;
+                    postfix.add(recordInstantiate);
+                    continue;
+                }
+
                 if (next.startsWith("\"") && next.endsWith("\"")) {
                     postfix.add(new LiteralExpression(next.substring(1, next.length() - 1), LiteralExpression.STRING));
                 } else {
                     queue.rollback();
+
                     var memberAccess = nextMemberAccessOrArrayOrCall();
                     if (memberAccess == null) {
                         break;
@@ -500,7 +542,39 @@ public class Parser {
         return queue.peek().matches("[a-zA-Z_]+") ? queue.next() : null;
     }
 
-    private Expression nextFunctionCall() {
+    private Expression nextRecordInstantiate() throws ParserException {
+        var recordName = nextIdentifier();
+        if (recordName == null) {
+            queue.rollback();
+            return null;
+        }
+
+        expect(queue.peek(), "(");
+        queue.advance();
+
+        var arguments = new LinkedList<Expression>();
+        while (true) {
+            var argument = nextExpression();
+            if (argument == null) {
+                break;
+            }
+
+            arguments.add(argument);
+            if (queue.peek().equals(",")) {
+                queue.advance();
+                continue;
+            }
+
+            break;
+        }
+
+        expect(queue.peek(), ")");
+        queue.advance();
+
+        return new RecordInstantiation(new VariableAccess(new MemberAccess("this", null), recordName, new Expression[0]), arguments.toArray(new Expression[0]));
+    }
+
+    private Expression nextFunctionCall() throws ParserException {
         String identifier = nextIdentifier();
         if (identifier == null) {
             return null;
@@ -563,7 +637,7 @@ public class Parser {
         return new FunctionCall(new VariableAccess(target, name, new Expression[0]), arguments.toArray(new Expression[0]));
     }
 
-    private Expression nextMemberAccessOrArrayOrCall() {
+    private Expression nextMemberAccessOrArrayOrCall() throws ParserException {
         String identifier = nextIdentifier();
         if (identifier == null) {
             return null;

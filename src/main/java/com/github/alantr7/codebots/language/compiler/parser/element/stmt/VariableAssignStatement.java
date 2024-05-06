@@ -1,7 +1,6 @@
 package com.github.alantr7.codebots.language.compiler.parser.element.stmt;
 
 import com.github.alantr7.codebots.language.compiler.parser.element.exp.Expression;
-import com.github.alantr7.codebots.language.compiler.parser.element.exp.MemberAccess;
 import com.github.alantr7.codebots.language.compiler.parser.element.exp.VariableAccess;
 import lombok.Getter;
 

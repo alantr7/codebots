@@ -300,6 +300,20 @@ public class CodeTest {
                 """);
     }
 
+    @Test
+    public void testRecords() throws Exception {
+        testCode("""
+                record Person(name, age)
+                
+                function main() {
+                  var person = new Person("Alan", 21)
+                  print("hello " + person["name"] + "!")
+                  
+                  print("hello " + person)
+                }
+                """);
+    }
+
     private void testCode(String code) throws Exception {
         var inline = Compiler.compileModule(code);
 

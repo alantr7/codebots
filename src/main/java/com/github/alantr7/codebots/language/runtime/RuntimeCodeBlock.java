@@ -381,11 +381,11 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 operand1 = stack.pop();
 
                 if (operand1 instanceof String || operand2 instanceof String) {
-                    if (operand1.getClass().isArray()) {
+                    if (operand1 != null && operand1.getClass().isArray()) {
                         // Stringify the array
                         operand1 = LangModule.stringify(operand1);
                     }
-                    if (operand2.getClass().isArray()) {
+                    if (operand2 != null && operand2.getClass().isArray()) {
                         operand2 = LangModule.stringify(operand2);
                     }
                     switch (literal) {
