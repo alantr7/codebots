@@ -16,6 +16,8 @@ import lombok.Setter;
 import java.lang.reflect.Array;
 import java.util.*;
 
+import static com.github.alantr7.codebots.language.compiler.parser.ParserHelper.error;
+
 public class RuntimeCodeBlock extends RuntimeObject {
 
     private final Program program;
@@ -102,9 +104,13 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
 
             case "define_var" -> {
-//                var type = ValueType.fromString(tokens[2]);
-//                Assertions.assertBool(type != null && type != ValueType.NULL, "Invalid variable type.");
                 scope.setVariable(tokens[1], new RuntimeVariable(ValueType.ANY));
+            }
+            case "define_const" -> {
+                var variable = new RuntimeVariable(ValueType.ANY);
+                variable.setConstant(true);
+
+                scope.setVariable(tokens[1], variable);
             }
             case "add" -> {
                 mathOperation(context, tokens, 0);
@@ -469,12 +475,11 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
         if (registry == environment.REGISTRY_CURRENT_SCOPE) {
             environment.REGISTRY_CURRENT_SCOPE.setValue(value);
-
-            if (value instanceof RuntimeNativeFunction f) {
-                System.err.println("Someone setting to function lol. Caught you bitch!");
-                System.err.println(this.block[context.getLineIndex()]);
-            }
             return;
+        }
+
+        if (registry.isConstant() && registry.isInitialized()) {
+            throw new ExecutionException("Cannot reassign a constant");
         }
 
         Assertions.assertType(value, registry.getAcceptedType(), "Incompatible types (\"%s\" and \"%s\")".formatted(registry.getAcceptedType(), ValueType.of(value)));

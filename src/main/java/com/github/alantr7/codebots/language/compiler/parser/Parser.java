@@ -46,7 +46,7 @@ public class Parser {
             } else if (keyword.equals("record")) {
                 var record = nextRecord();
                 records.put(record.getName(), record);
-            } else if (keyword.equals("var")) {
+            } else if (keyword.equals("var") || keyword.equals("const")) {
                 var var = (VariableDeclareStatement) nextVariableDeclare();
                 variables.put(var.getName(), var);
             } else {
@@ -145,7 +145,7 @@ public class Parser {
 
     private Statement nextStatement() throws ParserException {
         return switch (queue.peek()) {
-            case "var" -> nextVariableDeclare();
+            case "var", "const" -> nextVariableDeclare();
             case "return" -> nextReturnStatement();
             case "if" -> nextIfStatement();
             case "while" -> nextWhileLoop();
@@ -166,14 +166,18 @@ public class Parser {
     }
 
     private Statement nextVariableDeclare() throws ParserException {
-        if (!queue.peek().equals("var"))
+        if (!queue.peek().equals("var") && !queue.peek().equals("const"))
             return null;
 
-        queue.advance();
+        boolean isConstant = queue.next().equals("const");
         var name = queue.next();
 
-        if (!queue.peek().equals("="))
-            return new VariableDeclareStatement(name, null);
+        if (!queue.peek().equals("=")) {
+            if (isConstant)
+                throw new ParserException("Constants must be initialized!");
+
+            return new VariableDeclareStatement(name, null, false);
+        }
 
         queue.advance();
 
@@ -182,7 +186,7 @@ public class Parser {
             throw new ParserException("Invalid expression for variable assignment!");
         }
 
-        return new VariableDeclareStatement(name, value);
+        return new VariableDeclareStatement(name, value, isConstant);
     }
 
     private Statement nextVariableAssign() throws ParserException {

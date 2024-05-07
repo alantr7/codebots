@@ -4,10 +4,10 @@ Script language is still very experimental, and many features are missing! Pleas
 ## Todo List
 #### Done and being tested:
 - Variables
+- Constants
 - Functions
 - If, else-if, else statements
 - Importing standard modules
-- Recursiveness
 - Return statements
 - String concatenation
 - For, while and do-while loops
@@ -21,7 +21,6 @@ Script language is still very experimental, and many features are missing! Pleas
 - Error handling
 
 #### Future plans
-- Final variables
 - More standard modules
 - Web editor for writing scripts
 - Bot networks using routers

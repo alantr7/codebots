@@ -1,6 +1,7 @@
 package com.github.alantr7.codebots.language.runtime;
 
 import lombok.Getter;
+import lombok.Setter;
 
 public class RuntimeVariable {
 
@@ -11,6 +12,12 @@ public class RuntimeVariable {
     private RuntimeVariable variable;
 
     private byte valueProvider = 0;
+
+    @Getter @Setter
+    private boolean isConstant = false;
+
+    @Getter
+    private boolean isInitialized = false;
 
     public RuntimeVariable(ValueType type) {
         this.type = type;
@@ -25,12 +32,14 @@ public class RuntimeVariable {
         this.value = value;
         this.variable = null;
         valueProvider = 0;
+        isInitialized = true;
     }
 
     public void setPointer(RuntimeVariable variable) {
         this.value = null;
         this.variable = variable;
         valueProvider = 1;
+        isInitialized = true;
     }
 
     public Object getValue() {

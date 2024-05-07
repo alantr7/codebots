@@ -66,7 +66,7 @@ public class Compiler {
 
     private void compileStatement(Statement statement) {
         if (statement instanceof VariableDeclareStatement stmt) {
-            code.append("  define_var ").append(stmt.getName()).append("\n");
+            code.append(stmt.isConstant() ? "  define_const " : "  define_var ").append(stmt.getName()).append("\n");
             var ass = (PostfixExpression) stmt.getValue();
 
             if (ass != null)
@@ -165,11 +165,6 @@ public class Compiler {
         code.append("  pop_func\n");
     }
 
-    /**
-     * STEP 1: CALL DICT FUNCTION
-     * STEP 2: USE $RV TO GET THE MAP
-     * STEP 3: USE ARRAY_SET TO SET RECORD"S VALUES
-     */
     private void compileRecordInstantiation(RecordInstantiation rec, boolean push) {
         code.append("  push_func dict 0\n");
         code.append("  call\n");

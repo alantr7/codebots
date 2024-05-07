@@ -304,11 +304,22 @@ public class CodeTest {
     public void testRecords() throws Exception {
         testCode("""
                 record Person(name, age)
-                
                 var alan = new Person("Alan", 21)
                 
                 function main() {
                   print("hello " + alan)
+                }
+                """);
+    }
+
+    @Test
+    public void testConstants() throws Exception {
+        testCode("""
+                function main() {
+                  const hey = "Hello!"
+                  hey = "World!"
+                  
+                  print(hey)
                 }
                 """);
     }
