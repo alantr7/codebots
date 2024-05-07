@@ -31,6 +31,10 @@ public class Compiler {
 
         code.append("\n");
 
+        for (var var : module.getVariables().values()) {
+            compileStatement(var);
+        }
+
         for (var function : module.getFunctions()) {
             compileFunction(function);
         }

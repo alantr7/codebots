@@ -305,11 +305,10 @@ public class CodeTest {
         testCode("""
                 record Person(name, age)
                 
+                var alan = new Person("Alan", 21)
+                
                 function main() {
-                  var person = new Person("Alan", 21)
-                  print("hello " + person["name"] + "!")
-                  
-                  print("hello " + person)
+                  print("hello " + alan)
                 }
                 """);
     }

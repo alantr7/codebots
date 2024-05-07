@@ -30,6 +30,7 @@ public class Parser {
         List<ImportStatement> imports = new LinkedList<>();
         List<Function> functions = new LinkedList<>();
         Map<String, RecordDefinition> records = new LinkedHashMap<>();
+        Map<String, VariableDeclareStatement> variables = new LinkedHashMap<>();
 
         while (!queue.isEmpty()) {
             var keyword = queue.peek();
@@ -45,12 +46,15 @@ public class Parser {
             } else if (keyword.equals("record")) {
                 var record = nextRecord();
                 records.put(record.getName(), record);
+            } else if (keyword.equals("var")) {
+                var var = (VariableDeclareStatement) nextVariableDeclare();
+                variables.put(var.getName(), var);
             } else {
                 throw new ParserException("Unexpected token: '" + keyword + "'. Expected 'import', 'function' or 'record'.");
             }
         }
 
-        return new Module(imports.toArray(new ImportStatement[0]), functions.toArray(new Function[0]), records);
+        return new Module(imports.toArray(new ImportStatement[0]), variables, functions.toArray(new Function[0]), records);
     }
 
     private ImportStatement nextImport() {
