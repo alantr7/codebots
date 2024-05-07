@@ -186,6 +186,8 @@ public class Compiler {
             code.append("  array_set $rv \"").append(name).append("\" $exp2\n");
         }
 
+        code.append("  dict_lock $rv\n");
+
         if (push) {
             code.append("  push $rv\n");
         }

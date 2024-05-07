@@ -235,20 +235,22 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 var key = getValue(context, tokens[2]);
                 var value = getValue(context, tokens[3]);
 
-                System.out.println("Setting array: " + array);
-                System.out.println(Arrays.toString(tokens));
-                System.out.println("Index: " + key);
-                System.out.println("Value: " + value);
-
-                if (array == value) {
-                    System.out.println("Array equals the value.. weird.");
-                }
-
                 if (key instanceof String dictKey) {
-                    ((Map<String, Object>) array).put(dictKey, value);
+                    var map = (Map<String, Object>) array;
+                    if (map.containsKey("__locked")) {
+                        throw new ExecutionException("Object can not be modified.");
+                    }
+
+                    map.put(dictKey, value);
                 } else if (key instanceof Integer in) {
                     ((Object[]) array)[in] = value;
                 }
+            }
+
+            // Lock an array. Used by records
+            case "dict_lock" -> {
+                var array = (Map<String, Object>) getValue(context, tokens[1]);
+                array.put("__locked", true);
             }
 
             case "reset" -> {
