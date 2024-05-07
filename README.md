@@ -1,3 +1,30 @@
+# Overview
+CodeBots is a Minecraft plugin that allows you to create and program bots inspired by ComputerCraft's turtles. It uses a custom-made scripting language with specifications below.
+
+**Plugin is still work in progress and many things will change before release!**
+
+### How does X work now and how will it work on release?
+<table>
+<tr>
+    <th>Action</th>
+    <th>Current</th>
+    <th>Goal</th>
+</tr>
+<tr>
+    <td>Placing bots</td>
+    <td>/codebots place</td>
+    <td>A custom item that spawns a bot when right-clicking</td>
+</tr>
+<tr>
+    <td>Programming the bots</td>
+    <td>You write scripts directly into a file, which you then load with a command. This means only admins can program the bots (at the moment of course!)</td>
+    <td>Right-clicking a bot will open a menu where you can open the code editor in your browser and edit scripts with autocomplete.</td>
+</tr>
+
+</table>
+
+# Scripting Language
+
 ### Disclaimer:
 Script language is still very experimental, and many features are missing! Please read the to-do list below to see what's implemented and what's still missing.
 
