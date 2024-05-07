@@ -23,6 +23,9 @@ CodeBots is a Minecraft plugin that allows you to create and program bots inspir
 
 </table>
 
+<br />
+<br />
+
 # Scripting Language
 
 ### Disclaimer:
