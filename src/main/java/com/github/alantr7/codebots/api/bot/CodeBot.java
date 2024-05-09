@@ -4,11 +4,14 @@ import com.github.alantr7.codebots.language.runtime.Program;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
 
+import java.io.File;
 import java.util.UUID;
 
 public interface CodeBot {
 
     UUID getId();
+
+    UUID getEntityId();
 
     BlockDisplay getEntity();
 
@@ -23,5 +26,9 @@ public interface CodeBot {
     boolean isActive();
 
     void setActive(boolean flag);
+
+    File getDirectory();
+
+    File getProgramsDirectory();
 
 }

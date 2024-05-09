@@ -45,9 +45,10 @@ public class CodeTest {
 
     @Test
     public void testIfElseIfElse() throws Exception {
-        testCode("""                                
+        testCode("""
                 function main() {
                   var number = random(100)
+                  print("Number: " + number)
                   if (number < 30) {
                     print("Less than 30!")
                   }
@@ -317,8 +318,6 @@ public class CodeTest {
         testCode("""
                 function main() {
                   const hey = "Hello!"
-                  hey = "World!"
-                  
                   print(hey)
                 }
                 """);
@@ -338,6 +337,7 @@ public class CodeTest {
         program.registerNativeModule("math", new MathModule(program));
         program.registerNativeModule("lang", new LangModule(program));
         program.getRootScope().setFunction("print", new ConsolePrintModule(program).getRootScope().getFunction("print"));
+        program.registerDefaultFunctionsFromModule(program.getOrLoadModule("math"));
         program.registerDefaultFunctionsFromModule(program.getOrLoadModule("lang"));
 
         program.loadAndSetMainModule(inline);

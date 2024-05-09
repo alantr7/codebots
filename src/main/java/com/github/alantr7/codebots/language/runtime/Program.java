@@ -1,6 +1,6 @@
 package com.github.alantr7.codebots.language.runtime;
 
-import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
+import com.github.alantr7.codebots.language.compiler.Compiler;
 import com.github.alantr7.codebots.language.parser.AssemblyParser;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
@@ -9,14 +9,18 @@ import com.github.alantr7.codebots.language.runtime.modules.FileModule;
 import com.github.alantr7.codebots.language.runtime.modules.MemoryModule;
 import com.github.alantr7.codebots.language.runtime.modules.Module;
 import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
+import com.github.alantr7.codebots.language.runtime.modules.standard.ConsolePrintModule;
+import com.github.alantr7.codebots.language.runtime.modules.standard.LangModule;
+import com.github.alantr7.codebots.language.runtime.modules.standard.MathModule;
 import lombok.Getter;
-import lombok.Setter;
+import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Program {
 
@@ -43,7 +47,6 @@ public class Program {
     public Module getOrLoadModule(String path) {
         if (loadedModules.containsKey(path))
             return loadedModules.get(path);
-
 
         var file = new File(environment.getProgram().getDirectory(), path);
 
@@ -131,7 +134,30 @@ public class Program {
         getEnvironment().getCallStack().add(new FunctionCall(mainModule.getRootScope(), "main", 0));
     }
 
-    public static Program createFromFileModule(File file) throws Exception {
+    public static Program createFromSourceFile(File file) throws Exception {
+        var source = Files.readAllLines(file.toPath()).toArray(String[]::new);
+        var inline = Compiler.compileModule(String.join("\n", source));
+
+        var program = new Program(file.getParentFile());
+        program.registerNativeModule("math", new MathModule(program));
+        program.registerNativeModule("lang", new LangModule(program));
+        program.registerDefaultFunctionsFromModule(program.getOrLoadModule("math"));
+        program.registerDefaultFunctionsFromModule(program.getOrLoadModule("lang"));
+        program.getRootScope().setFunction("print", new RuntimeNativeFunction(program, "print", args -> {
+            var value = args[0];
+            Bukkit.broadcastMessage(value.toString());
+
+            return null;
+        }));
+
+        var moduleBlock = AssemblyParser.parseCodeBlock(program, inline.split("\n"));
+        var module = new FileModule(program, file, moduleBlock);
+        program.setMainModule(module);
+
+        return program;
+    }
+
+    public static Program createFromCompiledFile(File file) throws Exception {
         var directory = file.getParentFile();
         var program = new Program(directory);
 

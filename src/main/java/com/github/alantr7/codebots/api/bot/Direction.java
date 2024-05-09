@@ -44,6 +44,22 @@ public enum Direction {
         return new Vector(modX, modY, modZ);
     }
 
+    public static Direction fromVector(Vector v) {
+        return switch ((int) v.getX()) {
+            case 1 -> EAST;
+            case -1 -> WEST;
+            default -> switch ((int) v.getZ()) {
+                case 1 -> SOUTH;
+                case -1 -> NORTH;
+                default -> switch ((int) v.getY()) {
+                    case 1 -> UP;
+                    case -1 -> DOWN;
+                    default -> NORTH;
+                };
+            };
+        };
+    }
+
     private static int clamp(int a, int b, int val) {
         while (val >= b)
             val -= b;

@@ -1,10 +1,11 @@
-package com.github.alantr7.codebots.plugin;
+package com.github.alantr7.codebots.plugin.bot;
 
 import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.InvokePeriodically;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
-import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import org.bukkit.Bukkit;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -40,7 +41,7 @@ public class BotRegistry {
         bots.forEach((id, bot) -> {
             var program = bot.getProgram();
             if (program != null && bot.isActive()) {
-                if (program.getMainModule().hasNext()) {
+                if (program.getMainModule().hasNext() && !program.getEnvironment().isInterrupted()) {
                     program.getMainModule().next();
                 } else {
                     bot.setActive(false);
