@@ -184,6 +184,9 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 var function = functionStack.getLast();
                 var functionBlock = function.getScope().getFunction(function.getFunction());
 
+                if (functionBlock == null)
+                    throw new ExecutionException("Function '" + function.getFunction() + "' not found.");
+
                 environment.getBlockStack().add(new BlockStackEntry(functionBlock, new BlockContext(BlockScope.nestIn(function.getScope()))));
             }
             case "define_func" -> {

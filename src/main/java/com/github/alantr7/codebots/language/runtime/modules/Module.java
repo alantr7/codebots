@@ -1,6 +1,7 @@
 package com.github.alantr7.codebots.language.runtime.modules;
 
 import com.github.alantr7.codebots.language.runtime.*;
+import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,6 +31,11 @@ public abstract class Module {
 
     public void next() {
         var block = environment.getBlockStack().getLast();
+
+        if (block.block() == null) {
+            environment.interrupt(new ExecutionException("Block is null. Report this issue to the developer"));
+            return;
+        }
 
         if (block.block().hasNext(block.context())) {
             block.block().next(block.context());
