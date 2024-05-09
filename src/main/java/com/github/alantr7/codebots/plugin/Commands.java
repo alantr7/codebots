@@ -18,6 +18,7 @@ import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.UUID;
 
 @Singleton
@@ -75,7 +76,6 @@ public class Commands {
                     bot.getValue().setProgram(program);
                     program.executeEverything();
                     program.prepareMainFunction();
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -92,6 +92,27 @@ public class Commands {
                 bot.getValue().setActive(true);
 
                 ctx.respond("Bot started!");
+            });
+
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command tp = CommandBuilder.using("codebots")
+            .parameter("tp")
+            .executes(ctx -> {
+                var bot = botsRegistry.getBots().entrySet().iterator().next();
+                var player = ((Player) ctx.getExecutor());
+                var blockDisplay = bot.getValue().getEntity();
+                blockDisplay.teleport(player.getLocation().getBlock().getLocation());
+                blockDisplay.setRotation(0, 0);
+
+                var transformation = blockDisplay.getTransformation();
+                blockDisplay.setTransformation(new Transformation(
+                        new Vector3f(0.2f, 0.2f, 0.2f),
+                        transformation.getLeftRotation(),
+                        new Vector3f(0.6f, 0.6f, 0.6f),
+                        transformation.getRightRotation()
+                ));
+                blockDisplay.setInterpolationDuration(20);
+                ctx.respond("Bot teleported!");
             });
 
 }

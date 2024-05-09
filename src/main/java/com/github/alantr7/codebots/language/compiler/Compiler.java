@@ -141,14 +141,13 @@ public class Compiler {
     }
 
     private void compileFunctionCall(FunctionCall call, boolean push) {
+        code.append("  set $cs #this_module\n");
         if (!call.getTarget().getValue().equals("this")) {
             var current = call.getTarget().getTarget();
             while (current != null && !current.getValue().equals("this")) {
                 code.append("  set $cs *").append(current.getValue()).append("\n");
                 current = current.getRight();
             }
-        } else {
-            code.append("  set $cs #this_module\n");
         }
         code.append("  push_func ").append(call.getValue()).append(" ").append(call.getArguments().length).append("\n");
         Expression[] arguments = call.getArguments();

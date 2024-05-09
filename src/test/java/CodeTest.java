@@ -323,6 +323,25 @@ public class CodeTest {
                 """);
     }
 
+    @Test
+    public void testThing() throws Exception {
+        testCode("""
+                import math
+                                
+                function main() {
+                  moveUntilAbove("red_wool", "west")
+                  moveUntilAbove("lime_wool", "east")
+                }
+                                
+                function moveUntilAbove(target, direction) {
+                  var rand = math.random(20)
+                  while (rand != 10) {
+                    rand = math.random(20)
+                  }
+                }
+                """);
+    }
+
     private void testCode(String code) throws Exception {
         var inline = Compiler.compileModule(code);
 

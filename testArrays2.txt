@@ -7,6 +7,7 @@ end
 define_func b
 begin
   push_stack
+  set $cs #this_module
   push_func c 0
   call
   push $rv
@@ -19,6 +20,7 @@ define_func a
 begin
   define_var arr
   push_stack
+  set $cs #this_module
   push_func array 1
   set $exp1 1
   set_arg 0 $exp1
@@ -45,6 +47,7 @@ define_func main
 begin
   define_var arr
   push_stack
+  set $cs #this_module
   push_func array 1
   set $exp1 2
   set_arg 0 $exp1
@@ -56,6 +59,7 @@ begin
 
   set $cs #this_module
   push_stack
+  set $cs #this_module
   push_func a 0
   call
   push $rv
@@ -69,6 +73,7 @@ begin
 
   set $cs #this_module
   push_stack
+  set $cs #this_module
   push_func b 0
   call
   push $rv
@@ -79,6 +84,7 @@ begin
   set $exp2 1
   array_set $exp1 $exp2 $exp3
 
+  set $cs #this_module
   push_func print 1
   push_stack
   push "First: "
@@ -95,6 +101,7 @@ begin
   set_arg 0 $exp1
   call
   pop_func
+  set $cs #this_module
   push_func print 1
   push_stack
   push "Second: "

@@ -15,11 +15,7 @@ public class BotModule extends NativeModule {
     }
 
     private void init() {
-        getRootScope().setFunction("moveForward", new MoveFunction(program, "moveForward"));
-        getRootScope().setFunction("moveRight", new MoveFunction(program, "moveRight"));
-        getRootScope().setFunction("moveBack", new MoveFunction(program, "moveBack"));
-        getRootScope().setFunction("moveLeft", new MoveFunction(program, "moveLeft"));
-
+        getRootScope().setFunction("move", new MoveFunction(program));
         getRootScope().setFunction("rotateRight", new RotateFunction(program, "rotateRight"));
 
         registerFunction("getBlock", args -> {

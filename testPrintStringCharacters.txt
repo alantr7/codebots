@@ -5,8 +5,10 @@ begin
   set message "Hello world!"
   define_var array
   push_stack
+  set $cs #this_module
   push_func array 1
   push_stack
+  set $cs #this_module
   push_func length 1
   push_stack
   set $cs #this_module
@@ -32,6 +34,7 @@ begin
   push_stack
   set $cs #this_module
   push *i
+  set $cs #this_module
   push_func length 1
   push_stack
   set $cs #this_module
@@ -85,6 +88,7 @@ begin
   goto loop_1
   end
   end
+  set $cs #this_module
   push_func print 1
   push_stack
   set $cs #this_module
@@ -95,8 +99,10 @@ begin
   set_arg 0 $exp1
   call
   pop_func
+  set $cs #this_module
   push_func print 1
   push_stack
+  set $cs #this_module
   push_func to_string 1
   push_stack
   set $cs #this_module

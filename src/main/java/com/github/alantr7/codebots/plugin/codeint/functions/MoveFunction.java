@@ -1,8 +1,10 @@
 package com.github.alantr7.codebots.plugin.codeint.functions;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.Program;
+import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.plugin.bot.BotRegistry;
 import org.bukkit.Bukkit;
@@ -13,49 +15,36 @@ import org.joml.Vector3f;
 
 public class MoveFunction extends RuntimeNativeFunction {
 
-    private boolean hasMoved = false;
-
-    private int ticks = 0;
-
-    private BlockDisplay entity;
-
-    private final Vector direction;
-
-    private Vector3f initialTranslation;
-
-    public MoveFunction(Program program, String label) {
-        super(program, label, null);
-        var bot = (CodeBot) program.getExtra("bot");
-        this.direction = (switch (label) {
-            case "moveForward" -> bot.getDirection().toVector();
-            case "moveBack" -> bot.getDirection().toVector().multiply(-1);
-            case "moveLeft" -> bot.getDirection().getLeft().toVector();
-            case "moveRight" -> bot.getDirection().getRight().toVector();
-            default -> new Vector(0, 0, 0);
-        });
+    public MoveFunction(Program program) {
+        super(program, "move", null);
     }
 
     @Override
     public boolean hasNext(BlockContext context) {
-        return !hasMoved;
+        return !context.getFlag(BlockContext.FLAG_COMPLETED);
     }
 
     @Override
     public void next(BlockContext context) {
-        var bot = BotRegistry.instance.getBots().entrySet().iterator().next().getValue();
-        if (ticks == 0) {
-            entity = bot.getEntity();
-            beginMovement();
-        } else if (ticks == 20) {
-            completeMovement();
+        var call = environment.getCallStack().getLast();
+
+        // If this is the first tick, then begin movement
+        if (context.getLineIndex() == 0) {
+            beginMovement(context, call);
+        }
+        else if (context.getLineIndex() == 10) {
+            completeMovement(context, call);
         }
 
-        ticks++;
+        context.advance();
     }
 
-    private void beginMovement() {
+    private void beginMovement(BlockContext context, FunctionCall call) {
+        var bot = (CodeBot) environment.getProgram().getExtra("bot");
+        var entity = bot.getEntity();
         var initialTransformation = entity.getTransformation();
-        initialTranslation = initialTransformation.getTranslation();
+        var initialTranslation = initialTransformation.getTranslation();
+        var direction = Direction.toDirection((String) call.getArguments()[0]).toVector();
         var nextTranslation = direction.toVector3f().add(initialTranslation);
 
         entity.setInterpolationDelay(0);
@@ -68,10 +57,15 @@ public class MoveFunction extends RuntimeNativeFunction {
                 initialTransformation.getRightRotation()
         ));
 
+        context.setExtra("initialTranslation", initialTranslation);
         Bukkit.broadcastMessage("§eMovement started!");
     }
 
-    private void completeMovement() {
+    private void completeMovement(BlockContext context, FunctionCall call) {
+        var bot = (CodeBot) environment.getProgram().getExtra("bot");
+        var entity = bot.getEntity();
+        var initialTranslation = (Vector3f) context.getExtra("initialTranslation");
+        var direction = Direction.toDirection((String) call.getArguments()[0]).toVector();
         entity.setInterpolationDuration(0);
         entity.setTransformation(new Transformation(
                 initialTranslation,
@@ -80,7 +74,8 @@ public class MoveFunction extends RuntimeNativeFunction {
                 entity.getTransformation().getRightRotation()
         ));
         entity.teleport(entity.getLocation().add(direction));
-        hasMoved = true;
+
+        context.setFlag(BlockContext.FLAG_COMPLETED, true);
     }
 
 }

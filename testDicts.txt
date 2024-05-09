@@ -9,6 +9,7 @@ begin
   unload_arg 2 z
   define_var array
   push_stack
+  set $cs #this_module
   push_func array 1
   set $exp1 3
   set_arg 0 $exp1
@@ -61,6 +62,7 @@ define_func main
 begin
   define_var locations
   push_stack
+  set $cs #this_module
   push_func dict 0
   call
   push $rv
@@ -70,6 +72,7 @@ begin
 
   set $cs #this_module
   push_stack
+  set $cs #this_module
   push_func location 3
   set $exp1 12
   set_arg 0 $exp1
@@ -89,6 +92,7 @@ begin
 
   set $cs #this_module
   push_stack
+  set $cs #this_module
   push_func location 3
   set $exp1 123
   set_arg 0 $exp1
@@ -105,6 +109,7 @@ begin
   set $exp2 "farm"
   array_set $exp1 $exp2 $exp3
 
+  set $cs #this_module
   push_func print 1
   push_stack
   push "Home's X is: "
@@ -123,6 +128,7 @@ begin
   set_arg 0 $exp1
   call
   pop_func
+  set $cs #this_module
   push_func dict_unset 2
   push_stack
   set $cs #this_module
@@ -134,6 +140,7 @@ begin
   set_arg 1 $exp1
   call
   pop_func
+  set $cs #this_module
   push_func print 1
   push_stack
   push "Farm is now at: "
@@ -150,9 +157,11 @@ begin
   set_arg 0 $exp1
   call
   pop_func
+  set $cs #this_module
   push_func print 1
   push_stack
   push "There are "
+  set $cs #this_module
   push_func length 1
   push_stack
   set $cs #this_module

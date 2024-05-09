@@ -14,6 +14,7 @@ public class FileModule extends Module {
 
     public FileModule(Program program, File file, RuntimeCodeBlock block) {
         super(program, new BlockScope(), block);
+        this.getRootScope().setModule(this);
         this.file = file;
     }
 

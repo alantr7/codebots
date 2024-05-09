@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -153,6 +154,9 @@ public class Program {
         var moduleBlock = AssemblyParser.parseCodeBlock(program, inline.split("\n"));
         var module = new FileModule(program, file, moduleBlock);
         program.setMainModule(module);
+
+        for (var line : inline.split("\n"))
+            System.out.println(line);
 
         return program;
     }
