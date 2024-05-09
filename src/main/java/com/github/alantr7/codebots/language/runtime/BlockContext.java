@@ -3,6 +3,9 @@ package com.github.alantr7.codebots.language.runtime;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class BlockContext {
 
     @Getter @Setter
@@ -12,6 +15,8 @@ public class BlockContext {
 
     @Getter
     private final BlockScope scope;
+
+    private final Map<String, Object> extra = new LinkedHashMap<>();
 
     public BlockContext(BlockScope scope) {
         this.scope = scope;
@@ -33,8 +38,17 @@ public class BlockContext {
         this.flags = value ? flags | flag : flags & ~flag;
     }
 
-    public static final int FLAG_ELSE = 1;
+    public Object getExtra(String key) {
+        return extra.get(key);
+    }
 
-    public static final int FLAG_ELSE_SATISFIED = 2;
+    public void setExtra(String key, Object value) {
+        this.extra.put(key, value);
+    }
+
+    public static final int FLAG_ELSE               = 0b001;
+    public static final int FLAG_ELSE_SATISFIED     = 0b010;
+
+    public static final int FLAG_COMPLETED          = 0b100;
 
 }
