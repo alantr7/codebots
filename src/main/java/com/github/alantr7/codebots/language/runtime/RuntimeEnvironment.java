@@ -3,6 +3,7 @@ package com.github.alantr7.codebots.language.runtime;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
@@ -13,6 +14,9 @@ public class RuntimeEnvironment {
 
     @Getter
     private boolean isInterrupted;
+
+    @Getter @Setter
+    private boolean isHalted;
 
     @Getter
     private String[] stackTrace;

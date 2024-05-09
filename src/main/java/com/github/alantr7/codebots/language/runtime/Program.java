@@ -9,19 +9,17 @@ import com.github.alantr7.codebots.language.runtime.modules.FileModule;
 import com.github.alantr7.codebots.language.runtime.modules.MemoryModule;
 import com.github.alantr7.codebots.language.runtime.modules.Module;
 import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
-import com.github.alantr7.codebots.language.runtime.modules.standard.ConsolePrintModule;
 import com.github.alantr7.codebots.language.runtime.modules.standard.LangModule;
 import com.github.alantr7.codebots.language.runtime.modules.standard.MathModule;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Program {
 
@@ -40,6 +38,17 @@ public class Program {
     private final Map<String, Module> loadedModules = new LinkedHashMap<>();
 
     private final Map<String, Object> extra = new HashMap<>();
+
+    @Getter @Setter
+    private Mode mode = Mode.SINGLE_LINE;
+
+    public enum Mode {
+        SINGLE_LINE,
+
+        AUTO_HALT,
+
+        FULL_EXEC
+    }
 
     public Program(File directory) {
         this.directory = directory;
@@ -70,16 +79,19 @@ public class Program {
         return null;
     }
 
-    public void executeEverything() {
+    public void action() {
         while (mainModule.hasNext() && !environment.isInterrupted()) {
             mainModule.next();
+
+            if (mode == Mode.SINGLE_LINE || (mode == Mode.AUTO_HALT && environment.isHalted()))
+                break;
         }
 
         if (environment.isInterrupted()) {
             var block = environment.getBlockStack().getLast().block().getBlock();
             var context = environment.getBlockStack().getLast().context();
 
-            System.err.print("Error while executing the program.");
+            System.err.print("Error while executing the program");
             if (environment.getException() != null) {
                 System.err.println(": " + environment.getException().getMessage());
             } else {
@@ -127,7 +139,8 @@ public class Program {
         var module = new MemoryModule(this, block);
 
         setMainModule(module);
-        executeEverything();
+        mode = Mode.FULL_EXEC;
+        action();
     }
 
     public void prepareMainFunction() {
