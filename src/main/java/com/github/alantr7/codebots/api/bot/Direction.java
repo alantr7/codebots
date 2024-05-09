@@ -60,6 +60,18 @@ public enum Direction {
         };
     }
 
+    public static Direction toDirection(String name) {
+        return switch (name.toUpperCase()) {
+            case "NORTH" -> NORTH;
+            case "EAST" -> EAST;
+            case "SOUTH" -> SOUTH;
+            case "WEST" -> WEST;
+            case "UP" -> UP;
+            case "DOWN" -> DOWN;
+            default -> NORTH;
+        };
+    }
+
     private static int clamp(int a, int b, int val) {
         while (val >= b)
             val -= b;
