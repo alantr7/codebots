@@ -90,6 +90,11 @@ public class RuntimeEnvironment {
                 continue;
             }
 
+            if (entry.block() == null) {
+                trace[i] = "null block (?)";
+                continue;
+            }
+
             if (i == 0) {
                 lastInstruction = entry.block().getBlock()[entry.context().getLineIndex()];
             } else {
