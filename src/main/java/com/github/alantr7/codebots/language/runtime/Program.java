@@ -80,6 +80,10 @@ public class Program {
     }
 
     public void action() {
+        action(mode);
+    }
+
+    public void action(Mode mode) {
         while (mainModule.hasNext() && !environment.isInterrupted()) {
             mainModule.next();
 

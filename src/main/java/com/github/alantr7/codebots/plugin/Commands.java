@@ -74,8 +74,7 @@ public class Commands {
                     program.registerNativeModule("bot", botModule);
 
                     bot.getValue().setProgram(program);
-                    program.setMode(Program.Mode.FULL_EXEC);
-                    program.action();
+                    program.action(Program.Mode.FULL_EXEC);
                     program.prepareMainFunction();
                 } catch (Exception e) {
                     e.printStackTrace();

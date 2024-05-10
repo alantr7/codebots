@@ -363,8 +363,7 @@ public class CodeTest {
         System.out.println(inline);
 
         program.prepareMainFunction();
-        program.setMode(Program.Mode.FULL_EXEC);
-        program.action();
+        program.action(Program.Mode.FULL_EXEC);
     }
 
 }
