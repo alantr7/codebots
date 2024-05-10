@@ -18,6 +18,8 @@ public class BotModule extends NativeModule {
         getRootScope().setFunction("move", new MoveFunction(program));
         getRootScope().setFunction("rotateRight", new RotateFunction(program, "rotateRight"));
 
+        registerFunction("getDirection", a -> ((CodeBot) program.getExtra("bot")).getDirection().name().toLowerCase());
+
         registerFunction("getBlock", args -> {
             var bot = (CodeBot) program.getExtra("bot");
             var input = (String) args[0];
