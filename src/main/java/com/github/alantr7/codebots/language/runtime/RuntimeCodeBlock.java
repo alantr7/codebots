@@ -161,6 +161,8 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 evaluateExpression(context, tokens[1], expression);
             }
 
+            case "halt" -> environment.setHalted(true);
+
             case "push_func" -> {
                 var object = environment.REGISTRY_CURRENT_SCOPE.getValue();
                 functionStack.add(new FunctionCall(((Module) object).getRootScope(), tokens[1], Integer.parseInt(tokens[2])));

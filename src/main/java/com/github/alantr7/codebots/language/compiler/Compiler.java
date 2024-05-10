@@ -95,10 +95,12 @@ public class Compiler {
             code.append("\n");
         } else if (statement instanceof FunctionCall stmt) {
             compileFunctionCall(stmt, false);
+            code.append("  halt\n");
         } else if (statement instanceof IfStatement stmt) {
             compileIfStatement(stmt);
         } else if (statement instanceof ReturnStatement stmt) {
             compileReturnStatement(stmt);
+            code.append("  halt\n");
         } else if (statement instanceof WhileLoopStatement stmt) {
             compileWhileLoop(stmt);
         } else if (statement instanceof DoWhileLoopStatement stmt) {
@@ -206,6 +208,7 @@ public class Compiler {
             compileStatement(stmt);
         }
 
+        code.append("  halt\n");
         code.append("  goto ").append(name).append("\n");
         code.append("  end\n");
     }
@@ -223,6 +226,7 @@ public class Compiler {
         code.append("  exit ").append(name).append("\n");
         code.append("  end\n");
 
+        code.append("  halt\n");
         code.append("  goto ").append(name).append("\n");
         code.append("  end\n");
     }

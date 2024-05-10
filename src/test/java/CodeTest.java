@@ -1,23 +1,11 @@
 import com.github.alantr7.codebots.language.compiler.Compiler;
-import com.github.alantr7.codebots.language.compiler.Tokenizer;
-import com.github.alantr7.codebots.language.compiler.parser.Parser;
-import com.github.alantr7.codebots.language.parser.AssemblyParser;
-import com.github.alantr7.codebots.language.runtime.BlockContext;
-import com.github.alantr7.codebots.language.runtime.BlockScope;
-import com.github.alantr7.codebots.language.runtime.BlockStackEntry;
 import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
-import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
-import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
-import com.github.alantr7.codebots.language.runtime.modules.MemoryModule;
-import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
 import com.github.alantr7.codebots.language.runtime.modules.standard.ConsolePrintModule;
 import com.github.alantr7.codebots.language.runtime.modules.standard.LangModule;
 import com.github.alantr7.codebots.language.runtime.modules.standard.MathModule;
 import org.junit.Test;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.util.stream.Collectors;
 
@@ -363,7 +351,10 @@ public class CodeTest {
         System.out.println(inline);
 
         program.prepareMainFunction();
-        program.action(Program.Mode.FULL_EXEC);
+
+        while (program.getMainModule().hasNext() && !program.getEnvironment().isInterrupted()) {
+            program.action(Program.Mode.AUTO_HALT);
+        }
     }
 
 }

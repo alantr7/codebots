@@ -37,6 +37,7 @@ public class MoveFunction extends RuntimeNativeFunction {
         }
 
         context.advance();
+        environment.setHalted(true);
     }
 
     private void beginMovement(BlockContext context, FunctionCall call) {

@@ -27,7 +27,7 @@ public class RuntimeNativeFunction extends RuntimeCodeBlock {
             var result = handler.execute(function.getArguments());
             environment.REGISTRY_RETURN_VALUE.setValue(result);
         } catch (Exception e) {
-            environment.interrupt();
+            environment.interrupt(e);
         }
 
         context.advance();

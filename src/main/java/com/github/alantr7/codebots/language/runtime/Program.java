@@ -84,17 +84,18 @@ public class Program {
     }
 
     public void action(Mode mode) {
+        int actionsPerformed = 0;
         while (mainModule.hasNext() && !environment.isInterrupted()) {
             mainModule.next();
+            actionsPerformed++;
 
-            if (mode == Mode.SINGLE_LINE || (mode == Mode.AUTO_HALT && environment.isHalted()))
+            if (mode == Mode.SINGLE_LINE || (mode == Mode.AUTO_HALT && environment.isHalted())) {
+                System.out.println("Actions performed before halting: " + actionsPerformed);
                 break;
+            }
         }
 
         if (environment.isInterrupted()) {
-            var block = environment.getBlockStack().getLast().block().getBlock();
-            var context = environment.getBlockStack().getLast().context();
-
             System.err.print("Error while executing the program");
             if (environment.getException() != null) {
                 System.err.println(": " + environment.getException().getMessage());
@@ -108,6 +109,8 @@ public class Program {
                 System.err.println("  at " + entry.toString());
             }
         }
+
+        environment.setHalted(false);
     }
 
     public void registerNativeModule(String name, NativeModule module) {
@@ -143,8 +146,7 @@ public class Program {
         var module = new MemoryModule(this, block);
 
         setMainModule(module);
-        mode = Mode.FULL_EXEC;
-        action();
+        action(Mode.FULL_EXEC);
     }
 
     public void prepareMainFunction() {

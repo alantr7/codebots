@@ -14,8 +14,6 @@ public class ConsolePrintModule extends NativeModule {
 
         this.getRootScope().setFunction("print", new RuntimeNativeFunction(program, "print", args -> {
             Assertions.assertEquals(args.length, 1, "print requires 1 argument");
-            Assertions.assertEquals(args[0] instanceof String, true, "print requires a string as the first argument");
-
             System.out.println(args[0]);
             return null;
         }));
