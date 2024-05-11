@@ -19,6 +19,19 @@ public interface CodeBot {
 
     Direction getDirection();
 
+    /**
+     * Set the direction of the bot
+     * @param direction new direction
+     * @param interpolate if rotation should be animated
+     */
+    void setDirection(Direction direction, boolean interpolate);
+
+    /**
+     * Set the direction of the bot without animating the rotation
+     * @param direction new direction
+     */
+    void setDirection(Direction direction);
+
     Program getProgram();
 
     void setProgram(Program program);

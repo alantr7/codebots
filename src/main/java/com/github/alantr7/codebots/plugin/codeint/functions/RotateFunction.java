@@ -51,43 +51,8 @@ public class RotateFunction extends RuntimeNativeFunction {
     void handleRotation() {
         var bot = (CodeBot) environment.getProgram().getExtra("bot");
         var direction = this.getLabel().equals("rotateRight") ? bot.getDirection().getRight() : bot.getDirection().getLeft();
-        var angle = switch (direction) {
-            case NORTH -> ANGLE_NORTH;
-            case WEST -> ANGLE_WEST;
-            case EAST -> ANGLE_EAST;
-            case SOUTH -> ANGLE_SOUTH;
-            default -> 0;
-        };
 
-        var translationFloats = getTranslation(direction);
-        var initialTranslation = bot.getEntity().getTransformation().getTranslation();
-        var initialTransformation = bot.getEntity().getTransformation();
-
-        var nextRotation = new AxisAngle4f(angle, 0, 1, 0);
-        var nextTranslation = new Vector3f(
-                translationFloats[0], initialTranslation.y, translationFloats[1]
-        );
-
-        var entity = bot.getEntity();
-
-        entity.setInterpolationDelay(0);
-        entity.setInterpolationDuration(20);
-
-        entity.setTransformation(new Transformation(
-                nextTranslation,
-                nextRotation,
-                initialTransformation.getScale(),
-                new AxisAngle4f(initialTransformation.getRightRotation())
-        ));
-    }
-
-    private float[] getTranslation(Direction direction) {
-        return switch (direction) {
-            case EAST -> new float[] {0.6f, 0f};
-            case SOUTH -> new float[] {0.6f, 0.6f};
-            case WEST -> new float[]{0f, 0.6f};
-            default -> new float[] {0f, 0f};
-        };
+        bot.setDirection(direction, true);
     }
 
 }

@@ -10,7 +10,9 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
+import org.joml.Vector3f;
 
 import java.io.File;
 import java.util.UUID;
@@ -27,16 +29,11 @@ public class CraftCodeBot implements CodeBot {
 
     private Program program;
 
-    private Direction direction;
-
     private boolean isActive = false;
 
     public CraftCodeBot(UUID id, UUID entityId) {
         this.id = id;
         this.entityId = entityId;
-        this.direction = getEntity() != null
-                ? Direction.fromVector(getEntity().getLocation().getDirection())
-                : Direction.NORTH;
         this.directory = new File(CodeBotsPlugin.inst().getDataFolder(), "bots/" + id.toString());
     }
 
@@ -72,8 +69,49 @@ public class CraftCodeBot implements CodeBot {
         return Direction.NORTH;
     }
 
+    @Override
     public void setDirection(Direction direction) {
-        this.direction = direction;
+        setDirection(direction, false);
+    }
+
+    @Override
+    public void setDirection(Direction direction, boolean interpolate) {
+        var translationFloats = getTranslation(direction);
+        var angle = switch (direction) {
+            case NORTH -> RotateFunction.ANGLE_NORTH;
+            case WEST -> RotateFunction.ANGLE_WEST;
+            case EAST -> RotateFunction.ANGLE_EAST;
+            case SOUTH -> RotateFunction.ANGLE_SOUTH;
+            default -> 0;
+        };
+
+        var entity = getEntity();
+
+        var initialTranslation = entity.getTransformation().getTranslation();
+        var initialTransformation = entity.getTransformation();
+
+        var nextRotation = new AxisAngle4f(angle, 0, 1, 0);
+        var nextTranslation = new Vector3f(
+                translationFloats[0], initialTranslation.y, translationFloats[1]
+        );
+
+        entity.setInterpolationDelay(0);
+        entity.setInterpolationDuration(20);
+        entity.setTransformation(new Transformation(
+                nextTranslation,
+                nextRotation,
+                initialTransformation.getScale(),
+                new AxisAngle4f(initialTransformation.getRightRotation())
+        ));
+    }
+
+    private static float[] getTranslation(Direction direction) {
+        return switch (direction) {
+            case EAST -> new float[] {0.6f, 0f};
+            case SOUTH -> new float[] {0.6f, 0.6f};
+            case WEST -> new float[]{0f, 0.6f};
+            default -> new float[] {0f, 0f};
+        };
     }
 
     @Override
