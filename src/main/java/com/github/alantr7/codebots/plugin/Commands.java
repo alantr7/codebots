@@ -115,4 +115,13 @@ public class Commands {
                 ctx.respond("Bot teleported!");
             });
 
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command inventory = CommandBuilder.using("codebots")
+            .parameter("inv")
+            .executes(ctx -> {
+                var bot = botsRegistry.getBots().entrySet().iterator().next();
+                var player = ((Player) ctx.getExecutor());
+                player.openInventory(bot.getValue().getInventory());
+            });
+
 }

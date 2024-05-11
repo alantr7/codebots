@@ -7,6 +7,7 @@ import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunct
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.inventory.ItemStack;
 
 public class MineFunction extends RuntimeNativeFunction {
 
@@ -42,6 +43,7 @@ public class MineFunction extends RuntimeNativeFunction {
                     12,  0, 0, 0,
                     bot.getLocation().add(0, -1, 0).getBlock().getBlockData()
             );
+            bot.getInventory().addItem(bot.getLocation().add(0, -1, 0).getBlock().getDrops().toArray(new ItemStack[0]));
             bot.getLocation().add(0, -1, 0).getBlock().setType(Material.AIR);
             return;
         }

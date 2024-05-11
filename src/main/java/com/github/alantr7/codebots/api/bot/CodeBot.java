@@ -3,6 +3,7 @@ package com.github.alantr7.codebots.api.bot;
 import com.github.alantr7.codebots.language.runtime.Program;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.inventory.Inventory;
 
 import java.io.File;
 import java.util.UUID;
@@ -43,5 +44,7 @@ public interface CodeBot {
     File getDirectory();
 
     File getProgramsDirectory();
+
+    Inventory getInventory();
 
 }

@@ -10,6 +10,8 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
@@ -31,10 +33,14 @@ public class CraftCodeBot implements CodeBot {
 
     private boolean isActive = false;
 
+    @Getter
+    private final Inventory inventory;
+
     public CraftCodeBot(UUID id, UUID entityId) {
         this.id = id;
         this.entityId = entityId;
         this.directory = new File(CodeBotsPlugin.inst().getDataFolder(), "bots/" + id.toString());
+        this.inventory = Bukkit.createInventory(null, InventoryType.DROPPER, "Bots Inventory");
     }
 
     @Override
