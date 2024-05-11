@@ -46,6 +46,7 @@ Script language is still very experimental, and many features are missing! Pleas
 - Records
 
 #### Yet to be implemented
+- Bot inventory
 - Logic operators (AND, OR) for boolean expressions
 - Importing user modules
 - Error handling
