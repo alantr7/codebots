@@ -76,7 +76,6 @@ public class Commands {
 
                     bot.getValue().setProgram(program);
                     program.action(Program.Mode.FULL_EXEC);
-                    program.prepareMainFunction();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -91,6 +90,7 @@ public class Commands {
             .executes(ctx -> {
                 var bot = botsRegistry.getBots().entrySet().iterator().next();
                 bot.getValue().setActive(true);
+                bot.getValue().getProgram().prepareMainFunction();
 
                 ctx.respond("Bot started!");
             });
