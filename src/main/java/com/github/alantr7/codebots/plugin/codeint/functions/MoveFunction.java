@@ -4,6 +4,7 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.Program;
+import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.plugin.bot.BotRegistry;
@@ -30,9 +31,13 @@ public class MoveFunction extends RuntimeNativeFunction {
 
         // If this is the first tick, then begin movement
         if (context.getLineIndex() == 0) {
-            beginMovement(context, call);
-        }
-        else if (context.getLineIndex() == 10) {
+            try {
+                beginMovement(context, call);
+            } catch (Exception e) {
+                environment.interrupt(e);
+                return;
+            }
+        } else if (context.getLineIndex() == 10) {
             completeMovement(context, call);
         }
 
@@ -40,12 +45,21 @@ public class MoveFunction extends RuntimeNativeFunction {
         environment.setHalted(true);
     }
 
-    private void beginMovement(BlockContext context, FunctionCall call) {
+    private void beginMovement(BlockContext context, FunctionCall call) throws Exception {
+        Assertions.assertEquals(call.getArguments().length, 1, "Expected 1 argument");
+        Assertions.assertEquals(call.getArguments()[0] instanceof String, true, "Expected a string argument");
+
         var bot = (CodeBot) environment.getProgram().getExtra("bot");
         var entity = bot.getEntity();
         var initialTransformation = entity.getTransformation();
         var initialTranslation = initialTransformation.getTranslation();
-        var direction = Direction.toDirection((String) call.getArguments()[0]).toVector();
+        var arg = call.getArguments()[0];
+        var direction = (arg.equals("forward")
+                ? bot.getDirection()
+                : arg.equals("back")
+                ? bot.getDirection().getRight().getRight()
+                : Direction.toDirection((String) call.getArguments()[0])).toVector();
+
         var nextTranslation = direction.toVector3f().add(initialTranslation);
 
         entity.setInterpolationDelay(0);
@@ -59,14 +73,18 @@ public class MoveFunction extends RuntimeNativeFunction {
         ));
 
         context.setExtra("initialTranslation", initialTranslation);
-        Bukkit.broadcastMessage("§eMovement started!");
     }
 
     private void completeMovement(BlockContext context, FunctionCall call) {
         var bot = (CodeBot) environment.getProgram().getExtra("bot");
         var entity = bot.getEntity();
         var initialTranslation = (Vector3f) context.getExtra("initialTranslation");
-        var direction = Direction.toDirection((String) call.getArguments()[0]).toVector();
+        var arg = call.getArguments()[0];
+        var direction = (arg.equals("forward")
+                ? bot.getDirection()
+                : arg.equals("back")
+                ? bot.getDirection().getRight().getRight()
+                : Direction.toDirection((String) call.getArguments()[0])).toVector();
         entity.setInterpolationDuration(0);
         entity.setTransformation(new Transformation(
                 initialTranslation,
