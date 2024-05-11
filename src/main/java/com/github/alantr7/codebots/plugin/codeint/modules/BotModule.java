@@ -4,6 +4,7 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
+import com.github.alantr7.codebots.plugin.codeint.functions.MineFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.MoveFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
 
@@ -30,6 +31,8 @@ public class BotModule extends NativeModule {
 
             return bot.getLocation().add(direction).getBlock().getType().name().toLowerCase();
         });
+
+        getRootScope().setFunction("mine", new MineFunction(program));
     }
 
 }
