@@ -4,10 +4,13 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
+import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
+import org.joml.AxisAngle4f;
 
 import java.io.File;
 import java.util.UUID;
@@ -49,7 +52,24 @@ public class CraftCodeBot implements CodeBot {
 
     @Override
     public Direction getDirection() {
-        return direction;
+        var entity = getEntity();
+        if (entity == null)
+            return null;
+
+        var rotation = new AxisAngle4f(entity.getTransformation().getLeftRotation());
+        if (rotation.angle == 0)
+            return Direction.NORTH;
+
+        if (MathHelper.floatsEqual(rotation.angle, RotateFunction.ANGLE_EAST))
+            return Direction.EAST;
+
+        if (MathHelper.floatsEqual(rotation.angle, RotateFunction.ANGLE_SOUTH))
+            return Direction.SOUTH;
+
+        if (MathHelper.floatsEqual(rotation.angle, RotateFunction.ANGLE_WEST))
+            return Direction.WEST;
+
+        return Direction.NORTH;
     }
 
     public void setDirection(Direction direction) {

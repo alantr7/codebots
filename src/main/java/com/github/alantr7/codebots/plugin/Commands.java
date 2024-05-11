@@ -15,6 +15,7 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
+import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 import java.io.File;
@@ -101,15 +102,14 @@ public class Commands {
                 var bot = botsRegistry.getBots().entrySet().iterator().next();
                 var player = ((Player) ctx.getExecutor());
                 var blockDisplay = bot.getValue().getEntity();
-                blockDisplay.teleport(player.getLocation().getBlock().getLocation());
+                blockDisplay.teleport(player.getLocation().getBlock().getLocation().add(0.2, 0, 0.2));
                 blockDisplay.setRotation(0, 0);
 
-                var transformation = blockDisplay.getTransformation();
                 blockDisplay.setTransformation(new Transformation(
-                        new Vector3f(0.2f, 0.2f, 0.2f),
-                        transformation.getLeftRotation(),
+                        new Vector3f(0f, 0f, 0f),
+                        new AxisAngle4f(0f, 0f, 0f, 0f),
                         new Vector3f(0.6f, 0.6f, 0.6f),
-                        transformation.getRightRotation()
+                        new AxisAngle4f(0f, 0f, 0f, 0f)
                 ));
                 blockDisplay.setInterpolationDuration(20);
                 ctx.respond("Bot teleported!");

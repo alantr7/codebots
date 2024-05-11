@@ -1,119 +1,93 @@
 package com.github.alantr7.codebots.plugin.codeint.functions;
 
+import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 public class RotateFunction extends RuntimeNativeFunction {
 
-    private boolean hasRotated = false;
+    private static final float a45 = (float) Math.PI / 4;
 
-    private Transformation initialTransformation;
+    public static final float ANGLE_NORTH = 0;
 
-    private Vector3f initialTranslation;
+    public static final float ANGLE_EAST = (float) (Math.PI + Math.PI / 2);
 
-    private int ticks = 0;
+    public static final float ANGLE_SOUTH = a45 + a45 + a45 + a45;
 
-    private final float a45 = (float) Math.PI / 4;
-
-    private final CraftCodeBot bot;
-
-    private Direction currentDirection;
-
-    private Direction nextDirection;
+    public static final float ANGLE_WEST = a45 + a45;
 
     public RotateFunction(Program program, String label) {
         super(program, label, null);
-        this.bot = (CraftCodeBot) program.getExtra("bot");
-        this.currentDirection = bot.getDirection();
-        this.nextDirection = switch (label) {
-            case "rotateRight" -> currentDirection.getRight();
-            default -> currentDirection.getLeft();
-        };
     }
 
     @Override
     public boolean hasNext(BlockContext context) {
-        return !hasRotated;
+        return !context.getFlag(BlockContext.FLAG_COMPLETED);
     }
 
     @Override
     public void next(BlockContext context) {
-        var entity = bot.getEntity();
+        int ticks = context.getLineIndex();
         if (ticks == 0) {
-            this.initialTransformation = bot.getEntity().getTransformation();
-            this.initialTranslation = initialTransformation.getTranslation();
-            bot.setDirection(nextDirection);
-
-            // Begin first half of rotation
-//            var currentRotation = new AxisAngle4f(initialTransformation.getLeftRotation());
-            var nextRotation = new AxisAngle4f(a45, 0, 1, 0);
-            var nextTranslation = new Vector3f(
-                    (float) (0.1f),
-                    initialTranslation.y,
-                    (float) (0.5f)
-            );
-
-            entity.setInterpolationDelay(0);
-            entity.setInterpolationDuration(20);
-
-            entity.setTransformation(new Transformation(
-                    nextTranslation,
-                    nextRotation,
-                    initialTransformation.getScale(),
-                    new AxisAngle4f(initialTransformation.getRightRotation())
-            ));
-
-            Bukkit.broadcastMessage("§eRotation started!");
-        } else if (ticks == 10) {
-            // Begin second half of rotation
-            var nextRotation = new AxisAngle4f(a45 + a45, 0, 1, 0);
-            var nextTranslation = new Vector3f(
-                    0.2f,
-                    initialTranslation.y,
-                    0.8f
-            );
-
-            entity.setInterpolationDelay(0);
-            entity.setInterpolationDuration(20);
-
-            entity.setTransformation(new Transformation(
-                    nextTranslation,
-                    nextRotation,
-                    initialTransformation.getScale(),
-                    new AxisAngle4f(initialTransformation.getRightRotation())
-            ));
-
-            Bukkit.broadcastMessage("§eRotation started!");
-        } else if (ticks == 20) {
-            hasRotated = true;
+            handleRotation();
         }
 
-        ticks++;
+        else if (ticks == 10) {
+            context.setFlag(BlockContext.FLAG_COMPLETED, true);
+        }
+
+        environment.setHalted(true);
+        context.advance();
     }
 
-    public Transformation getHalfwayTransformation() {
-        AxisAngle4f nextRotation;
-        Vector3f nextTranslation;
-
-        switch (nextDirection) {
-            case NORTH -> {
-                nextRotation = new AxisAngle4f(a45, 0, 1, 0);
-                nextTranslation = new Vector3f(0.1f, initialTranslation.y, 0.5f);
-            }
+    void handleRotation() {
+        var bot = (CodeBot) environment.getProgram().getExtra("bot");
+        var direction = this.getLabel().equals("rotateRight") ? bot.getDirection().getRight() : bot.getDirection().getLeft();
+        var angle = switch (direction) {
+            case NORTH -> ANGLE_NORTH;
+            case WEST -> ANGLE_WEST;
+            case EAST -> ANGLE_EAST;
+            case SOUTH -> ANGLE_SOUTH;
+            default -> 0;
         };
 
-        return null;
+        var translationFloats = getTranslation(direction);
+        var initialTranslation = bot.getEntity().getTransformation().getTranslation();
+        var initialTransformation = bot.getEntity().getTransformation();
+
+        var nextRotation = new AxisAngle4f(angle, 0, 1, 0);
+        var nextTranslation = new Vector3f(
+                translationFloats[0], initialTranslation.y, translationFloats[1]
+        );
+
+        var entity = bot.getEntity();
+
+        entity.setInterpolationDelay(0);
+        entity.setInterpolationDuration(20);
+
+        entity.setTransformation(new Transformation(
+                nextTranslation,
+                nextRotation,
+                initialTransformation.getScale(),
+                new AxisAngle4f(initialTransformation.getRightRotation())
+        ));
     }
 
-    public Transformation getTargetTransformation() {
-        return null;
+    private float[] getTranslation(Direction direction) {
+        return switch (direction) {
+            case EAST -> new float[] {0.6f, 0f};
+            case SOUTH -> new float[] {0.6f, 0.6f};
+            case WEST -> new float[]{0f, 0.6f};
+            default -> new float[] {0f, 0f};
+        };
     }
 
 }
