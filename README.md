@@ -44,18 +44,28 @@ Script language is still very experimental, and many features are missing! Pleas
 - Grouping expressions with parentheses
 - Arrays and dicts
 - Records
-
-#### Yet to be implemented
 - Bot inventory
+
+#### Yet to be done
+- Save & load inventory
+- Load/unload bots when their chunk loads/unloads
+- Inventory control (select slot, drop item)
+- Configuration for movement and rotation speeds, allow/block item drops, allow/block mining
+- WorldGuard, Factions integration
 - Logic operators (AND, OR) for boolean expressions
 - Importing user modules
 - Error handling
 
 #### Future plans
 - More standard modules
+- Rework bots memory
+- Resume programs when bots are loaded
 - Web editor for writing scripts
 - Bot networks using routers
 - Ton of optimization
+- Bot statistics (blocks moved, blocks mined)
+- File system
+- SQL database support
 
 ## Language examples
 <hr />
@@ -152,7 +162,7 @@ Properties of the record are defined in the parentheses. Properties are read-onl
 
 Records must be defined outside a function, so in the root of a module.
 ```ts
-record Location(var x, var y, var z)
+record Location(x, y, z)
 ```
 
 To create an instance of a record, use the `new` keyword.
