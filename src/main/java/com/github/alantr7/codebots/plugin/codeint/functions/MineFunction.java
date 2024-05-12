@@ -4,6 +4,9 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
+import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.data.BotRegistry;
+import com.github.alantr7.codebots.plugin.data.DataLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -44,6 +47,7 @@ public class MineFunction extends RuntimeNativeFunction {
                     bot.getLocation().add(0, -1, 0).getBlock().getBlockData()
             );
             bot.getInventory().addItem(bot.getLocation().add(0, -1, 0).getBlock().getDrops().toArray(new ItemStack[0]));
+            CodeBotsPlugin.inst().getSingleton(DataLoader.class).saveInventory(bot);
             bot.getLocation().add(0, -1, 0).getBlock().setType(Material.AIR);
             return;
         }

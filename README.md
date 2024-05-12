@@ -47,7 +47,6 @@ Script language is still very experimental, and many features are missing! Pleas
 - Bot inventory
 
 #### Yet to be done
-- Save & load inventory
 - Load/unload bots when their chunk loads/unloads
 - Inventory control (select slot, drop item)
 - Configuration for movement and rotation speeds, allow/block item drops, allow/block mining

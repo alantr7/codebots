@@ -34,29 +34,7 @@ public class DataLoader {
         botsDirectory.mkdirs();
 
         for (var directory : botsDirectory.listFiles()) {
-            var data = YamlConfiguration.loadConfiguration(new File(directory, "bot.yml"));
-            var botId = UUID.fromString(directory.getName());
-
-            var entityId = UUID.fromString(data.getString("EntityId"));
-            var interactionId = UUID.fromString(data.getString("InteractionId"));
-            var programPath = data.getString("Program");
-
-            var bot = new CraftCodeBot(botId, entityId, interactionId);
-            try {
-                var program = Program.createFromSourceFile(new File(bot.getProgramsDirectory(), programPath));
-                program.setExtra("bot", bot);
-
-                var botModule = new BotModule(program);
-                program.registerNativeModule("bot", botModule);
-
-                bot.setProgram(program);
-                program.action(Program.Mode.FULL_EXEC); // TODO: Remove this. It's only a TEMPORARY solution!!
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            this.registry.registerBot(bot);
-            this.registry.updateBotLocation(bot);
+            loadBot(directory);
         }
 
         plugin.getLogger().info("Loaded " + registry.getBots().size() + " bots.");
@@ -65,6 +43,40 @@ public class DataLoader {
         for (var player : Bukkit.getOnlinePlayers()) {
             players.registerPlayer(new PlayerData(player.getUniqueId()));
         }
+    }
+
+    private void loadBot(File directory) {
+        var data = YamlConfiguration.loadConfiguration(new File(directory, "bot.yml"));
+        var botId = UUID.fromString(directory.getName());
+
+        var entityId = UUID.fromString(data.getString("EntityId"));
+        var interactionId = UUID.fromString(data.getString("InteractionId"));
+        var programPath = data.getString("Program");
+
+        var bot = new CraftCodeBot(botId, entityId, interactionId);
+        try {
+            var program = Program.createFromSourceFile(new File(bot.getProgramsDirectory(), programPath));
+            program.setExtra("bot", bot);
+
+            var botModule = new BotModule(program);
+            program.registerNativeModule("bot", botModule);
+
+            bot.setProgram(program);
+            program.action(Program.Mode.FULL_EXEC); // TODO: Remove this. It's only a TEMPORARY solution!!
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        var inventoryFile = new File(directory, "inventory.yml");
+        if (inventoryFile.exists()) {
+            var inventoryData = YamlConfiguration.loadConfiguration(inventoryFile);
+            for (int i = 0; i < 9; i++) {
+                bot.getInventory().setItem(i, inventoryData.getItemStack("Slot" + i));
+            }
+        }
+
+        this.registry.registerBot(bot);
+        this.registry.updateBotLocation(bot);
     }
 
     public void save() {
@@ -93,6 +105,23 @@ public class DataLoader {
 
         var programs = new File(directory, "programs");
         programs.mkdirs();
+    }
+
+    public void saveInventory(CodeBot bot) {
+        var file = new File(bot.getDirectory(), "inventory.yml");
+        var data = new YamlConfiguration();
+
+        var inventory = bot.getInventory();
+        for (int i = 0; i < 9; i++) {
+            var item = inventory.getItem(i);
+            data.set("Slot" + i, item);
+        }
+
+        try {
+            data.save(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
