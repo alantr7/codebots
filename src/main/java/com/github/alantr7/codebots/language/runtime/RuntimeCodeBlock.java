@@ -416,7 +416,6 @@ public class RuntimeCodeBlock extends RuntimeObject {
         }
 
         setValue(context, registry, stack.peek());
-        System.out.println("Evaluated expression: " + Arrays.toString(expressions) + " Result: " + stack.peek());
     }
 
     private Object getValue(BlockContext context, String raw) {

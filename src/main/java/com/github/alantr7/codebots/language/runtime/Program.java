@@ -84,23 +84,20 @@ public class Program {
     }
 
     public void action(Mode mode) {
-        int actionsPerformed = 0;
         while (mainModule.hasNext() && !environment.isInterrupted()) {
             mainModule.next();
-            actionsPerformed++;
 
             if (mode == Mode.SINGLE_LINE || (mode == Mode.AUTO_HALT && environment.isHalted())) {
-                System.out.println("Actions performed before halting: " + actionsPerformed);
                 break;
             }
         }
 
         if (environment.isInterrupted()) {
-            System.err.print("Error while executing the program");
+
             if (environment.getException() != null) {
-                System.err.println(": " + environment.getException().getMessage());
+                System.err.println("Error while executing the program: " + environment.getException().getMessage());
             } else {
-                System.err.println();
+                System.err.println("Error while executing the program");
             }
 
             System.err.println("Stack trace:");
