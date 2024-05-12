@@ -142,10 +142,26 @@ public class Commands {
                     return;
                 }
 
+                ((CraftCodeBot) bot).fixTransformation();
                 bot.setActive(true);
                 bot.getProgram().prepareMainFunction();
 
                 ctx.respond("Bot started!");
+            });
+
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command pause = CommandBuilder.using("codebots")
+            .parameter("pause")
+            .executes(ctx -> {
+                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
+
+                bot.setActive(false);
+                ((CraftCodeBot) bot).fixTransformation();
+                ctx.respond("Bot paused!");
             });
 
     @CommandHandler

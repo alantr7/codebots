@@ -78,6 +78,10 @@ public class CraftCodeBot implements CodeBot {
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation(this);
     }
 
+    public void fixTransformation() {
+        setLocation(getLocation());
+    }
+
     @Override
     public Direction getDirection() {
         var entity = getEntity();
@@ -127,7 +131,7 @@ public class CraftCodeBot implements CodeBot {
         );
 
         entity.setInterpolationDelay(0);
-        entity.setInterpolationDuration(20);
+        entity.setInterpolationDuration(interpolate ? 20 : 0);
         entity.setTransformation(new Transformation(
                 nextTranslation,
                 nextRotation,

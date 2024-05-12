@@ -1,7 +1,5 @@
 package com.github.alantr7.codebots.language.runtime;
 
-import com.github.alantr7.codebots.api.bot.CodeBot;
-
 public enum ValueType {
 
     INT, BOOLEAN, FLOAT, OBJECT, STRING, FUNCTION, CLASS, CODE_BLOCK, MODULE, ANY, NULL;

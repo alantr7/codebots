@@ -7,6 +7,7 @@ import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
+import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
@@ -65,7 +66,7 @@ public class Events implements Listener {
             return;
         }
 
-        event.getPlayer().openInventory(bot.getInventory());
+        new BotGUI(event.getPlayer(), bot).open();
     }
 
     @EventHandler

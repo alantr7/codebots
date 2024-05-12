@@ -9,6 +9,7 @@ import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.modules.FileModule;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -43,7 +44,13 @@ public class DataLoader {
             var bot = new CraftCodeBot(botId, entityId, interactionId);
             try {
                 var program = Program.createFromSourceFile(new File(bot.getProgramsDirectory(), programPath));
+                program.setExtra("bot", bot);
+
+                var botModule = new BotModule(program);
+                program.registerNativeModule("bot", botModule);
+
                 bot.setProgram(program);
+                program.action(Program.Mode.FULL_EXEC); // TODO: Remove this. It's only a TEMPORARY solution!!
             } catch (Exception e) {
                 e.printStackTrace();
             }
