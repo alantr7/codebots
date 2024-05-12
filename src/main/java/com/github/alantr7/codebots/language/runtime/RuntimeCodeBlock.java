@@ -1,22 +1,16 @@
 package com.github.alantr7.codebots.language.runtime;
 
 import com.github.alantr7.codebots.language.compiler.parser.ParserHelper;
-import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
-import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
-import com.github.alantr7.codebots.language.runtime.functions.RuntimeSleepFunction;
 import com.github.alantr7.codebots.language.runtime.modules.Module;
 import com.github.alantr7.codebots.language.runtime.modules.standard.LangModule;
 import com.github.alantr7.codebots.language.runtime.utils.Calculator;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.lang.reflect.Array;
 import java.util.*;
-
-import static com.github.alantr7.codebots.language.compiler.parser.ParserHelper.error;
 
 public class RuntimeCodeBlock extends RuntimeObject {
 
@@ -136,10 +130,6 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 Assertions.assertType(environment.REGISTRY_CURRENT_VALUE, ValueType.STRING, "Type mismatch.");
                 setValue(context, tokens[1], ((String) scope.getVariable(tokens[1]).getValue()) + environment.REGISTRY_CURRENT_VALUE.getValue());
             }
-            case "sleep" -> environment.getBlockStack().add(new BlockStackEntry(
-                    new RuntimeSleepFunction(program, Integer.parseInt(tokens[1])),
-                    new BlockContext(BlockScope.nestIn(program.getRootScope())))
-            );
 
             case "push_stack" -> environment.getTokenStack().push(new LinkedList<>());
             case "pop_stack" -> environment.getTokenStack().pop();
