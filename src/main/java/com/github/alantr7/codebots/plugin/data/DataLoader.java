@@ -62,8 +62,11 @@ public class DataLoader {
         var data = new YamlConfiguration();
         data.set("Location", bot.getLocation());
         data.set("EntityId", bot.getEntityId().toString());
+        data.set("InteractionId", bot.getInteractionId().toString());
         if (bot.getProgram() != null) {
             data.set("Program", ((FileModule) bot.getProgram().getMainModule()).getFile().getName());
+        } else {
+            data.set("Program", null);
         }
         try {
             data.save(botFile);

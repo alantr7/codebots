@@ -95,12 +95,10 @@ public class Commands {
     public com.github.alantr7.bukkitplugin.commands.registry.Command start = CommandBuilder.using("codebots")
             .parameter("start")
             .executes(ctx -> {
-                var bot = botsRegistry.getBots().entrySet().iterator().next();
-                bot.getValue().setActive(true);
-                bot.getValue().getProgram().prepareMainFunction();
+                var bot = botsRegistry.getBots().entrySet().iterator().next().getValue();
+                bot.setActive(true);
+                bot.getProgram().prepareMainFunction();
 
-                bot.getValue().getInteraction().setResponsive(true);
-                bot.getValue().getInteraction().getPersistentDataContainer().set(new NamespacedKey(plugin, "bot_id"), PersistentDataType.STRING, bot.getValue().getId().toString());
                 ctx.respond("Bot started!");
             });
 

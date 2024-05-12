@@ -18,6 +18,8 @@ public interface CodeBot {
 
     BlockDisplay getEntity();
 
+    UUID getInteractionId();
+
     Interaction getInteraction();
 
     Location getLocation();
