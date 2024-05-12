@@ -5,6 +5,7 @@ import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.bukkitplugin.annotations.generative.Command;
 import com.github.alantr7.bukkitplugin.commands.annotations.CommandHandler;
 import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
+import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
@@ -67,35 +68,81 @@ public class Commands {
             });
 
     @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command sel = CommandBuilder.using("codebots")
+            .parameter("sel")
+            .executes(ctx -> {
+                var player = ((Player) ctx.getExecutor());
+                var interaction = player.getLocation().getWorld().rayTraceEntities(
+                        player.getEyeLocation(),
+                        player.getLocation().getDirection(),
+                        5,
+                        e -> e.getType() == EntityType.INTERACTION
+                );
+
+                if (interaction == null) {
+                    player.sendMessage("Please look at a bot when using this command.");
+                    return;
+                }
+
+                var botId = interaction.getHitEntity().getPersistentDataContainer().get(new NamespacedKey(plugin, "bot_id"), PersistentDataType.STRING);
+                if (botId == null) {
+                    player.sendMessage("Please look at a bot when using this command.");
+                    return;
+                }
+
+                var bot = botsRegistry.getBots().get(UUID.fromString(botId));
+
+                if (bot == null) {
+                    player.sendMessage("Please look at a bot when using this command.");
+                    return;
+                }
+
+                var playerData = PlayerData.get(player);
+                playerData.setSelectedBot(bot);
+
+                ctx.respond("Bot selected!");
+            });
+
+    @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command load = CommandBuilder.using("codebots")
             .parameter("load")
             .parameter("{path}", p -> p.defaultValue(ctx -> null))
             .executes(ctx -> {
-                var bot = botsRegistry.getBots().entrySet().iterator().next();
-                var programFile = new File(bot.getValue().getProgramsDirectory(), (String) ctx.getArgument("path"));
+                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
+
+                var programFile = new File(bot.getProgramsDirectory(), (String) ctx.getArgument("path"));
 
                 try {
                     var program = Program.createFromSourceFile(programFile);
-                    program.setExtra("bot", bot.getValue());
+                    program.setExtra("bot", bot);
 
                     var botModule = new BotModule(program);
                     program.registerNativeModule("bot", botModule);
 
-                    bot.getValue().setProgram(program);
+                    bot.setProgram(program);
                     program.action(Program.Mode.FULL_EXEC);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
                 ctx.respond("Program loaded.");
-                loader.save(bot.getValue());
+                loader.save(bot);
             });
 
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command start = CommandBuilder.using("codebots")
             .parameter("start")
             .executes(ctx -> {
-                var bot = botsRegistry.getBots().entrySet().iterator().next().getValue();
+                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
+
                 bot.setActive(true);
                 bot.getProgram().prepareMainFunction();
 
@@ -106,19 +153,13 @@ public class Commands {
     public com.github.alantr7.bukkitplugin.commands.registry.Command tp = CommandBuilder.using("codebots")
             .parameter("tp")
             .executes(ctx -> {
-                var bot = botsRegistry.getBots().entrySet().iterator().next();
-                var player = ((Player) ctx.getExecutor());
-                var blockDisplay = bot.getValue().getEntity();
-                blockDisplay.teleport(player.getLocation().getBlock().getLocation().add(0.2, 0, 0.2));
-                blockDisplay.setRotation(0, 0);
+                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
 
-                blockDisplay.setTransformation(new Transformation(
-                        new Vector3f(0f, 0f, 0f),
-                        new AxisAngle4f(0f, 0f, 0f, 0f),
-                        new Vector3f(0.6f, 0.6f, 0.6f),
-                        new AxisAngle4f(0f, 0f, 0f, 0f)
-                ));
-                blockDisplay.setInterpolationDuration(20);
+                bot.setLocation(((Player) ctx.getExecutor()).getLocation());
                 ctx.respond("Bot teleported!");
             });
 
@@ -132,25 +173,17 @@ public class Commands {
             });
 
     @CommandHandler
-    public com.github.alantr7.bukkitplugin.commands.registry.Command e = CommandBuilder.using("codebots")
-            .parameter("e")
-            .executes(ctx -> {
-                var player = ((Player) ctx.getExecutor());
-                player.sendMessage("Entities in this chunk:");
-                for (var entity : player.getLocation().getChunk().getEntities()) {
-                    if (entity.getType() == EntityType.INTERACTION || entity.getType() == EntityType.BLOCK_DISPLAY) {
-                        player.sendMessage("- " + entity.getUniqueId() + " [" + entity.getType() + "]");
-                    }
-                }
-            });
-
-    @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command inventory = CommandBuilder.using("codebots")
             .parameter("inv")
             .executes(ctx -> {
-                var bot = botsRegistry.getBots().entrySet().iterator().next();
+                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
+
                 var player = ((Player) ctx.getExecutor());
-                player.openInventory(bot.getValue().getInventory());
+                player.openInventory(bot.getInventory());
             });
 
 }

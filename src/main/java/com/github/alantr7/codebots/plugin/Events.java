@@ -4,17 +4,16 @@ import com.github.alantr7.bukkitplugin.BukkitPlugin;
 import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
+import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
+import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Interaction;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.persistence.PersistentDataType;
@@ -26,6 +25,9 @@ public class Events implements Listener {
 
     @Inject
     BotRegistry registry;
+
+    @Inject
+    PlayerRegistry players;
 
     @Inject
     CodeBotsPlugin plugin;
@@ -62,6 +64,16 @@ public class Events implements Listener {
         }
 
         event.getPlayer().openInventory(bot.getInventory());
+    }
+
+    @EventHandler
+    void onPlayerJoin(PlayerJoinEvent event) {
+        players.registerPlayer(new PlayerData(event.getPlayer().getUniqueId()));
+    }
+
+    @EventHandler
+    void onPlayerQuit(PlayerQuitEvent event) {
+        players.unregisterPlayer(event.getPlayer().getUniqueId());
     }
 
     @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)

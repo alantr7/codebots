@@ -4,10 +4,12 @@ import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.modules.FileModule;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -21,6 +23,9 @@ public class DataLoader {
 
     @Inject
     BotRegistry registry;
+
+    @Inject
+    PlayerRegistry players;
 
     @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
     public void load() {
@@ -48,6 +53,11 @@ public class DataLoader {
         }
 
         plugin.getLogger().info("Loaded " + registry.getBots().size() + " bots.");
+
+        // Load players
+        for (var player : Bukkit.getOnlinePlayers()) {
+            players.registerPlayer(new PlayerData(player.getUniqueId()));
+        }
     }
 
     public void save() {
