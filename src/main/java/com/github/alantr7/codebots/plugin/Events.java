@@ -46,7 +46,6 @@ public class Events implements Listener {
 
     @EventHandler
     void onBotInteract(PlayerInteractEntityEvent event) {
-        event.getPlayer().sendMessage("You clicked on " + event.getRightClicked().getType());
         if (event.getRightClicked().getType() != EntityType.INTERACTION)
             return;
 
@@ -54,17 +53,15 @@ public class Events implements Listener {
         var botId = interaction.getPersistentDataContainer().get(new NamespacedKey(plugin, "bot_id"), PersistentDataType.STRING);
 
         if (botId == null) {
-            event.getPlayer().sendMessage("Bot id is null.");
             return;
         }
 
         var bot = registry.getBots().get(UUID.fromString(botId));
         if (bot == null) {
-            event.getPlayer().sendMessage("Bot is null.");
             return;
         }
 
-        event.getPlayer().sendMessage("§eYou right-clicked a bot!");
+        event.getPlayer().openInventory(bot.getInventory());
     }
 
     @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
