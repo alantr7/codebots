@@ -6,7 +6,7 @@ import com.github.alantr7.bukkitplugin.annotations.generative.Command;
 import com.github.alantr7.bukkitplugin.commands.annotations.CommandHandler;
 import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
 import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.plugin.bot.BotRegistry;
+import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
@@ -19,7 +19,6 @@ import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.UUID;
 
 @Singleton
@@ -113,6 +112,15 @@ public class Commands {
                 ));
                 blockDisplay.setInterpolationDuration(20);
                 ctx.respond("Bot teleported!");
+            });
+
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command chunk = CommandBuilder.using("codebots")
+            .parameter("chunk")
+            .executes(ctx -> {
+                var player = ((Player) ctx.getExecutor());
+                var bots = botsRegistry.getBotsInChunk(player.getLocation());
+                ctx.respond("Bots in chunk: " + bots.size());
             });
 
     @CommandHandler

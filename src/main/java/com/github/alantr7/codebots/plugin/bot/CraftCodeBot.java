@@ -7,6 +7,7 @@ import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
@@ -32,6 +33,9 @@ public class CraftCodeBot implements CodeBot {
     private Program program;
 
     private boolean isActive = false;
+
+    @Getter @Setter
+    private Location lastSavedLocation;
 
     @Getter
     private final Inventory inventory;

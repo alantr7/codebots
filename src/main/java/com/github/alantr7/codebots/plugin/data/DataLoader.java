@@ -7,7 +7,6 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.modules.FileModule;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.bot.BotRegistry;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -44,6 +43,7 @@ public class DataLoader {
             }
 
             this.registry.registerBot(bot);
+            this.registry.updateBotLocation(bot);
         }
 
         plugin.getLogger().info("Loaded " + registry.getBots().size() + " bots.");

@@ -7,11 +7,10 @@ import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
-import com.github.alantr7.codebots.plugin.bot.BotRegistry;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.BlockDisplay;
+import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import org.bukkit.util.Transformation;
-import org.bukkit.util.Vector;
 import org.joml.Vector3f;
 
 public class MoveFunction extends RuntimeNativeFunction {
@@ -73,6 +72,7 @@ public class MoveFunction extends RuntimeNativeFunction {
         ));
 
         context.setExtra("initialTranslation", initialTranslation);
+        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation((CraftCodeBot) bot);
     }
 
     private void completeMovement(BlockContext context, FunctionCall call) {
@@ -93,6 +93,7 @@ public class MoveFunction extends RuntimeNativeFunction {
                 entity.getTransformation().getRightRotation()
         ));
         entity.teleport(entity.getLocation().add(direction));
+        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation((CraftCodeBot) bot);
 
         context.setFlag(BlockContext.FLAG_COMPLETED, true);
     }
