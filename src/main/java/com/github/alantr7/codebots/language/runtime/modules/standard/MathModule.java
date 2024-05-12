@@ -4,9 +4,6 @@ import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
 
-import java.util.Arrays;
-import java.util.Random;
-
 public class MathModule extends NativeModule {
 
     public MathModule(Program program) {

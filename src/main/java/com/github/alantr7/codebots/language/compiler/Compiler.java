@@ -7,7 +7,6 @@ import com.github.alantr7.codebots.language.compiler.parser.element.stmt.*;
 import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.Stack;
 
 public class Compiler {

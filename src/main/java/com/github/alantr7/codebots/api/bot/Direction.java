@@ -1,9 +1,7 @@
 package com.github.alantr7.codebots.api.bot;
 
 import lombok.Getter;
-import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
-import org.joml.Math;
 
 @Getter
 public enum Direction {

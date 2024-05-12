@@ -1,16 +1,9 @@
 package com.github.alantr7.codebots.plugin.codeint.functions;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
-import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
-import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.util.Transformation;
-import org.joml.AxisAngle4f;
-import org.joml.Vector3f;
 
 public class RotateFunction extends RuntimeNativeFunction {
 

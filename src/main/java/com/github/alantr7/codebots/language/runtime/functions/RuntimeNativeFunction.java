@@ -3,8 +3,6 @@ package com.github.alantr7.codebots.language.runtime.functions;
 import com.github.alantr7.codebots.language.runtime.*;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
 
-import java.util.function.Function;
-
 public class RuntimeNativeFunction extends RuntimeCodeBlock {
 
     private final Handler handler;

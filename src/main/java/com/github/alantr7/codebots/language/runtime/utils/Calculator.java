@@ -2,9 +2,6 @@ package com.github.alantr7.codebots.language.runtime.utils;
 
 import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
 public class Calculator {
 
     public static final Operation<Integer, Integer, Integer> ADD = Integer::sum;

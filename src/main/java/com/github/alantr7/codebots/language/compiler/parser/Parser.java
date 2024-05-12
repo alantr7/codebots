@@ -7,7 +7,6 @@ import com.github.alantr7.codebots.language.compiler.parser.element.stmt.*;
 import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.github.alantr7.codebots.language.compiler.parser.ParserHelper.error;
 import static com.github.alantr7.codebots.language.compiler.parser.ParserHelper.expect;
