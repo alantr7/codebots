@@ -92,9 +92,7 @@ public class MoveFunction extends RuntimeNativeFunction {
                 entity.getTransformation().getScale(),
                 entity.getTransformation().getRightRotation()
         ));
-        entity.teleport(entity.getLocation().add(direction));
-        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation((CraftCodeBot) bot);
-
+        bot.setLocation(entity.getLocation().add(direction));
         context.setFlag(BlockContext.FLAG_COMPLETED, true);
     }
 

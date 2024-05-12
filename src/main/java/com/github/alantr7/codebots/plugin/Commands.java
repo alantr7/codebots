@@ -11,9 +11,12 @@ import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
@@ -53,7 +56,12 @@ public class Commands {
                 ));
                 blockDisplay.setInterpolationDuration(20);
 
-                var bot = new CraftCodeBot(UUID.randomUUID(), blockDisplay.getUniqueId());
+                var interaction = (Interaction) player.getWorld().spawnEntity(player.getLocation().getBlock().getLocation(), EntityType.INTERACTION);
+                interaction.setInteractionWidth(0.8f);
+
+                var bot = new CraftCodeBot(UUID.randomUUID(), blockDisplay.getUniqueId(), interaction.getUniqueId());
+                interaction.getPersistentDataContainer().set(new NamespacedKey(plugin, "bot_id"), PersistentDataType.STRING, bot.getId().toString());
+
                 botsRegistry.registerBot(bot);
                 loader.save(bot);
             });
@@ -91,6 +99,8 @@ public class Commands {
                 bot.getValue().setActive(true);
                 bot.getValue().getProgram().prepareMainFunction();
 
+                bot.getValue().getInteraction().setResponsive(true);
+                bot.getValue().getInteraction().getPersistentDataContainer().set(new NamespacedKey(plugin, "bot_id"), PersistentDataType.STRING, bot.getValue().getId().toString());
                 ctx.respond("Bot started!");
             });
 
@@ -121,6 +131,19 @@ public class Commands {
                 var player = ((Player) ctx.getExecutor());
                 var bots = botsRegistry.getBotsInChunk(player.getLocation());
                 ctx.respond("Bots in chunk: " + bots.size());
+            });
+
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command e = CommandBuilder.using("codebots")
+            .parameter("e")
+            .executes(ctx -> {
+                var player = ((Player) ctx.getExecutor());
+                player.sendMessage("Entities in this chunk:");
+                for (var entity : player.getLocation().getChunk().getEntities()) {
+                    if (entity.getType() == EntityType.INTERACTION || entity.getType() == EntityType.BLOCK_DISPLAY) {
+                        player.sendMessage("- " + entity.getUniqueId() + " [" + entity.getType() + "]");
+                    }
+                }
             });
 
     @CommandHandler

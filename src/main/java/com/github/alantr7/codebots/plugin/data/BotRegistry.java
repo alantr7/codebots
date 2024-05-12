@@ -22,7 +22,7 @@ public class BotRegistry {
     public static BotRegistry instance;
 
     public void registerBot(CraftCodeBot display) {
-        bots.put(display.getEntity().getUniqueId(), display);
+        bots.put(display.getId(), display);
     }
 
     public void unregisterBot(UUID id) {

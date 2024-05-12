@@ -32,9 +32,10 @@ public class DataLoader {
             var botId = UUID.fromString(directory.getName());
 
             var entityId = UUID.fromString(data.getString("EntityId"));
+            var interactionId = UUID.fromString(data.getString("InteractionId"));
             var programPath = data.getString("Program");
 
-            var bot = new CraftCodeBot(botId, entityId);
+            var bot = new CraftCodeBot(botId, entityId, interactionId);
             try {
                 var program = Program.createFromSourceFile(new File(bot.getProgramsDirectory(), programPath));
                 bot.setProgram(program);

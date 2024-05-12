@@ -5,15 +5,18 @@ import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
+import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Interaction;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.util.Transformation;
+import org.jetbrains.annotations.NotNull;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
@@ -28,6 +31,9 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private final UUID entityId;
 
+    @Getter
+    private final UUID interactionId;
+
     private final File directory;
 
     private Program program;
@@ -40,9 +46,10 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private final Inventory inventory;
 
-    public CraftCodeBot(UUID id, UUID entityId) {
+    public CraftCodeBot(UUID id, UUID entityId, UUID interactionId) {
         this.id = id;
         this.entityId = entityId;
+        this.interactionId = interactionId;
         this.directory = new File(CodeBotsPlugin.inst().getDataFolder(), "bots/" + id.toString());
         this.inventory = Bukkit.createInventory(null, InventoryType.DROPPER, "Bots Inventory");
     }
@@ -53,8 +60,22 @@ public class CraftCodeBot implements CodeBot {
     }
 
     @Override
+    public Interaction getInteraction() {
+        return (Interaction) Bukkit.getEntity(interactionId);
+    }
+
+    @Override
     public Location getLocation() {
         return getEntity().getLocation();
+    }
+
+    @Override
+    public void setLocation(@NotNull Location location) {
+        var blockLocation = MathHelper.toBlockLocation(location);
+        getEntity().teleport(blockLocation.clone().add(.2, 0, .2));
+        getInteraction().teleport(blockLocation.add(.5, 0, .5));
+
+        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation(this);
     }
 
     @Override

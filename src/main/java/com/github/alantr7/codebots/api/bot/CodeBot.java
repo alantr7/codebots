@@ -3,7 +3,9 @@ package com.github.alantr7.codebots.api.bot;
 import com.github.alantr7.codebots.language.runtime.Program;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Interaction;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.UUID;
@@ -16,7 +18,15 @@ public interface CodeBot {
 
     BlockDisplay getEntity();
 
+    Interaction getInteraction();
+
     Location getLocation();
+
+    /**
+     * Teleports the bot to the specified location
+     * @param location new location
+     */
+    void setLocation(@NotNull Location location);
 
     Direction getDirection();
 
