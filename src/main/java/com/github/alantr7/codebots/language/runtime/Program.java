@@ -154,6 +154,12 @@ public class Program {
         getEnvironment().getCallStack().add(new FunctionCall(mainModule.getRootScope(), "main", 0));
     }
 
+    public void reset() {
+        environment.getTokenStack().clear();
+        environment.getBlockStack().clear();
+        environment.getCallStack().clear();
+    }
+
     public static Program createFromSourceFile(File file) throws Exception {
         var source = Files.readAllLines(file.toPath()).toArray(String[]::new);
         var inline = Compiler.compileModule(String.join("\n", source));
