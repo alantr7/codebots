@@ -56,7 +56,7 @@ public class MineFunction extends RuntimeNativeFunction {
             float damage = progress / 5f;
 
             for (var player : Bukkit.getOnlinePlayers()) {
-                player.sendBlockDamage(bot.getLocation().add(0, -1, 0), damage);
+                player.sendBlockDamage(bot.getLocation().add(0, -1, 0), damage, bot.getEntity());
             }
 
             context.setExtra("progress", progress + 1);
