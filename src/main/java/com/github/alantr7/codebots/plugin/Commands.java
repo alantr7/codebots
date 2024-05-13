@@ -198,7 +198,7 @@ public class Commands {
                 }
 
                 var player = ((Player) ctx.getExecutor());
-                player.openInventory(bot.getInventory());
+                player.openInventory(bot.getInventory().getInternal());
             });
 
 }

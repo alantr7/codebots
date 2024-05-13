@@ -1,5 +1,6 @@
 package com.github.alantr7.codebots.plugin.bot;
 
+import com.github.alantr7.codebots.api.bot.BotInventory;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.language.runtime.Program;
@@ -44,14 +45,14 @@ public class CraftCodeBot implements CodeBot {
     private Location lastSavedLocation;
 
     @Getter
-    private final Inventory inventory;
+    private final CraftBotInventory inventory;
 
     public CraftCodeBot(UUID id, UUID entityId, UUID interactionId) {
         this.id = id;
         this.entityId = entityId;
         this.interactionId = interactionId;
         this.directory = new File(CodeBotsPlugin.inst().getDataFolder(), "bots/" + id.toString());
-        this.inventory = Bukkit.createInventory(null, InventoryType.DROPPER, "Bots Inventory");
+        this.inventory = new CraftBotInventory(this);
     }
 
     @Override
@@ -157,6 +158,7 @@ public class CraftCodeBot implements CodeBot {
     @Override
     public void setProgram(Program program) {
         this.program = program;
+        inventory.updateProgramButton();
     }
 
     public boolean isActive() {
@@ -170,6 +172,7 @@ public class CraftCodeBot implements CodeBot {
             Bukkit.broadcastMessage("§eProgram has completed.");
         }
         isActive = active;
+        inventory.updateControlButton();
     }
 
     @Override

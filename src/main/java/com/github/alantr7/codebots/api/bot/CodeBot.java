@@ -57,6 +57,6 @@ public interface CodeBot {
 
     File getProgramsDirectory();
 
-    Inventory getInventory();
+    BotInventory getInventory();
 
 }

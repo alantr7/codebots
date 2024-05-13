@@ -70,7 +70,7 @@ public class DataLoader {
         var inventoryFile = new File(directory, "inventory.yml");
         if (inventoryFile.exists()) {
             var inventoryData = YamlConfiguration.loadConfiguration(inventoryFile);
-            for (int i = 0; i < 9; i++) {
+            for (int i = 0; i < 7; i++) {
                 bot.getInventory().setItem(i, inventoryData.getItemStack("Slot" + i));
             }
         }
@@ -112,7 +112,7 @@ public class DataLoader {
         var data = new YamlConfiguration();
 
         var inventory = bot.getInventory();
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 7; i++) {
             var item = inventory.getItem(i);
             data.set("Slot" + i, item);
         }

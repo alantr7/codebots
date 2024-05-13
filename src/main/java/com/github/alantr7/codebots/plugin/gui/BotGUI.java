@@ -21,54 +21,28 @@ public class BotGUI extends GUI {
     private final CodeBot bot;
 
     public BotGUI(Player player, CodeBot bot) {
-        super(CodeBotsPlugin.inst(), player);
+        super(CodeBotsPlugin.inst(), player, false);
         this.bot = bot;
+
+        init();
     }
 
     @Override
     protected void init() {
-        createInventory("Manage Bot", 27);
-        setInteractionEnabled(false);
-    }
-
-    @Override
-    protected void fill(Inventory inventory) {
-        var buttonInventory = new ItemStack(Material.CHEST);
-        var inventoryMeta = buttonInventory.getItemMeta();
-        inventoryMeta.setDisplayName("§6Inventory");
-        buttonInventory.setItemMeta(inventoryMeta);
-
-        setItem(11, buttonInventory);
+        createInventory(bot.getInventory().getInternal());
         registerInteractionCallback(11, ClickType.LEFT, () -> {
-            getPlayer().openInventory(bot.getInventory());
-        });
-
-        var buttonProgram = new ItemStack(Material.PAPER);
-        var meta = buttonProgram.getItemMeta();
-        if (!bot.isActive()) {
-            buttonProgram.setType(Material.LIME_TERRACOTTA);
-            meta.setDisplayName("§aStart Program");
-        } else {
-            buttonProgram.setType(Material.RED_TERRACOTTA);
-            meta.setDisplayName("§cStop Program");
-        }
-        if (bot.getProgram() != null) {
-            meta.setLore(List.of(
-                    "§7Program: §f" + ((FileModule) bot.getProgram().getMainModule()).getFile().getName()
-            ));
-        }
-        buttonProgram.setItemMeta(meta);
-
-        setItem(13, buttonProgram);
-        registerInteractionCallback(13, ClickType.LEFT, () -> {
             if (bot.isActive()) {
                 bot.setActive(false);
-                bot.getProgram().reset();
             } else {
+                bot.getProgram().reset();
                 bot.getProgram().prepareMainFunction();
                 bot.setActive(true);
             }
         });
+    }
+
+    @Override
+    protected void fill(Inventory inventory) {
     }
 
     @Override
@@ -83,7 +57,9 @@ public class BotGUI extends GUI {
 
     @Override
     public void onItemInteract(int i, @NotNull ClickType clickType, @Nullable ItemStack itemStack) {
-
+        if (!((i >= 37 && i <= 44) || i >= 54)) {
+            setCancelled(true);
+        }
     }
 
 }
