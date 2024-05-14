@@ -28,7 +28,7 @@ public class BotModule extends NativeModule {
             var bot = (CodeBot) program.getExtra("bot");
             var input = (String) args[0];
 
-            var direction = input.equals("front") ? bot.getDirection().toVector() :
+            var direction = input.equals("forward") ? bot.getDirection().toVector() :
                     input.equals("back") ? bot.getDirection().toVector().multiply(-1) : Direction.toDirection(input).toVector();
 
             return bot.getLocation().add(direction).getBlock().getType().name().toLowerCase();
