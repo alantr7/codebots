@@ -59,4 +59,16 @@ public interface CodeBot {
 
     BotInventory getInventory();
 
+    /**
+     * Get the selected slot in the bot's inventory
+     * @return selected slot
+     */
+    int getSelectedSlot();
+
+    /**
+     * Set the selected slot in the bot's inventory
+     * @param slot new selected slot. Must be between 0 and 6 (inclusive)
+     */
+    void setSelectedSlot(int slot);
+
 }

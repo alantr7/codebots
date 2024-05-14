@@ -150,7 +150,11 @@ public class CraftBotInventory implements BotInventory {
 
     public void updateSelectedSlotHighlights() {
         for (int i = 0; i < 7; i++) {
-            inventory.setItem(28 + i, INVENTORY_SLOT_NOT_SELECTED);
+            if (bot.getSelectedSlot() == i) {
+                inventory.setItem(28 + i, INVENTORY_SLOT_SELECTED);
+            } else {
+                inventory.setItem(28 + i, INVENTORY_SLOT_NOT_SELECTED);
+            }
         }
     }
 

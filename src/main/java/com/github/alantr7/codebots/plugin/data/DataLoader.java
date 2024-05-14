@@ -52,6 +52,7 @@ public class DataLoader {
         var entityId = UUID.fromString(data.getString("EntityId"));
         var interactionId = UUID.fromString(data.getString("InteractionId"));
         var programPath = data.getString("Program");
+        int selectedSlot = data.getInt("SelectedSlot", 0);
 
         var bot = new CraftCodeBot(botId, entityId, interactionId);
         try {
@@ -97,6 +98,7 @@ public class DataLoader {
         } else {
             data.set("Program", null);
         }
+        data.set("SelectedSlot", bot.getSelectedSlot());
         try {
             data.save(botFile);
         } catch (Exception e) {

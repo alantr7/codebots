@@ -47,6 +47,9 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private final CraftBotInventory inventory;
 
+    @Getter
+    private int selectedSlot = 0;
+
     public CraftCodeBot(UUID id, UUID entityId, UUID interactionId) {
         this.id = id;
         this.entityId = entityId;
@@ -183,6 +186,15 @@ public class CraftCodeBot implements CodeBot {
     @Override
     public File getProgramsDirectory() {
         return new File(directory, "programs");
+    }
+
+    @Override
+    public void setSelectedSlot(int slot) {
+        if (slot < 0 || slot > 6)
+            throw new IllegalArgumentException("Slot must be between 0 and 6 (inclusive)");
+
+        selectedSlot = slot;
+        inventory.updateSelectedSlotHighlights();
     }
 
 }
