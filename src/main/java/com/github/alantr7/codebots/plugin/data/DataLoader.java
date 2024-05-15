@@ -73,6 +73,8 @@ public class DataLoader {
         int selectedSlot = data.getInt("SelectedSlot", 0);
 
         var bot = new CraftCodeBot(botId, entityId, interactionId);
+        bot.setSelectedSlot(selectedSlot);
+
         try {
             var program = Program.createFromSourceFile(new File(bot.getProgramsDirectory(), programPath));
             var program1 = new ProgramSource(programPath, new File(bot.getProgramsDirectory(), programPath), program.getCode());
