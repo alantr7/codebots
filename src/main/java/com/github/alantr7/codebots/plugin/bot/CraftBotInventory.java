@@ -3,15 +3,13 @@ package com.github.alantr7.codebots.plugin.bot;
 import com.github.alantr7.codebots.api.bot.BotInventory;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.language.runtime.modules.FileModule;
+import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Consumer;
 
 public class CraftBotInventory implements BotInventory {
 
@@ -19,15 +17,15 @@ public class CraftBotInventory implements BotInventory {
 
     private final Inventory inventory;
 
-    private final ItemStack CONTROL_START = createItem(Material.LIME_CONCRETE, "§aStart Program");
+    private final ItemStack CONTROL_START = ItemFactory.createItem(Material.LIME_CONCRETE, "§aStart Program");
 
-    private final ItemStack CONTROL_STOP = createItem(Material.RED_CONCRETE, "§cStop Program");
+    private final ItemStack CONTROL_STOP = ItemFactory.createItem(Material.RED_CONCRETE, "§cStop Program");
 
     private final ItemStack PROGRAM_INFO = new ItemStack(Material.PAPER);
 
-    private final ItemStack INVENTORY_SLOT_NOT_SELECTED = createItem(Material.BLACK_STAINED_GLASS_PANE, "§7");
+    private final ItemStack INVENTORY_SLOT_NOT_SELECTED = ItemFactory.createItem(Material.BLACK_STAINED_GLASS_PANE, "§7");
 
-    private final ItemStack INVENTORY_SLOT_SELECTED = createItem(Material.LIME_STAINED_GLASS_PANE, "§7Item below is selected.");
+    private final ItemStack INVENTORY_SLOT_SELECTED = ItemFactory.createItem(Material.LIME_STAINED_GLASS_PANE, "§7Item below is selected.");
 
     public CraftBotInventory(CodeBot bot) {
         this.bot = bot;
@@ -156,20 +154,6 @@ public class CraftBotInventory implements BotInventory {
                 inventory.setItem(28 + i, INVENTORY_SLOT_NOT_SELECTED);
             }
         }
-    }
-
-    private static ItemStack createItem(Material material, Consumer<ItemMeta> meta) {
-        var stack = new ItemStack(material);
-        var itemMeta = stack.getItemMeta();
-
-        meta.accept(itemMeta);
-        stack.setItemMeta(itemMeta);
-
-        return stack;
-    }
-
-    private static ItemStack createItem(Material material, String name) {
-        return createItem(material, meta -> meta.setDisplayName(name));
     }
 
 }
