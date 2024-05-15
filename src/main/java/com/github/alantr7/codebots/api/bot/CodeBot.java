@@ -1,10 +1,10 @@
 package com.github.alantr7.codebots.api.bot;
 
 import com.github.alantr7.codebots.language.runtime.Program;
+import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Interaction;
-import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -47,7 +47,9 @@ public interface CodeBot {
 
     Program getProgram();
 
-    void setProgram(Program program);
+    ProgramSource getProgramSource();
+
+    void loadProgram(ProgramSource program) throws ParseException;
 
     boolean isActive();
 

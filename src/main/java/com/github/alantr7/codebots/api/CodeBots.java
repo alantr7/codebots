@@ -1,14 +1,20 @@
 package com.github.alantr7.codebots.api;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
+import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
 public interface CodeBots {
@@ -24,6 +30,10 @@ public interface CodeBots {
     @SuppressWarnings("all")
     static @NotNull PlayerData getPlayer(@NotNull Player player) {
         return getPlayer(player.getUniqueId());
+    }
+
+    static @NotNull ProgramSource loadProgram(@NotNull File file) throws ParserException, IOException {
+        return CodeBotsPlugin.inst().getSingleton(DataLoader.class).loadProgram(file);
     }
 
 }

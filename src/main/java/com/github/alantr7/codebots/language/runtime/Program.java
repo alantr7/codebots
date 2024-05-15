@@ -1,6 +1,7 @@
 package com.github.alantr7.codebots.language.runtime;
 
 import com.github.alantr7.codebots.language.compiler.Compiler;
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.language.parser.AssemblyParser;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
@@ -28,6 +29,9 @@ public class Program {
 
     @Getter
     private Module mainModule;
+
+    @Getter @Setter
+    private String[] code;
 
     @Getter
     private final File directory;
@@ -166,18 +170,32 @@ public class Program {
         program.registerNativeModule("lang", new LangModule(program));
         program.registerDefaultFunctionsFromModule(program.getOrLoadModule("math"));
         program.registerDefaultFunctionsFromModule(program.getOrLoadModule("lang"));
-        program.getRootScope().setFunction("print", new RuntimeNativeFunction(program, "print", args -> {
-            var value = args[0];
-            Bukkit.broadcastMessage(value.toString());
-
-            return null;
-        }));
 
         var moduleBlock = AssemblyParser.parseCodeBlock(program, inline.split("\n"));
         var module = new FileModule(program, file, moduleBlock);
         program.setMainModule(module);
 
-        for (var line : inline.split("\n"))
+        program.setCode(inline.split("\n"));
+
+        for (var line : program.getCode())
+            System.out.println(line);
+
+        return program;
+    }
+
+    public static Program createFromCompiledCode(File directory, File source, String[] code) throws ParseException {
+        var program = new Program(directory);
+        program.registerNativeModule("math", new MathModule(program));
+        program.registerNativeModule("lang", new LangModule(program));
+        program.registerDefaultFunctionsFromModule(program.getOrLoadModule("math"));
+        program.registerDefaultFunctionsFromModule(program.getOrLoadModule("lang"));
+
+        var moduleBlock = AssemblyParser.parseCodeBlock(program, code);
+        var module = new FileModule(program, source, moduleBlock);
+        program.setMainModule(module);
+        program.setCode(code);
+
+        for (var line : code)
             System.out.println(line);
 
         return program;

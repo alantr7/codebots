@@ -3,9 +3,13 @@ package com.github.alantr7.codebots.plugin.data;
 import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
+import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.player.PlayerData;
+import com.github.alantr7.codebots.language.compiler.Compiler;
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.language.runtime.Program;
+import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import com.github.alantr7.codebots.language.runtime.modules.FileModule;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
@@ -14,6 +18,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.UUID;
 
 @Singleton
@@ -28,8 +34,20 @@ public class DataLoader {
     @Inject
     PlayerRegistry players;
 
+    @Inject
+    ProgramRegistry programs;
+
     @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
     public void load() {
+        var programsDirectory = new File(plugin.getDataFolder(), "programs");
+        programsDirectory.mkdirs();
+
+        for (var programFile : programsDirectory.listFiles()) {
+            try {
+                programs.registerProgram(loadProgram(programFile));
+            } catch (Exception e) {}
+        }
+
         var botsDirectory = new File(plugin.getDataFolder(), "bots");
         botsDirectory.mkdirs();
 
@@ -57,12 +75,14 @@ public class DataLoader {
         var bot = new CraftCodeBot(botId, entityId, interactionId);
         try {
             var program = Program.createFromSourceFile(new File(bot.getProgramsDirectory(), programPath));
+            var program1 = new ProgramSource(programPath, new File(bot.getProgramsDirectory(), programPath), program.getCode());
             program.setExtra("bot", bot);
 
             var botModule = new BotModule(program);
             program.registerNativeModule("bot", botModule);
 
             bot.setProgram(program);
+            bot.setProgramSource(program1);
             program.action(Program.Mode.FULL_EXEC); // TODO: Remove this. It's only a TEMPORARY solution!!
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,6 +98,14 @@ public class DataLoader {
 
         this.registry.registerBot(bot);
         this.registry.updateBotLocation(bot);
+    }
+
+    public ProgramSource loadProgram(File file) throws ParserException, IOException {
+        var source = Files.readAllLines(file.toPath()).toArray(String[]::new);
+        var inline = Compiler.compileModule(String.join("\n", source));
+
+        var code = inline.split("\n");
+        return new ProgramSource(file.getName(), file, code);
     }
 
     public void save() {

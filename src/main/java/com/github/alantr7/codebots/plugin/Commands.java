@@ -107,7 +107,7 @@ public class Commands {
             .parameter("load")
             .parameter("{path}", p -> p.defaultValue(ctx -> null))
             .executes(ctx -> {
-                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                var bot = (CraftCodeBot) PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
                 if (bot == null) {
                     ctx.respond("§cPlease select a bot first.");
                     return;

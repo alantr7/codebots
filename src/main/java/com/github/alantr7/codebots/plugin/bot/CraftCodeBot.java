@@ -1,9 +1,10 @@
 package com.github.alantr7.codebots.plugin.bot;
 
-import com.github.alantr7.codebots.api.bot.BotInventory;
+import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.language.runtime.Program;
+import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
@@ -14,8 +15,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Interaction;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
 import org.joml.AxisAngle4f;
@@ -37,7 +36,11 @@ public class CraftCodeBot implements CodeBot {
 
     private final File directory;
 
+    @Getter @Setter
     private Program program;
+
+    @Getter @Setter
+    private ProgramSource programSource;
 
     private boolean isActive = false;
 
@@ -83,7 +86,7 @@ public class CraftCodeBot implements CodeBot {
     }
 
     public void fixTransformation() {
-        setLocation(getLocation());
+        setDirection(getDirection(), false);
     }
 
     @Override
@@ -154,13 +157,9 @@ public class CraftCodeBot implements CodeBot {
     }
 
     @Override
-    public Program getProgram() {
-        return program;
-    }
-
-    @Override
-    public void setProgram(Program program) {
-        this.program = program;
+    public void loadProgram(ProgramSource program) throws ParseException {
+        this.program = Program.createFromCompiledCode(program.getSource().getParentFile(), program.getSource(), program.getCode());
+        this.programSource = program;
         inventory.updateProgramButton();
     }
 
@@ -171,6 +170,7 @@ public class CraftCodeBot implements CodeBot {
     public void setActive(boolean active) {
         if (active) {
             Bukkit.broadcastMessage("§eStarted program execution.");
+            fixTransformation();
         } else {
             Bukkit.broadcastMessage("§eProgram has completed.");
         }
