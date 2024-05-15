@@ -28,7 +28,6 @@ https://github.com/alantr7/codebots/wiki/Scripting-Language
 
 #### Yet to be done
 - Load/unload bots when their chunk loads/unloads
-- Inventory control (select slot, drop item)
 - Configuration for movement and rotation speeds, allow/block item drops, allow/block mining
 - WorldGuard, Factions integration
 - Logic operators (AND, OR) for boolean expressions
