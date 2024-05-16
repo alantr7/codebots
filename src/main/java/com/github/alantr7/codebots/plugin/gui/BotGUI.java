@@ -34,6 +34,10 @@ public class BotGUI extends GUI {
                 bot.setActive(true);
             }
         });
+
+        registerInteractionCallback(13, ClickType.LEFT, () -> {
+            new BotProgramsGUI(getPlayer(), bot).open();
+        });
     }
 
     @Override
