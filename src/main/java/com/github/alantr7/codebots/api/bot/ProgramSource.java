@@ -9,13 +9,16 @@ import java.io.File;
 @Getter
 public class ProgramSource {
 
+    private final Directory directory;
+
     private final String name;
 
     private final File source;
 
     private final String[] code;
 
-    public ProgramSource(String name, File source, String[] code) {
+    public ProgramSource(Directory category, String name, File source, String[] code) {
+        this.directory = category;
         this.name = name;
         this.source = source;
         this.code = code;

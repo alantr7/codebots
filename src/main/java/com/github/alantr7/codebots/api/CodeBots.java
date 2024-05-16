@@ -1,6 +1,7 @@
 package com.github.alantr7.codebots.api;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
@@ -32,8 +33,8 @@ public interface CodeBots {
         return getPlayer(player.getUniqueId());
     }
 
-    static @NotNull ProgramSource loadProgram(@NotNull File file) throws ParserException, IOException {
-        return CodeBotsPlugin.inst().getSingleton(DataLoader.class).loadProgram(file);
+    static @NotNull ProgramSource loadProgram(@NotNull Directory directory, @NotNull File file) throws ParserException, IOException {
+        return CodeBotsPlugin.inst().getSingleton(DataLoader.class).loadProgram(directory, file);
     }
 
 }

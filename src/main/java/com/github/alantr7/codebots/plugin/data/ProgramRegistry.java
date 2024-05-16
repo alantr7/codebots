@@ -3,6 +3,7 @@ package com.github.alantr7.codebots.plugin.data;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +18,10 @@ public class ProgramRegistry {
 
     public ProgramSource getProgram(String name) {
         return sharedPrograms.get(name);
+    }
+
+    public Collection<ProgramSource> getPrograms() {
+        return sharedPrograms.values();
     }
 
 }

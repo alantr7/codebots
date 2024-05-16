@@ -7,7 +7,9 @@ import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
+import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
+import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.Getter;
 import lombok.Setter;
@@ -159,8 +161,15 @@ public class CraftCodeBot implements CodeBot {
     @Override
     public void loadProgram(ProgramSource program) throws ParseException {
         this.program = Program.createFromCompiledCode(program.getSource().getParentFile(), program.getSource(), program.getCode());
+        this.program.setExtra("bot", this);
+
+        this.program.registerNativeModule("bot", new BotModule(this.program));
         this.programSource = program;
+
+        this.program.action(Program.Mode.FULL_EXEC);
         inventory.updateProgramButton();
+
+        CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
     }
 
     public boolean isActive() {

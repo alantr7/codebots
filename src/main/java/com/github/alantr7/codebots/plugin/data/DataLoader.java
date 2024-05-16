@@ -3,6 +3,7 @@ package com.github.alantr7.codebots.plugin.data;
 import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
+import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.player.PlayerData;
@@ -44,7 +45,7 @@ public class DataLoader {
 
         for (var programFile : programsDirectory.listFiles()) {
             try {
-                programs.registerProgram(loadProgram(programFile));
+                programs.registerProgram(loadProgram(Directory.SHARED_PROGRAMS, programFile));
             } catch (Exception e) {}
         }
 
@@ -69,25 +70,31 @@ public class DataLoader {
 
         var entityId = UUID.fromString(data.getString("EntityId"));
         var interactionId = UUID.fromString(data.getString("InteractionId"));
-        var programPath = data.getString("Program");
+        var programPath = data.getString("Program.Name");
+        var programDirectory = data.getString("Program.Directory");
         int selectedSlot = data.getInt("SelectedSlot", 0);
 
         var bot = new CraftCodeBot(botId, entityId, interactionId);
         bot.setSelectedSlot(selectedSlot);
 
-        try {
-            var program = Program.createFromSourceFile(new File(bot.getProgramsDirectory(), programPath));
-            var program1 = new ProgramSource(programPath, new File(bot.getProgramsDirectory(), programPath), program.getCode());
-            program.setExtra("bot", bot);
+        if (programPath != null && programDirectory != null) {
+            try {
+                var programDirectoryEnum = Directory.fromOrDefault(programDirectory.toUpperCase(), Directory.LOCAL_PROGRAMS);
+                var program = Program.createFromSourceFile(new File(bot.getProgramsDirectory(), programPath));
+                var program1 = new ProgramSource(programDirectoryEnum, programPath, new File(bot.getProgramsDirectory(), programPath), program.getCode());
+                program.setExtra("bot", bot);
 
-            var botModule = new BotModule(program);
-            program.registerNativeModule("bot", botModule);
+                var botModule = new BotModule(program);
+                program.registerNativeModule("bot", botModule);
 
-            bot.setProgram(program);
-            bot.setProgramSource(program1);
-            program.action(Program.Mode.FULL_EXEC); // TODO: Remove this. It's only a TEMPORARY solution!!
-        } catch (Exception e) {
-            e.printStackTrace();
+                bot.setProgram(program);
+                bot.setProgramSource(program1);
+                program.action(Program.Mode.FULL_EXEC); // TODO: Remove this. It's only a TEMPORARY solution!!
+
+                bot.getInventory().updateProgramButton();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         var inventoryFile = new File(directory, "inventory.yml");
@@ -102,12 +109,12 @@ public class DataLoader {
         this.registry.updateBotLocation(bot);
     }
 
-    public ProgramSource loadProgram(File file) throws ParserException, IOException {
+    public ProgramSource loadProgram(Directory directory, File file) throws ParserException, IOException {
         var source = Files.readAllLines(file.toPath()).toArray(String[]::new);
         var inline = Compiler.compileModule(String.join("\n", source));
 
         var code = inline.split("\n");
-        return new ProgramSource(file.getName(), file, code);
+        return new ProgramSource(directory, file.getName(), file, code);
     }
 
     public void save() {
@@ -124,7 +131,8 @@ public class DataLoader {
         data.set("EntityId", bot.getEntityId().toString());
         data.set("InteractionId", bot.getInteractionId().toString());
         if (bot.getProgram() != null) {
-            data.set("Program", ((FileModule) bot.getProgram().getMainModule()).getFile().getName());
+            data.set("Program.Name", bot.getProgramSource().getSource().getName());
+            data.set("Program.Directory", bot.getProgramSource().getDirectory().name());
         } else {
             data.set("Program", null);
         }
