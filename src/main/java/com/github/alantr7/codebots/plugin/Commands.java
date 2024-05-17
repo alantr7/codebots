@@ -11,6 +11,7 @@ import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
+import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.BlockDisplay;
@@ -41,6 +42,7 @@ public class Commands {
 
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command create = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_CREATE)
             .parameter("create")
             .executes(ctx -> {
                 var player = ((Player) ctx.getExecutor());
@@ -68,6 +70,7 @@ public class Commands {
 
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command sel = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_SELECT)
             .parameter("sel")
             .executes(ctx -> {
                 var player = ((Player) ctx.getExecutor());
@@ -104,6 +107,7 @@ public class Commands {
 
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command load = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_LOAD)
             .parameter("load")
             .parameter("{path}", p -> p.defaultValue(ctx -> null))
             .executes(ctx -> {
@@ -134,6 +138,7 @@ public class Commands {
 
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command start = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_START)
             .parameter("start")
             .executes(ctx -> {
                 var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
@@ -151,6 +156,7 @@ public class Commands {
 
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command pause = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_PAUSE)
             .parameter("pause")
             .executes(ctx -> {
                 var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
@@ -165,7 +171,25 @@ public class Commands {
             });
 
     @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command stop = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_STOP)
+            .parameter("stop")
+            .executes(ctx -> {
+                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
+
+                bot.setActive(false);
+                ((CraftCodeBot) bot).fixTransformation();
+
+                ctx.respond("Bot stopped.");
+            });
+
+    @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command tp = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_TELEPORT)
             .parameter("tp")
             .executes(ctx -> {
                 var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
@@ -179,16 +203,8 @@ public class Commands {
             });
 
     @CommandHandler
-    public com.github.alantr7.bukkitplugin.commands.registry.Command chunk = CommandBuilder.using("codebots")
-            .parameter("chunk")
-            .executes(ctx -> {
-                var player = ((Player) ctx.getExecutor());
-                var bots = botsRegistry.getBotsInChunk(player.getLocation());
-                ctx.respond("Bots in chunk: " + bots.size());
-            });
-
-    @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command inventory = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_INVENTORY)
             .parameter("inv")
             .executes(ctx -> {
                 var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
@@ -197,8 +213,7 @@ public class Commands {
                     return;
                 }
 
-                var player = ((Player) ctx.getExecutor());
-                player.openInventory(bot.getInventory().getInternal());
+                new BotGUI((Player) ctx.getExecutor(), bot).open();
             });
 
 }
