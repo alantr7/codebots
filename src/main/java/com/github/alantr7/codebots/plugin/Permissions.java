@@ -28,4 +28,7 @@ public class Permissions {
     @Permission(allowed = Permission.Allowed.OP)
     public static final String COMMAND_INVENTORY = "codebots.command.inventory";
 
+    @Permission(allowed = Permission.Allowed.OP)
+    public static final String ACTION_OPEN_ANY_INVENTORY = "codebots.bot.openany";
+
 }

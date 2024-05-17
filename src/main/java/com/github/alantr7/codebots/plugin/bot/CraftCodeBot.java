@@ -36,6 +36,9 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private final UUID interactionId;
 
+    @Getter @Setter
+    private UUID ownerId;
+
     private final File directory;
 
     @Getter @Setter

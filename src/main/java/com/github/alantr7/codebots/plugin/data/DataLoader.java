@@ -75,6 +75,12 @@ public class DataLoader {
         int selectedSlot = data.getInt("SelectedSlot", 0);
 
         var bot = new CraftCodeBot(botId, entityId, interactionId);
+
+        var ownerId = data.getString("OwnerId");
+        if (ownerId != null) {
+            bot.setOwnerId(UUID.fromString(ownerId));
+        }
+
         bot.setSelectedSlot(selectedSlot);
 
         if (programPath != null && programDirectory != null) {
@@ -130,6 +136,11 @@ public class DataLoader {
         data.set("Location", bot.getLocation());
         data.set("EntityId", bot.getEntityId().toString());
         data.set("InteractionId", bot.getInteractionId().toString());
+        if (bot.getOwnerId() != null) {
+            data.set("OwnerId", bot.getOwnerId().toString());
+        } else {
+            data.set("OwnerId", null);
+        }
         if (bot.getProgram() != null) {
             data.set("Program.Name", bot.getProgramSource().getSource().getName());
             data.set("Program.Directory", bot.getProgramSource().getDirectory().name());

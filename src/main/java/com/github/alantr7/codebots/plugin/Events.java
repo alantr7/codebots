@@ -66,6 +66,12 @@ public class Events implements Listener {
             return;
         }
 
+        if (!event.getPlayer().getUniqueId().equals(bot.getOwnerId())) {
+            if (!event.getPlayer().hasPermission(Permissions.ACTION_OPEN_ANY_INVENTORY)) {
+                event.getPlayer().sendMessage("§cYou do not have access to this bot.");
+                return;
+            }
+        }
         new BotGUI(event.getPlayer(), bot).open();
     }
 

@@ -22,6 +22,14 @@ public interface CodeBot {
 
     Interaction getInteraction();
 
+    UUID getOwnerId();
+
+    /**
+     * Move bot ownership to a new player
+     * @param id new owner's UUID
+     */
+    void setOwnerId(@NotNull UUID id);
+
     Location getLocation();
 
     /**
