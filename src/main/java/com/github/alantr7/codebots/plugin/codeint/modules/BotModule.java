@@ -9,6 +9,8 @@ import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
 import com.github.alantr7.codebots.plugin.codeint.functions.MineFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.MoveFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
+import org.bukkit.block.Chest;
+import org.bukkit.block.Container;
 
 public class BotModule extends NativeModule {
 
@@ -37,7 +39,6 @@ public class BotModule extends NativeModule {
         getRootScope().setFunction("mine", new MineFunction(program));
 
 
-
         // Inventory functions
         registerFunction("getSelectedSlot", args -> ((CodeBot) program.getExtra("bot")).getSelectedSlot());
         registerFunction("setSelectedSlot", args -> {
@@ -62,6 +63,36 @@ public class BotModule extends NativeModule {
             var inventory = bot.getInventory();
             var item = inventory.getItem(slot);
             return item == null ? null : item.getType().name().toLowerCase();
+        });
+
+
+        // Dispense items
+        registerFunction("depositItem", args -> {
+            Assertions.assertEquals(args.length, 1, "depositItem only takes 1 argument.");
+            Assertions.assertType(args[0], ValueType.STRING, "Direction is not a valid string.");
+            var bot = (CodeBot) program.getExtra("bot");
+            var inventory = bot.getInventory();
+            var slot = bot.getSelectedSlot();
+            var item = inventory.getItem(slot);
+            if (item == null) {
+                return false;
+            }
+            var direction = args[0].equals("forward") ? bot.getDirection()
+                    : args[0].equals("back") ? bot.getDirection().getRight().getRight()
+                    : Direction.toDirection(((String) args[0]).toUpperCase());
+
+            if (direction == null) {
+                return false;
+            }
+
+            var state = bot.getLocation().getWorld().getBlockState(bot.getLocation().clone().add(direction.toVector()));
+            if (!(state instanceof Container container)) {
+                return false;
+            }
+
+            var result = container.getInventory().addItem(item);
+            inventory.setItem(slot, result.isEmpty() ? null : result.get(0).clone());
+            return true;
         });
     }
 
