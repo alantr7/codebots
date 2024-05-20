@@ -41,24 +41,16 @@ public class BotModule extends NativeModule {
 
         // Inventory functions
         registerFunction("getSelectedSlot", args -> ((CodeBot) program.getExtra("bot")).getSelectedSlot());
-        registerFunction("setSelectedSlot", args -> {
+        registerFunction("selectSlot", args -> {
             var bot = (CodeBot) program.getExtra("bot");
             var slot = (int) args[0];
             bot.setSelectedSlot(slot);
 
             return null;
         });
-        registerFunction("getSelectedItem", args -> {
+        registerFunction("getItem", args -> {
             var bot = (CodeBot) program.getExtra("bot");
-            var inventory = bot.getInventory();
-            var item = inventory.getItem(bot.getSelectedSlot());
-            return item == null ? null : item.getType().name().toLowerCase();
-        });
-        registerFunction("getItemInSlot", args -> {
-            Assertions.assertType(args[0], ValueType.INT, "Slot is not a valid number.");
-            var bot = (CodeBot) program.getExtra("bot");
-            var slot = (int) args[0];
-            Assertions.assertEquals(slot >= 0 && slot <= 7, true, "Slot is out of range.");
+            var slot = bot.getSelectedSlot();
 
             var inventory = bot.getInventory();
             var item = inventory.getItem(slot);
