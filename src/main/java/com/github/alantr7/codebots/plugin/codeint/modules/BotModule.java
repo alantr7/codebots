@@ -9,8 +9,8 @@ import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
 import com.github.alantr7.codebots.plugin.codeint.functions.MineFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.MoveFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
-import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
+import org.bukkit.entity.EntityType;
 
 public class BotModule extends NativeModule {
 
@@ -20,6 +20,15 @@ public class BotModule extends NativeModule {
     }
 
     private void init() {
+        registerFunction("chat", arguments -> {
+            Assertions.expectArguments(arguments, String.class);
+            var bot = (CodeBot) program.getExtra("bot");
+            var receivers = bot.getLocation().getWorld().getNearbyEntities(bot.getLocation(), 15, 15, 15, e -> e.getType() == EntityType.PLAYER);
+
+            receivers.forEach(e -> e.sendMessage("§7[Bot] " + arguments[0]));
+            return null;
+        });
+
         getRootScope().setFunction("move", new MoveFunction(program));
         getRootScope().setFunction("rotateLeft", new RotateFunction(program, "rotateLeft"));
         getRootScope().setFunction("rotateRight", new RotateFunction(program, "rotateRight"));
