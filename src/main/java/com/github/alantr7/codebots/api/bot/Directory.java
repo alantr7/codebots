@@ -14,9 +14,12 @@ public enum Directory {
         };
     }
 
-    public static Directory fromOrDefault(String name, Directory def) {
-        var dir = from(name);
-        return dir == null ? def : dir;
+    public static Directory valueOfOrDefault(String name, Directory def) {
+        try {
+            return Directory.valueOf(name);
+        } catch (Exception ignored) {
+            return def;
+        }
     }
 
 }

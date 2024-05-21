@@ -10,11 +10,11 @@ import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.language.compiler.Compiler;
 import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
-import com.github.alantr7.codebots.language.runtime.modules.FileModule;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
+import net.querz.nbt.io.NBTUtil;
+import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -46,14 +46,19 @@ public class DataLoader {
         for (var programFile : programsDirectory.listFiles()) {
             try {
                 programs.registerProgram(loadProgram(Directory.SHARED_PROGRAMS, programFile));
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
 
         var botsDirectory = new File(plugin.getDataFolder(), "bots");
         botsDirectory.mkdirs();
 
         for (var directory : botsDirectory.listFiles()) {
-            loadBot(directory);
+            try {
+                loadBot(directory);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         plugin.getLogger().info("Loaded " + registry.getBots().size() + " bots.");
@@ -64,44 +69,50 @@ public class DataLoader {
         }
     }
 
-    private void loadBot(File directory) {
-        var data = YamlConfiguration.loadConfiguration(new File(directory, "bot.yml"));
+    private void loadBot(File directory) throws IOException {
+        var data = (CompoundTag) NBTUtil.read(new File(directory, "bot.dat"), false).getTag();
         var botId = UUID.fromString(directory.getName());
 
         var entityId = UUID.fromString(data.getString("EntityId"));
         var interactionId = UUID.fromString(data.getString("InteractionId"));
-        var programPath = data.getString("Program.Name");
-        var programDirectory = data.getString("Program.Directory");
-        int selectedSlot = data.getInt("SelectedSlot", 0);
 
         var bot = new CraftCodeBot(botId, entityId, interactionId);
 
+        var programTag = data.getCompoundTag("Program");
+        if (programTag != null) {
+            var programPath = programTag.getString("Name");
+            var programDirectory = programTag.getString("Directory");
+
+            if (programPath != null && programDirectory != null) {
+                try {
+                    var programDirectoryEnum = Directory.valueOfOrDefault(programDirectory.toUpperCase(), Directory.LOCAL_PROGRAMS);
+                    var programDirectoryFile = programDirectoryEnum == Directory.SHARED_PROGRAMS ? new File(plugin.getDataFolder(), "programs") : new File(bot.getProgramsDirectory(), "programs");
+                    var program = Program.createFromSourceFile(new File(programDirectoryFile, programPath));
+                    var program1 = programDirectoryEnum == Directory.SHARED_PROGRAMS ? programs.getProgram(programPath) : new ProgramSource(Directory.LOCAL_PROGRAMS, programPath, new File(programDirectoryFile, programPath), program.getCode());
+                    program.setExtra("bot", bot);
+
+                    var botModule = new BotModule(program);
+                    program.registerNativeModule("bot", botModule);
+
+                    bot.setProgram(program);
+                    bot.setProgramSource(program1);
+                    program.action(Program.Mode.FULL_EXEC); // TODO: Remove this. It's only a TEMPORARY solution!!
+
+                    bot.getInventory().updateProgramButton();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        int selectedSlot = data.getInt("Slot");
+
         var ownerId = data.getString("OwnerId");
-        if (ownerId != null) {
+        if (!ownerId.isEmpty()) {
             bot.setOwnerId(UUID.fromString(ownerId));
         }
 
         bot.setSelectedSlot(selectedSlot);
-
-        if (programPath != null && programDirectory != null) {
-            try {
-                var programDirectoryEnum = Directory.fromOrDefault(programDirectory.toUpperCase(), Directory.LOCAL_PROGRAMS);
-                var program = Program.createFromSourceFile(new File(bot.getProgramsDirectory(), programPath));
-                var program1 = new ProgramSource(programDirectoryEnum, programPath, new File(bot.getProgramsDirectory(), programPath), program.getCode());
-                program.setExtra("bot", bot);
-
-                var botModule = new BotModule(program);
-                program.registerNativeModule("bot", botModule);
-
-                bot.setProgram(program);
-                bot.setProgramSource(program1);
-                program.action(Program.Mode.FULL_EXEC); // TODO: Remove this. It's only a TEMPORARY solution!!
-
-                bot.getInventory().updateProgramButton();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
 
         var inventoryFile = new File(directory, "inventory.yml");
         if (inventoryFile.exists()) {
@@ -131,25 +142,33 @@ public class DataLoader {
         var directory = new File(new File(plugin.getDataFolder(), "bots"), bot.getId().toString());
         directory.mkdirs();
 
-        var botFile = new File(directory, "bot.yml");
-        var data = new YamlConfiguration();
-        data.set("Location", bot.getLocation());
-        data.set("EntityId", bot.getEntityId().toString());
-        data.set("InteractionId", bot.getInteractionId().toString());
+        var data = new CompoundTag();
+        data.putString("World", bot.getLocation().getWorld().getName());
+        data.putIntArray("Location", new int[]{
+                bot.getLocation().getBlockX(),
+                bot.getLocation().getBlockY(),
+                bot.getLocation().getBlockZ()
+        });
+
+        data.putString("EntityId", bot.getEntityId().toString());
+        data.putString("InteractionId", bot.getInteractionId().toString());
+
         if (bot.getOwnerId() != null) {
-            data.set("OwnerId", bot.getOwnerId().toString());
-        } else {
-            data.set("OwnerId", null);
+            data.putString("OwnerID", bot.getOwnerId().toString());
         }
-        if (bot.getProgram() != null) {
-            data.set("Program.Name", bot.getProgramSource().getSource().getName());
-            data.set("Program.Directory", bot.getProgramSource().getDirectory().name());
-        } else {
-            data.set("Program", null);
+
+        if (bot.getProgramSource() != null) {
+            var programCategory = new CompoundTag();
+            programCategory.putString("Directory", bot.getProgramSource().getDirectory().name());
+            programCategory.putString("Name", bot.getProgramSource().getSource().getName());
+
+            data.put("Program", programCategory);
         }
-        data.set("SelectedSlot", bot.getSelectedSlot());
+
+        data.putInt("Slot", bot.getSelectedSlot());
+
         try {
-            data.save(botFile);
+            NBTUtil.write(data, new File(directory, "bot.dat"), false);
         } catch (Exception e) {
             e.printStackTrace();
         }

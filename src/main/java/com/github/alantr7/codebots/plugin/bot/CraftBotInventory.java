@@ -11,6 +11,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class CraftBotInventory implements BotInventory {
 
     private final CodeBot bot;
@@ -137,9 +139,20 @@ public class CraftBotInventory implements BotInventory {
     public void updateProgramButton() {
         var meta = PROGRAM_INFO.getItemMeta();
         if (bot.getProgram() != null && bot.getProgram().getMainModule() != null) {
+            meta.setDisplayName("§eProgram is ready");
+            meta.setLore(List.of(
+                    "§7Click to change program",
+                    "",
+                    "§fFile: §e" + bot.getProgramSource().getName(),
+                    "§fLocation: §e" + bot.getProgramSource().getDirectory().name(),
+                    ""
+            ));
             meta.setDisplayName("§fProgram: §e" + ((FileModule) bot.getProgram().getMainModule()).getFile().getName());
         } else {
             meta.setDisplayName("§cProgram not loaded");
+            meta.setLore(List.of(
+                    "§7Click to browse programs"
+            ));
         }
         PROGRAM_INFO.setItemMeta(meta);
 

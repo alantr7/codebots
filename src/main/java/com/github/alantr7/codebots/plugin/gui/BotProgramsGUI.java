@@ -30,10 +30,10 @@ public class BotProgramsGUI extends GUI {
 
     private static final int CATEGORY_LOCAL = 1;
 
-    private int selectedCategory = CATEGORY_LOCAL;
+    private int selectedCategory;
 
     public BotProgramsGUI(Player player, CodeBot bot) {
-        super(CodeBotsPlugin.inst(), player);
+        super(CodeBotsPlugin.inst(), player, false);
         this.bot = bot;
 
         init();
@@ -43,6 +43,8 @@ public class BotProgramsGUI extends GUI {
     protected void init() {
         createInventory("Manage Bot > Programs", 54);
         setInteractionEnabled(false);
+
+        selectedCategory = bot.getProgramSource() != null && bot.getProgramSource().getDirectory() == Directory.LOCAL_PROGRAMS ? CATEGORY_LOCAL : CATEGORY_SHARED;
     }
 
     @Override

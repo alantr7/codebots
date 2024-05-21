@@ -33,6 +33,10 @@ public interface CodeBots {
         return getPlayer(player.getUniqueId());
     }
 
+    static @Nullable CodeBot getSelectedBot(@NotNull Player player) {
+        return getPlayer(player).getSelectedBot();
+    }
+
     static @NotNull ProgramSource loadProgram(@NotNull Directory directory, @NotNull File file) throws ParserException, IOException {
         return CodeBotsPlugin.inst().getSingleton(DataLoader.class).loadProgram(directory, file);
     }
