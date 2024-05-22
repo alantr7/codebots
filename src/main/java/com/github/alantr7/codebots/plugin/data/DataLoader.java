@@ -3,6 +3,7 @@ package com.github.alantr7.codebots.plugin.data;
 import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
+import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.bot.CodeBot;
@@ -19,6 +20,7 @@ import com.github.alantr7.codebots.plugin.utils.BotLoader;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -79,7 +81,13 @@ public class DataLoader {
         var entityId = UUID.fromString(data.getString("EntityId"));
         var interactionId = UUID.fromString(data.getString("InteractionId"));
 
-        var bot = new CraftCodeBot(botId, entityId, interactionId);
+        var world = Bukkit.getWorld(data.getString("World"));
+        var position = data.getIntArray("Location");
+        var direction = Direction.toDirection((char) data.getByte("Direction"));
+
+        var bot = new CraftCodeBot(world, botId, entityId, interactionId);
+        bot.setCachedLocation(new Location(world, position[0], position[1], position[2]));
+        bot.setCachedDirection(direction);
 
         var programTag = data.getCompoundTag("Program");
         if (programTag != null) {
@@ -131,7 +139,6 @@ public class DataLoader {
         }
 
         this.registry.registerBot(bot);
-        this.registry.updateBotLocation(bot);
     }
 
     public ProgramSource loadProgram(Directory directory, File file) throws ParserException, IOException {
@@ -157,6 +164,7 @@ public class DataLoader {
                 bot.getLocation().getBlockY(),
                 bot.getLocation().getBlockZ()
         });
+        data.putByte("Direction", (byte) bot.getDirection().name().charAt(0));
 
         data.putString("EntityId", bot.getEntityId().toString());
         data.putString("InteractionId", bot.getInteractionId().toString());

@@ -70,6 +70,17 @@ public enum Direction {
         };
     }
 
+    public static Direction toDirection(Character ch) {
+        if (ch == null) return NORTH;
+        return switch (Character.toUpperCase(ch)) {
+            case 'N' -> NORTH;
+            case 'E' -> EAST;
+            case 'S' -> SOUTH;
+            case 'W' -> WEST;
+            default -> NORTH;
+        };
+    }
+
     private static int clamp(int a, int b, int val) {
         while (val >= b)
             val -= b;

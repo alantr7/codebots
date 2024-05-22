@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Interaction;
 import org.bukkit.util.Transformation;
@@ -28,6 +29,9 @@ import java.io.File;
 import java.util.UUID;
 
 public class CraftCodeBot implements CodeBot {
+
+    @Getter
+    private World world;
 
     @Getter
     private final UUID id;
@@ -54,6 +58,12 @@ public class CraftCodeBot implements CodeBot {
     @Getter @Setter
     private Location lastSavedLocation;
 
+    @Getter @Setter
+    private Location cachedLocation;
+
+    @Getter @Setter
+    private Direction cachedDirection;
+
     @Getter
     private final CraftBotInventory inventory;
 
@@ -63,7 +73,8 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private int selectedSlot = 0;
 
-    public CraftCodeBot(UUID id, UUID entityId, UUID interactionId) {
+    public CraftCodeBot(World world, UUID id, UUID entityId, UUID interactionId) {
+        this.world = world;
         this.id = id;
         this.entityId = entityId;
         this.interactionId = interactionId;
@@ -78,13 +89,26 @@ public class CraftCodeBot implements CodeBot {
     }
 
     @Override
+    public boolean isEntityLoaded() {
+        return getEntity() != null;
+    }
+
+    @Override
+    public boolean isChunkLoaded() {
+        int chunkX = cachedLocation.getBlockX() >> 4;
+        int chunkZ = cachedLocation.getBlockZ() >> 4;
+
+        return world.isChunkLoaded(chunkX, chunkZ);
+    }
+
+    @Override
     public Interaction getInteraction() {
         return (Interaction) Bukkit.getEntity(interactionId);
     }
 
     @Override
     public Location getLocation() {
-        return getEntity().getLocation();
+        return cachedLocation;
     }
 
     @Override
@@ -93,6 +117,7 @@ public class CraftCodeBot implements CodeBot {
         getEntity().teleport(blockLocation.clone().add(.2, 0, .2));
         getInteraction().teleport(blockLocation.add(.5, 0, .5));
 
+        this.cachedLocation = location;
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation(this);
     }
 
@@ -102,6 +127,11 @@ public class CraftCodeBot implements CodeBot {
 
     @Override
     public Direction getDirection() {
+        return cachedDirection;
+    }
+
+    /*
+    public Direction getDirectionFromEntity() {
         var entity = getEntity();
         if (entity == null)
             return null;
@@ -120,7 +150,7 @@ public class CraftCodeBot implements CodeBot {
             return Direction.WEST;
 
         return Direction.NORTH;
-    }
+    }*/
 
     @Override
     public void setDirection(Direction direction) {
@@ -129,6 +159,10 @@ public class CraftCodeBot implements CodeBot {
 
     @Override
     public void setDirection(Direction direction, boolean interpolate) {
+        BlockDisplay entity;
+        if (!isChunkLoaded() || (entity = getEntity()) == null)
+            return;
+
         var translationFloats = getTranslation(direction);
         var angle = switch (direction) {
             case NORTH -> RotateFunction.ANGLE_NORTH;
@@ -138,7 +172,6 @@ public class CraftCodeBot implements CodeBot {
             default -> 0;
         };
 
-        var entity = getEntity();
 
         var initialTranslation = entity.getTransformation().getTranslation();
         var initialTransformation = entity.getTransformation();
@@ -156,6 +189,8 @@ public class CraftCodeBot implements CodeBot {
                 initialTransformation.getScale(),
                 new AxisAngle4f(initialTransformation.getRightRotation())
         ));
+
+        cachedDirection = direction;
     }
 
     private static float[] getTranslation(Direction direction) {
@@ -187,14 +222,20 @@ public class CraftCodeBot implements CodeBot {
     }
 
     public void setActive(boolean active) {
-        if (active) {
-            Bukkit.broadcastMessage("§eStarted program execution.");
-            fixTransformation();
-        } else {
-            Bukkit.broadcastMessage("§eProgram has completed.");
-            fixTransformation();
-        }
         isActive = active;
+        fixTransformation();
+
+        if (program == null && this.programSource != null) {
+            try {
+                loadProgram(this.programSource);
+                program.prepareMainFunction();
+            } catch (Exception e){
+                e.printStackTrace();
+                isActive = false;
+            }
+            return;
+        }
+
         inventory.updateControlButton();
     }
 

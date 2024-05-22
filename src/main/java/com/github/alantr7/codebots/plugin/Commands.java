@@ -69,7 +69,7 @@ public class Commands {
                 var interaction = (Interaction) player.getWorld().spawnEntity(player.getLocation().getBlock().getLocation(), EntityType.INTERACTION);
                 interaction.setInteractionWidth(0.8f);
 
-                var bot = new CraftCodeBot(UUID.randomUUID(), blockDisplay.getUniqueId(), interaction.getUniqueId());
+                var bot = new CraftCodeBot(player.getWorld(), UUID.randomUUID(), blockDisplay.getUniqueId(), interaction.getUniqueId());
                 bot.setOwnerId(player.getUniqueId());
                 interaction.getPersistentDataContainer().set(new NamespacedKey(plugin, "bot_id"), PersistentDataType.STRING, bot.getId().toString());
 

@@ -21,8 +21,9 @@ public class BotRegistry {
     @Inject
     public static BotRegistry instance;
 
-    public void registerBot(CraftCodeBot display) {
-        bots.put(display.getId(), display);
+    public void registerBot(CraftCodeBot bot) {
+        bots.put(bot.getId(), bot);
+        botsPerChunk.computeIfAbsent(new Vector2i(bot.getLocation().getBlockX() >> 4, bot.getLocation().getBlockZ() >> 4), k -> new HashMap<>()).put(bot.getId(), bot);
     }
 
     public void unregisterBot(UUID id) {
@@ -31,9 +32,12 @@ public class BotRegistry {
 
     public void updateBotLocation(CraftCodeBot bot) {
         var entity = bot.getEntity();
-        var location = entity.getLocation();
+        if (entity == null)
+            return;
+
         var lastLocation = bot.getLastSavedLocation();
 
+        var location = entity.getLocation();
         if (lastLocation != null) {
             if (lastLocation.getWorld() == location.getWorld() && lastLocation.hashCode() == location.hashCode())
                 return;
@@ -47,6 +51,7 @@ public class BotRegistry {
         var chunk = new Vector2i(location.getBlockX() >> 4, location.getBlockZ() >> 4);
         var map = botsPerChunk.computeIfAbsent(chunk, k -> new HashMap<>());
         map.put(bot.getId(), bot);
+        bot.setCachedLocation(location);
         bot.setLastSavedLocation(location);
     }
 

@@ -18,6 +18,10 @@ public interface CodeBot {
 
     BlockDisplay getEntity();
 
+    boolean isEntityLoaded();
+
+    boolean isChunkLoaded();
+
     UUID getInteractionId();
 
     Interaction getInteraction();

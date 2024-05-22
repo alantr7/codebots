@@ -5,6 +5,7 @@ import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.player.PlayerData;
+import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
@@ -37,13 +38,16 @@ public class Events implements Listener {
 
     @EventHandler
     void onChunkLoad(ChunkLoadEvent event) {
+        registry.getBotsInChunk(event.getChunk().getX(), event.getChunk().getZ()).forEach(
+                CraftCodeBot::fixTransformation
+        );
     }
 
     @EventHandler
     void onChunkUnload(ChunkUnloadEvent event) {
         registry.getBotsInChunk(event.getChunk().getX(), event.getChunk().getZ()).forEach(bot -> {
             bot.setActive(false);
-            bot.getProgram().reset();
+            bot.setProgram(null);
 
             plugin.getLogger().info("Bot " + bot.getId() + " has been deactivated due to chunk unload.");
         });

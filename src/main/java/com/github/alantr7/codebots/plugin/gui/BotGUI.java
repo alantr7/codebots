@@ -29,8 +29,6 @@ public class BotGUI extends GUI {
             if (bot.isActive()) {
                 bot.setActive(false);
             } else {
-                bot.getProgram().reset();
-                bot.getProgram().prepareMainFunction();
                 bot.setActive(true);
             }
         });
