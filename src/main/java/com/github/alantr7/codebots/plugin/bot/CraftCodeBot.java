@@ -192,6 +192,7 @@ public class CraftCodeBot implements CodeBot {
             fixTransformation();
         } else {
             Bukkit.broadcastMessage("§eProgram has completed.");
+            fixTransformation();
         }
         isActive = active;
         inventory.updateControlButton();
