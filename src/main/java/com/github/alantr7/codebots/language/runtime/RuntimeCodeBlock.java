@@ -237,9 +237,9 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 var value = getValue(context, tokens[3]);
 
                 if (key instanceof String dictKey) {
-                    var map = (Map<String, Object>) array;
-                    if (map.containsKey("__locked")) {
-                        throw new ExecutionException("Object can not be modified.");
+                    var map = (Dictionary) array;
+                    if (map.isLocked()) {
+                        throw new ExecutionException("Record can not be modified.");
                     }
 
                     map.put(dictKey, value);
@@ -250,8 +250,8 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
             // Lock an array. Used by records
             case "dict_lock" -> {
-                var array = (Map<String, Object>) getValue(context, tokens[1]);
-                array.put("__locked", true);
+                var array = (Dictionary) getValue(context, tokens[1]);
+                array.lock();
             }
 
             case "reset" -> {

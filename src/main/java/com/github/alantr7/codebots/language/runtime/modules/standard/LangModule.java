@@ -1,5 +1,6 @@
 package com.github.alantr7.codebots.language.runtime.modules.standard;
 
+import com.github.alantr7.codebots.language.runtime.Dictionary;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
@@ -24,23 +25,21 @@ public class LangModule extends NativeModule {
             return new Object[capacity];
         });
 
-        registerFunction("dict", args -> new LinkedHashMap<String, Object>());
+        registerFunction("dict", args -> new Dictionary());
         registerFunction("dict_set", args -> {
             Assertions.assertEquals(args.length, 3, "dict_set requires 3 arguments");
-            Assertions.assertEquals(args[0] instanceof LinkedHashMap<?,?>, true, "dict_set requires a dictionary as the first argument");
+            Assertions.assertEquals(args[0] instanceof Dictionary, true, "dict_set requires a dictionary as the first argument");
 
-            @SuppressWarnings("unchecked")
-            var dict = (LinkedHashMap<String, Object>) args[0];
+            var dict = (Dictionary) args[0];
             dict.put((String) args[1], args[2]);
 
             return null;
         });
         registerFunction("dict_unset", args -> {
             Assertions.assertEquals(args.length, 2, "dict_unset requires 2 arguments");
-            Assertions.assertEquals(args[0] instanceof LinkedHashMap<?,?>, true, "dict_unset requires a dictionary as the first argument");
+            Assertions.assertEquals(args[0] instanceof Dictionary, true, "dict_unset requires a dictionary as the first argument");
 
-            @SuppressWarnings("unchecked")
-            var dict = (LinkedHashMap<String, Object>) args[0];
+            var dict = (Dictionary) args[0];
             dict.remove((String) args[1]);
 
             return null;
@@ -54,8 +53,8 @@ public class LangModule extends NativeModule {
             else if (object.getClass().isArray()) {
                 return Array.getLength(object);
             }
-            else if (object instanceof Map<?, ?> map) {
-                return map.size();
+            else if (object instanceof Dictionary dict) {
+                return dict.size();
             }
             else return 0;
         });
