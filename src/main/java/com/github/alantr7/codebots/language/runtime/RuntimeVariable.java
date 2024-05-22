@@ -5,7 +5,7 @@ import lombok.Setter;
 
 public class RuntimeVariable {
 
-    private final ValueType type;
+    private final DataType<?> type;
 
     private Object value;
 
@@ -19,7 +19,7 @@ public class RuntimeVariable {
     @Getter
     private boolean isInitialized = false;
 
-    public RuntimeVariable(ValueType type) {
+    public RuntimeVariable(DataType<?> type) {
         this.type = type;
     }
 
@@ -46,12 +46,12 @@ public class RuntimeVariable {
         return valueProvider == 0 ? value : variable.getValue();
     }
 
-    public ValueType getAcceptedType() {
+    public DataType<?> getAcceptedType() {
         return type;
     }
 
-    public ValueType getType() {
-        return ValueType.of(value);
+    public DataType<?> getType() {
+        return DataType.of(value);
     }
 
 }

@@ -3,7 +3,7 @@ package com.github.alantr7.codebots.plugin.codeint.modules;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.language.runtime.ValueType;
+import com.github.alantr7.codebots.language.runtime.DataType;
 import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
 import com.github.alantr7.codebots.plugin.codeint.functions.MineFunction;
@@ -70,7 +70,7 @@ public class BotModule extends NativeModule {
         // Dispense items
         registerFunction("depositItem", args -> {
             Assertions.assertEquals(args.length, 1, "depositItem only takes 1 argument.");
-            Assertions.assertType(args[0], ValueType.STRING, "Direction is not a valid string.");
+            Assertions.assertType(args[0], DataType.STRING, "Direction is not a valid string.");
             var bot = (CodeBot) program.getExtra("bot");
             var inventory = bot.getInventory();
             var slot = bot.getSelectedSlot();

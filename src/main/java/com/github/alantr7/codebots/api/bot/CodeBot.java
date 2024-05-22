@@ -53,6 +53,12 @@ public interface CodeBot {
      */
     void setDirection(Direction direction);
 
+    /**
+     * Data stored by programs. This is not bot's working memory.
+     * @return bot's memory
+     */
+    Memory getMemory();
+
     Program getProgram();
 
     ProgramSource getProgramSource();

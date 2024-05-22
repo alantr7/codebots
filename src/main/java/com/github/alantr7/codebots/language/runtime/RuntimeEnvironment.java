@@ -40,19 +40,19 @@ public class RuntimeEnvironment {
     @Getter
     private final Map<String, RuntimeNativeFunction> nativeFunctions = new LinkedHashMap<>();
 
-    public RuntimeVariable REGISTRY_RETURN_VALUE = new RuntimeVariable(ValueType.ANY);
+    public RuntimeVariable REGISTRY_RETURN_VALUE = new RuntimeVariable(DataType.ANY);
 
-    public RuntimeVariable REGISTRY_CURRENT_VALUE = new RuntimeVariable(ValueType.ANY);
+    public RuntimeVariable REGISTRY_CURRENT_VALUE = new RuntimeVariable(DataType.ANY);
 
-    public RuntimeVariable REGISTRY_CURRENT_SCOPE = new RuntimeVariable(ValueType.ANY);
+    public RuntimeVariable REGISTRY_CURRENT_SCOPE = new RuntimeVariable(DataType.ANY);
 
-    public RuntimeVariable REGISTRY_EXPRESSION_1 = new RuntimeVariable(ValueType.ANY);
+    public RuntimeVariable REGISTRY_EXPRESSION_1 = new RuntimeVariable(DataType.ANY);
 
-    public RuntimeVariable REGISTRY_EXPRESSION_2 = new RuntimeVariable(ValueType.ANY);
+    public RuntimeVariable REGISTRY_EXPRESSION_2 = new RuntimeVariable(DataType.ANY);
 
-    public RuntimeVariable REGISTRY_EXPRESSION_3 = new RuntimeVariable(ValueType.ANY);
+    public RuntimeVariable REGISTRY_EXPRESSION_3 = new RuntimeVariable(DataType.ANY);
 
-    public RuntimeVariable REGISTRY_LINE_NUMBER = new RuntimeVariable(ValueType.INT);
+    public RuntimeVariable REGISTRY_LINE_NUMBER = new RuntimeVariable(DataType.INT);
 
     { REGISTRY_LINE_NUMBER.setValue(1); }
 

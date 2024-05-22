@@ -12,7 +12,10 @@ import com.github.alantr7.codebots.language.compiler.parser.error.ParserExceptio
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import com.github.alantr7.codebots.plugin.bot.CraftMemory;
 import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
+import com.github.alantr7.codebots.plugin.codeint.modules.MemoryModule;
+import com.github.alantr7.codebots.plugin.utils.BotLoader;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Bukkit;
@@ -91,8 +94,8 @@ public class DataLoader {
                     var program1 = programDirectoryEnum == Directory.SHARED_PROGRAMS ? programs.getProgram(programPath) : new ProgramSource(Directory.LOCAL_PROGRAMS, programPath, new File(programDirectoryFile, programPath), program.getCode());
                     program.setExtra("bot", bot);
 
-                    var botModule = new BotModule(program);
-                    program.registerNativeModule("bot", botModule);
+                    program.registerNativeModule("bot", new BotModule(program));
+                    program.registerNativeModule("memory", new MemoryModule(program));
 
                     bot.setProgram(program);
                     bot.setProgramSource(program1);
@@ -106,6 +109,11 @@ public class DataLoader {
         }
 
         int selectedSlot = data.getInt("Slot");
+        var memoryTag = data.getCompoundTag("Memory");
+
+        if (memoryTag != null) {
+            bot.setMemory(BotLoader.loadMemory(memoryTag));
+        }
 
         var ownerId = data.getString("OwnerId");
         if (!ownerId.isEmpty()) {
@@ -166,6 +174,7 @@ public class DataLoader {
         }
 
         data.putInt("Slot", bot.getSelectedSlot());
+        data.put("Memory", BotLoader.saveMemory((CraftMemory) bot.getMemory()));
 
         try {
             NBTUtil.write(data, new File(directory, "bot.dat"), false);

@@ -90,7 +90,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 var module = program.getOrLoadModule(relative);
                 Assertions.assertNotNull(module, "Module not found.");
 
-                var holder = new RuntimeVariable(ValueType.MODULE);
+                var holder = new RuntimeVariable(DataType.MODULE);
                 holder.setValue(module);
                 setValue(context, tokens[2], holder);
 
@@ -98,10 +98,10 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
 
             case "define_var" -> {
-                scope.setVariable(tokens[1], new RuntimeVariable(ValueType.ANY));
+                scope.setVariable(tokens[1], new RuntimeVariable(DataType.ANY));
             }
             case "define_const" -> {
-                var variable = new RuntimeVariable(ValueType.ANY);
+                var variable = new RuntimeVariable(DataType.ANY);
                 variable.setConstant(true);
 
                 scope.setVariable(tokens[1], variable);
@@ -127,7 +127,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 scope.getVariable(tokens[1]).setValue(((int) scope.getVariable(tokens[1]).getValue()) + 1);
             }
             case "concat" -> {
-                Assertions.assertType(environment.REGISTRY_CURRENT_VALUE, ValueType.STRING, "Type mismatch.");
+                Assertions.assertType(environment.REGISTRY_CURRENT_VALUE, DataType.STRING, "Type mismatch.");
                 setValue(context, tokens[1], ((String) scope.getVariable(tokens[1]).getValue()) + environment.REGISTRY_CURRENT_VALUE.getValue());
             }
 
@@ -476,7 +476,7 @@ public class RuntimeCodeBlock extends RuntimeObject {
             throw new ExecutionException("Cannot reassign a constant");
         }
 
-        Assertions.assertType(value, registry.getAcceptedType(), "Incompatible types (\"%s\" and \"%s\")".formatted(registry.getAcceptedType(), ValueType.of(value)));
+        Assertions.assertType(value, registry.getAcceptedType(), "Incompatible types (\"%s\" and \"%s\")".formatted(registry.getAcceptedType(), DataType.of(value)));
 
         if (isReference) {
             registry.setPointer((RuntimeVariable) value);

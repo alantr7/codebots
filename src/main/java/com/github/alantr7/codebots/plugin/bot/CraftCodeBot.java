@@ -1,5 +1,6 @@
 package com.github.alantr7.codebots.plugin.bot;
 
+import com.github.alantr7.codebots.api.bot.Memory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
@@ -8,6 +9,7 @@ import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseExcep
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
 import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
+import com.github.alantr7.codebots.plugin.codeint.modules.MemoryModule;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
@@ -55,6 +57,9 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private final CraftBotInventory inventory;
 
+    @Getter @Setter
+    private Memory memory;
+
     @Getter
     private int selectedSlot = 0;
 
@@ -64,6 +69,7 @@ public class CraftCodeBot implements CodeBot {
         this.interactionId = interactionId;
         this.directory = new File(CodeBotsPlugin.inst().getDataFolder(), "bots/" + id.toString());
         this.inventory = new CraftBotInventory(this);
+        this.memory = new CraftMemory();
     }
 
     @Override
@@ -167,6 +173,7 @@ public class CraftCodeBot implements CodeBot {
         this.program.setExtra("bot", this);
 
         this.program.registerNativeModule("bot", new BotModule(this.program));
+        this.program.registerNativeModule("memory", new MemoryModule(this.program));
         this.programSource = program;
 
         this.program.action(Program.Mode.FULL_EXEC);

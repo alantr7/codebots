@@ -25,21 +25,19 @@ https://github.com/alantr7/codebots/wiki/Scripting-Language
 - Arrays and dicts
 - Records
 - Bot inventory
+- Memory module (saving, loading data)
 
 #### Yet to be done
-- File system for bots
 - Configuration for movement and rotation speeds, allow/block item drops, allow/block mining
 - WorldGuard, Factions integration
 - Logic operators (AND, OR) for boolean expressions
 - Error handling
 
 #### Future plans
-- More standard modules
 - Rework bots memory
 - Resume programs when bots are loaded
 - Web editor for writing scripts
 - Bot networks using routers
 - Ton of optimization
 - Bot statistics (blocks moved, blocks mined)
-- File system
 - SQL database support
