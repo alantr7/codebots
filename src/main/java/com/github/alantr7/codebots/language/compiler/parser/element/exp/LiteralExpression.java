@@ -12,6 +12,8 @@ public class LiteralExpression extends Expression {
 
     public static final int FLOAT = 3;
 
+    public static final int NULL = 8;
+
     public static final int OPERATOR = 10;
 
     public static final LiteralExpression OPERATOR_ADD = new LiteralExpression("+", OPERATOR);

@@ -20,6 +20,10 @@ public class ParserHelper {
         return input.equals("true") || input.equals("false");
     }
 
+    public static boolean isNull(String input) {
+        return input.equals("null");
+    }
+
     public static int getPrecedence(String input) {
         return switch (input) {
             case "+", "-" -> 3;

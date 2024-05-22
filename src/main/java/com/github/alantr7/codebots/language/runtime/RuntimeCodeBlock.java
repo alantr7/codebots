@@ -361,6 +361,8 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 stack.push(Integer.parseInt(literal));
             } else if (ParserHelper.isBoolean(literal)) {
                 stack.push(Boolean.parseBoolean(literal));
+            } else if (ParserHelper.isNull(literal)) {
+                stack.push(null);
             } else if (literal.equals("pop")) {
                 var pop = tokenStack.removeLast();
 

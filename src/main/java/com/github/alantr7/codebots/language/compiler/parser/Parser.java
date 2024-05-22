@@ -467,6 +467,11 @@ public class Parser {
                 j++;
 
                 expectsOperator = true;
+            } else if (ParserHelper.isNull(next)) {
+                postfix.add(new LiteralExpression("null", LiteralExpression.NULL));
+                j++;
+
+                expectsOperator = true;
             } else if (ParserHelper.isOperator(next)) {
                 if (next.equals("(")) {
                     stack.push(next);
