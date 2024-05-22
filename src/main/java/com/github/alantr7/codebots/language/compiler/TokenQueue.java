@@ -15,10 +15,6 @@ public class TokenQueue {
     public TokenQueue(String[][] queue, Integer[] lines) {
         this.queue = queue;
         this.lines = lines;
-        for (int i = 0; i < queue.length; i++) {
-            var line = queue[i];
-            System.out.println("Token line #" + (lines[i]) + ": " + Arrays.toString(line));
-        }
 
         if (queue[0].length == 0)
             advance();

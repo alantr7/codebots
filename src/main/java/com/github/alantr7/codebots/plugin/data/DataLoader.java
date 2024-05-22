@@ -98,18 +98,11 @@ public class DataLoader {
                 try {
                     var programDirectoryEnum = Directory.valueOfOrDefault(programDirectory.toUpperCase(), Directory.LOCAL_PROGRAMS);
                     var programDirectoryFile = programDirectoryEnum == Directory.SHARED_PROGRAMS ? new File(plugin.getDataFolder(), "programs") : new File(bot.getProgramsDirectory(), "programs");
+
                     var program = Program.createFromSourceFile(new File(programDirectoryFile, programPath));
                     var program1 = programDirectoryEnum == Directory.SHARED_PROGRAMS ? programs.getProgram(programPath) : new ProgramSource(Directory.LOCAL_PROGRAMS, programPath, new File(programDirectoryFile, programPath), program.getCode());
-                    program.setExtra("bot", bot);
 
-                    program.registerNativeModule("bot", new BotModule(program));
-                    program.registerNativeModule("memory", new MemoryModule(program));
-
-                    bot.setProgram(program);
                     bot.setProgramSource(program1);
-                    program.action(Program.Mode.FULL_EXEC); // TODO: Remove this. It's only a TEMPORARY solution!!
-
-                    bot.getInventory().updateProgramButton();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -530,7 +530,6 @@ public class Parser {
                     if (memberAccess == null) {
                         break;
                     } else {
-                        System.out.println("Member access: " + memberAccess);
                         postfix.add(memberAccess);
                     }
                 }

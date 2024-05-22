@@ -174,11 +174,7 @@ public class Program {
         var moduleBlock = AssemblyParser.parseCodeBlock(program, inline.split("\n"));
         var module = new FileModule(program, file, moduleBlock);
         program.setMainModule(module);
-
         program.setCode(inline.split("\n"));
-
-        for (var line : program.getCode())
-            System.out.println(line);
 
         return program;
     }
@@ -194,9 +190,6 @@ public class Program {
         var module = new FileModule(program, source, moduleBlock);
         program.setMainModule(module);
         program.setCode(code);
-
-        for (var line : code)
-            System.out.println(line);
 
         return program;
     }

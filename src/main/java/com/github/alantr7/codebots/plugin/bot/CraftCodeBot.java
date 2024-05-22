@@ -50,7 +50,7 @@ public class CraftCodeBot implements CodeBot {
     @Getter @Setter
     private Program program;
 
-    @Getter @Setter
+    @Getter
     private ProgramSource programSource;
 
     private boolean isActive = false;
@@ -221,6 +221,11 @@ public class CraftCodeBot implements CodeBot {
         return isActive;
     }
 
+    public void setProgramSource(ProgramSource source) {
+        this.programSource = source;
+        inventory.updateProgramButton();
+    }
+
     public void setActive(boolean active) {
         isActive = active;
         fixTransformation();
@@ -233,7 +238,6 @@ public class CraftCodeBot implements CodeBot {
                 e.printStackTrace();
                 isActive = false;
             }
-            return;
         }
 
         inventory.updateControlButton();

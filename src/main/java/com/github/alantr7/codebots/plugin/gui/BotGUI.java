@@ -54,7 +54,7 @@ public class BotGUI extends GUI {
 
     @Override
     public void onItemInteract(int i, @NotNull ClickType clickType, @Nullable ItemStack itemStack) {
-        if (!((i >= 37 && i <= 44) || i >= 54)) {
+        if (!((i >= 37 && i <= 44) || (i >= 54 && !getClickEvent().isShiftClick()))) {
             setCancelled(true);
         }
     }

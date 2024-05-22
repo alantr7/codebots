@@ -138,7 +138,7 @@ public class CraftBotInventory implements BotInventory {
 
     public void updateProgramButton() {
         var meta = PROGRAM_INFO.getItemMeta();
-        if (bot.getProgram() != null && bot.getProgram().getMainModule() != null) {
+        if (bot.getProgramSource() != null) {
             meta.setDisplayName("§eProgram is ready");
             meta.setLore(List.of(
                     "§7Click to change program",
@@ -147,7 +147,7 @@ public class CraftBotInventory implements BotInventory {
                     "§fLocation: §e" + bot.getProgramSource().getDirectory().name(),
                     ""
             ));
-            meta.setDisplayName("§fProgram: §e" + ((FileModule) bot.getProgram().getMainModule()).getFile().getName());
+            meta.setDisplayName("§fProgram: §e" + bot.getProgramSource().getName());
         } else {
             meta.setDisplayName("§cProgram not loaded");
             meta.setLore(List.of(
