@@ -243,4 +243,19 @@ public class Commands {
                 new BotGUI((Player) ctx.getExecutor(), bot).open();
             });
 
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command save = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_SELECT)
+            .parameter("save")
+            .executes(ctx -> {
+                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
+
+                CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(bot);
+                ctx.respond("Bot saved.");
+            });
+
 }
