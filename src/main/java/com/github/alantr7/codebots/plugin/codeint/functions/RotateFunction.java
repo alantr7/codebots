@@ -4,6 +4,7 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
+import com.github.alantr7.codebots.plugin.config.Config;
 
 public class RotateFunction extends RuntimeNativeFunction {
 
@@ -13,7 +14,7 @@ public class RotateFunction extends RuntimeNativeFunction {
 
     public static final float ANGLE_EAST = (float) (Math.PI + Math.PI / 2);
 
-    public static final float ANGLE_SOUTH = a45 + a45 + a45 + a45;
+    public static final float ANGLE_SOUTH = (float) Math.PI;
 
     public static final float ANGLE_WEST = a45 + a45;
 
@@ -33,7 +34,7 @@ public class RotateFunction extends RuntimeNativeFunction {
             handleRotation();
         }
 
-        else if (ticks == 10) {
+        else if (ticks == Config.BOT_ROTATION_DURATION) {
             context.setFlag(BlockContext.FLAG_COMPLETED, true);
         }
 

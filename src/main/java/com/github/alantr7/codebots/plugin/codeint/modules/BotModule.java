@@ -9,6 +9,8 @@ import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
 import com.github.alantr7.codebots.plugin.codeint.functions.MineFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.MoveFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
+import com.github.alantr7.codebots.plugin.config.Config;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Container;
 import org.bukkit.entity.EntityType;
 
@@ -25,7 +27,9 @@ public class BotModule extends NativeModule {
             var bot = (CodeBot) program.getExtra("bot");
             var receivers = bot.getLocation().getWorld().getNearbyEntities(bot.getLocation(), 15, 15, 15, e -> e.getType() == EntityType.PLAYER);
 
-            receivers.forEach(e -> e.sendMessage("§7[Bot] " + arguments[0]));
+            var message = ChatColor.translateAlternateColorCodes('&', Config.BOT_CHAT_FORMAT
+                    .replace("{message}", (String) arguments[0]));
+            receivers.forEach(e -> e.sendMessage(message));
             return null;
         });
 

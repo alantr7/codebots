@@ -10,6 +10,7 @@ import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
 import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
 import com.github.alantr7.codebots.plugin.codeint.modules.MemoryModule;
+import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
@@ -108,7 +109,7 @@ public class CraftCodeBot implements CodeBot {
 
     @Override
     public Location getLocation() {
-        return cachedLocation;
+        return cachedLocation != null ? cachedLocation.clone() : null;
     }
 
     @Override
@@ -182,7 +183,7 @@ public class CraftCodeBot implements CodeBot {
         );
 
         entity.setInterpolationDelay(0);
-        entity.setInterpolationDuration(interpolate ? 20 : 0);
+        entity.setInterpolationDuration(interpolate ? Config.BOT_ROTATION_DURATION * 2 : 0);
         entity.setTransformation(new Transformation(
                 nextTranslation,
                 nextRotation,
@@ -238,6 +239,9 @@ public class CraftCodeBot implements CodeBot {
                 e.printStackTrace();
                 isActive = false;
             }
+        } else if (this.programSource != null) {
+            program.reset();
+            program.prepareMainFunction();
         }
 
         inventory.updateControlButton();

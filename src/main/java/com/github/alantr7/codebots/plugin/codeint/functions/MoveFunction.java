@@ -9,6 +9,7 @@ import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
@@ -36,7 +37,7 @@ public class MoveFunction extends RuntimeNativeFunction {
                 environment.interrupt(e);
                 return;
             }
-        } else if (context.getLineIndex() == 10) {
+        } else if (context.getLineIndex() == Config.BOT_MOVEMENT_DURATION) {
             completeMovement(context, call);
         }
 
@@ -62,7 +63,7 @@ public class MoveFunction extends RuntimeNativeFunction {
         var nextTranslation = direction.toVector3f().add(initialTranslation);
 
         entity.setInterpolationDelay(0);
-        entity.setInterpolationDuration(20);
+        entity.setInterpolationDuration(Config.BOT_MOVEMENT_DURATION * 2);
 
         entity.setTransformation(new Transformation(
                 nextTranslation,

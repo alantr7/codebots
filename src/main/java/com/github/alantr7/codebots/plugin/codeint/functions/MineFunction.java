@@ -3,8 +3,10 @@ package com.github.alantr7.codebots.plugin.codeint.functions;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.Program;
+import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import org.bukkit.Bukkit;
@@ -25,6 +27,11 @@ public class MineFunction extends RuntimeNativeFunction {
 
     @Override
     public void next(BlockContext context) {
+        if (!Config.BOT_ALLOW_BLOCK_BREAKING) {
+            environment.interrupt(new ExecutionException("Block breaking is disabled"));
+            return;
+        }
+
         var bot = (CodeBot) environment.getProgram().getExtra("bot");
         int progress;
 
