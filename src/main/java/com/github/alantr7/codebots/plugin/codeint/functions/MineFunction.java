@@ -47,15 +47,18 @@ public class MineFunction extends RuntimeNativeFunction {
             context.setFlag(BlockContext.FLAG_COMPLETED, true);
             context.advance();
 
+            var blockData = bot.getLocation().add(0, -1, 0).getBlock().getBlockData();
             bot.getLocation().getWorld().spawnParticle(
                     Particle.BLOCK_CRACK,
                     bot.getLocation().getBlock().getLocation().add(.5, -.5, .5),
                     12,  0, 0, 0,
-                    bot.getLocation().add(0, -1, 0).getBlock().getBlockData()
+                    blockData
             );
+            bot.getLocation().getWorld().playSound(bot.getLocation().add(0, -1, 0), blockData.getSoundGroup().getBreakSound(), 1, 1);
             bot.getInventory().addItem(bot.getLocation().add(0, -1, 0).getBlock().getDrops().toArray(new ItemStack[0]));
-            CodeBotsPlugin.inst().getSingleton(DataLoader.class).saveInventory(bot);
             bot.getLocation().add(0, -1, 0).getBlock().setType(Material.AIR);
+
+            CodeBotsPlugin.inst().getSingleton(DataLoader.class).saveInventory(bot);
             return;
         }
 
