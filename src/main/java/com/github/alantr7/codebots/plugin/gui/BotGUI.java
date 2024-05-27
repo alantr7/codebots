@@ -34,7 +34,10 @@ public class BotGUI extends GUI {
         });
 
         registerInteractionCallback(13, ClickType.LEFT, () -> {
-            new BotProgramsGUI(getPlayer(), bot).open();
+            var programs = new BotProgramsGUI(getPlayer(), bot);
+            var player = getPlayer();
+            programs.registerEventCallback(Action.CLOSE, () -> new BotGUI(player, bot).open());
+            programs.open();
         });
     }
 
