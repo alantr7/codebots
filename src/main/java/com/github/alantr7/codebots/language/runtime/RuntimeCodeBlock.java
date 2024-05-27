@@ -7,6 +7,7 @@ import com.github.alantr7.codebots.language.runtime.functions.FunctionCall;
 import com.github.alantr7.codebots.language.runtime.modules.Module;
 import com.github.alantr7.codebots.language.runtime.modules.standard.LangModule;
 import com.github.alantr7.codebots.language.runtime.utils.Calculator;
+import com.github.alantr7.codebots.plugin.config.Config;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -98,6 +99,11 @@ public class RuntimeCodeBlock extends RuntimeObject {
             }
 
             case "define_var" -> {
+                int variables = scope.getVariableCountRecursive();
+                if (variables == Config.BOT_MAX_MEMORY_ENTRIES) {
+                    throw new ExecutionException("Cannot declare any more variables due to memory overflow!");
+                }
+
                 scope.setVariable(tokens[1], new RuntimeVariable(DataType.ANY));
             }
             case "define_const" -> {

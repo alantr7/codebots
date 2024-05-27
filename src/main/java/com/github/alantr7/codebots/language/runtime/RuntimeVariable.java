@@ -5,6 +5,8 @@ import lombok.Setter;
 
 public class RuntimeVariable {
 
+    private final int address;
+
     private final DataType<?> type;
 
     private Object value;
@@ -20,6 +22,11 @@ public class RuntimeVariable {
     private boolean isInitialized = false;
 
     public RuntimeVariable(DataType<?> type) {
+        this(0, type);
+    }
+
+    public RuntimeVariable(int address, DataType<?> type) {
+        this.address = address;
         this.type = type;
     }
 

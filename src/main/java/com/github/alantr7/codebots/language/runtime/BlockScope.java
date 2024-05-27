@@ -49,6 +49,14 @@ public class BlockScope {
         return module != null ? module : (parent != null ? parent.getModule() : null);
     }
 
+    public int getVariableCount() {
+        return variables.size();
+    }
+
+    public int getVariableCountRecursive() {
+        return variables.size() + (parent != null ? parent.getVariableCountRecursive() : 0);
+    }
+
     public static BlockScope nestIn(BlockScope parent) {
         var scope = new BlockScope();
         scope.setParent(parent);
