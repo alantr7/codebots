@@ -100,8 +100,8 @@ public class RuntimeCodeBlock extends RuntimeObject {
 
             case "define_var" -> {
                 int variables = scope.getVariableCountRecursive();
-                if (variables == Config.BOT_MAX_MEMORY_ENTRIES) {
-                    throw new ExecutionException("Cannot declare any more variables due to memory overflow!");
+                if (variables == Config.SCRIPTS_MAX_VARIABLES_COUNT) {
+                    throw new ExecutionException("Cannot declare any more variables due to the variables count limit!");
                 }
 
                 scope.setVariable(tokens[1], new RuntimeVariable(DataType.ANY));
@@ -160,6 +160,9 @@ public class RuntimeCodeBlock extends RuntimeObject {
             case "halt" -> environment.setHalted(true);
 
             case "push_func" -> {
+                if (functionStack.size() == Config.SCRIPTS_MAX_FUNCTION_CALL_STACK_SIZE)
+                    throw new ExecutionException("Call stack overflow!");
+
                 var object = environment.REGISTRY_CURRENT_SCOPE.getValue();
                 functionStack.add(new FunctionCall(((Module) object).getRootScope(), tokens[1], Integer.parseInt(tokens[2])));
             }
@@ -188,14 +191,21 @@ public class RuntimeCodeBlock extends RuntimeObject {
                 environment.getBlockStack().add(new BlockStackEntry(functionBlock, new BlockContext(BlockScope.nestIn(function.getScope()))));
             }
             case "define_func" -> {
+                /*
+                int functions = scope.getFunctionsCountRecursive();
+                if (functions == Config.SCRIPTS_MAX_FUNCTIONS_COUNT) {
+                    System.err.println(functions + " / " + Config.SCRIPTS_MAX_FUNCTIONS_COUNT);
+                    throw new ExecutionException("Cannot define any more functions due to the functions count limit!");
+                }*/
+
                 var name = tokens[1];
                 var functionBody = (RuntimeCodeBlock) block[i + 1];
                 functionBody.isFunction = true;
                 functionBody.functionName = name;
 
                 scope.setFunction(name, functionBody);
-                // Skip the next part
 
+                // Skip the next part
                 context.advance();
             }
             case "return" -> {

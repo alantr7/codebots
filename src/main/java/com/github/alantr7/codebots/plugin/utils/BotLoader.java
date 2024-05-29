@@ -17,30 +17,34 @@ public class BotLoader {
     public static CraftMemory loadMemory(CompoundTag tag) {
         var memory = new CraftMemory();
         tag.forEach((key, value) -> {
-            switch (value.getID()) {
-                // Boolean
-                case 1 -> memory.save(key, DataType.BOOLEAN, ((NumberTag<?>) value).asByte() == 1);
+            try {
+                switch (value.getID()) {
+                    // Boolean
+                    case 1 -> memory.save(key, DataType.BOOLEAN, ((NumberTag<?>) value).asByte() == 1);
 
-                // Int
-                case 3 -> memory.save(key, DataType.INT, ((IntTag) value).asInt());
+                    // Int
+                    case 3 -> memory.save(key, DataType.INT, ((IntTag) value).asInt());
 
-                // Float
-                case 5 -> memory.save(key, DataType.FLOAT, ((FloatTag) value).asFloat());
+                    // Float
+                    case 5 -> memory.save(key, DataType.FLOAT, ((FloatTag) value).asFloat());
 
-                // String
-                case 8 -> memory.save(key, DataType.STRING, ((StringTag) value).getValue());
+                    // String
+                    case 8 -> memory.save(key, DataType.STRING, ((StringTag) value).getValue());
 
-                // Compound
-                // TODO: Optimize compound loading
-                case 10 -> {
-                    var map = loadMemory((CompoundTag) value).map();
-                    var dict = map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getValue()));
+                    // Compound
+                    // TODO: Optimize compound loading
+                    case 10 -> {
+                        var map = loadMemory((CompoundTag) value).map();
+                        var dict = map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getValue()));
 
-                    var dictionary = new Dictionary();
-                    dictionary.putAll(dict);
+                        var dictionary = new Dictionary();
+                        dictionary.putAll(dict);
 
-                    memory.save(key, DataType.DICTIONARY, dictionary);
+                        memory.save(key, DataType.DICTIONARY, dictionary);
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 

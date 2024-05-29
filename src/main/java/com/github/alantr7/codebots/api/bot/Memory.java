@@ -1,10 +1,11 @@
 package com.github.alantr7.codebots.api.bot;
 
 import com.github.alantr7.codebots.language.runtime.DataType;
+import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
 
 public interface Memory {
 
-    <T> void save(String key, DataType<T> type, T value);
+    <T> void save(String key, DataType<T> type, T value) throws ExecutionException;
 
 
     /**

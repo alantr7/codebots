@@ -89,6 +89,12 @@ public class DataLoader {
         Config.BOT_ALLOWED_SCRIPTS = scriptsOption.equals("LOCAL") ? 1 : scriptsOption.equals("SHARED") ? 2 : 0;
         Config.BOT_CHAT_FORMAT = config.getString("Bots.ChatFormat", Config.BOT_CHAT_FORMAT);
         Config.BOT_MAX_MEMORY_ENTRIES = config.getInt("Bots.MaxMemoryEntries", Config.BOT_MAX_MEMORY_ENTRIES);
+
+
+
+        Config.SCRIPTS_MAX_FUNCTION_CALL_STACK_SIZE = config.getInt("Scripts.MaxFunctionCallStackSize", Config.SCRIPTS_MAX_FUNCTION_CALL_STACK_SIZE);
+        Config.SCRIPTS_MAX_VARIABLES_COUNT = config.getInt("Scripts.MaxVariablesCount", Config.SCRIPTS_MAX_VARIABLES_COUNT);
+        Config.SCRIPTS_MAX_FUNCTIONS_COUNT = config.getInt("Scripts.MaxFunctionsCount", Config.SCRIPTS_MAX_FUNCTIONS_COUNT);
     }
 
     private void loadBot(File directory) throws IOException {

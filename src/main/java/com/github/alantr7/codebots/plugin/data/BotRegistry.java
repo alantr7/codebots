@@ -6,6 +6,7 @@ import com.github.alantr7.bukkitplugin.annotations.core.InvokePeriodically;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import lombok.Getter;
 import org.bukkit.Location;
 import org.joml.Vector2i;
 
@@ -14,6 +15,7 @@ import java.util.*;
 @Singleton
 public class BotRegistry {
 
+    @Getter
     private final Map<UUID, CraftCodeBot> bots = new LinkedHashMap<>();
 
     private final Map<Vector2i, Map<UUID, CraftCodeBot>> botsPerChunk = new LinkedHashMap<>();
@@ -61,16 +63,6 @@ public class BotRegistry {
 
     public Collection<CraftCodeBot> getBotsInChunk(int x, int z) {
         return botsPerChunk.getOrDefault(new Vector2i(x, z), Collections.emptyMap()).values();
-    }
-
-    public Map<UUID, CraftCodeBot> getBots() {
-        return bots;
-    }
-
-    @Invoke(Invoke.Schedule.AFTER_PLUGIN_DISABLE)
-    public void despawnEntities() {
-        bots.forEach((id, bot) -> bot.getEntity().remove());
-        bots.clear();
     }
 
     @InvokePeriodically(interval = 2)
