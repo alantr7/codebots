@@ -26,9 +26,9 @@ https://github.com/alantr7/codebots/wiki/Scripting-Language
 - Records
 - Bot inventory
 - Memory module (saving, loading data)
+- Configuration for movement and rotation speeds, allow/block item drops, allow/block mining
 
 #### Yet to be done
-- Configuration for movement and rotation speeds, allow/block item drops, allow/block mining
 - WorldGuard, Factions integration
 - Logic operators (AND, OR) for boolean expressions
 - Error handling
