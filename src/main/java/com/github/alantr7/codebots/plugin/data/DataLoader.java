@@ -47,7 +47,48 @@ public class DataLoader {
     @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
     public void load() {
         loadConfig();
+        loadPrograms();
 
+        var botsDirectory = new File(plugin.getDataFolder(), "bots");
+        botsDirectory.mkdirs();
+
+        for (var directory : botsDirectory.listFiles()) {
+            try {
+                loadBot(directory);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        plugin.getLogger().info("Loaded " + registry.getBots().size() + " bots.");
+
+        // Load players
+        for (var player : Bukkit.getOnlinePlayers()) {
+            players.registerPlayer(new PlayerData(player.getUniqueId()));
+        }
+    }
+
+    public void reload() {
+        loadConfig();
+        loadPrograms();
+
+        registry.getBots().forEach((id, bot) -> {
+            bot.setProgram(null);
+
+            var source = bot.getProgramSource();
+            if (source != null) {
+                try {
+                    bot.setProgramSource(loadProgram(source.getDirectory(), source.getSource()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            bot.setActive(false);
+        });
+    }
+
+    private void loadPrograms() {
         var programsDirectory = new File(plugin.getDataFolder(), "programs");
         if (!programsDirectory.exists()) {
             programsDirectory.mkdirs();
@@ -66,24 +107,6 @@ public class DataLoader {
                 programs.registerProgram(loadProgram(Directory.SHARED_PROGRAMS, programFile));
             } catch (Exception e) {
             }
-        }
-
-        var botsDirectory = new File(plugin.getDataFolder(), "bots");
-        botsDirectory.mkdirs();
-
-        for (var directory : botsDirectory.listFiles()) {
-            try {
-                loadBot(directory);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        plugin.getLogger().info("Loaded " + registry.getBots().size() + " bots.");
-
-        // Load players
-        for (var player : Bukkit.getOnlinePlayers()) {
-            players.registerPlayer(new PlayerData(player.getUniqueId()));
         }
     }
 

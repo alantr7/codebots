@@ -14,9 +14,6 @@ public class Permissions {
     public static final String COMMAND_SELECT = "codebots.command.select";
 
     @Permission(allowed = Permission.Allowed.OP)
-    public static final String COMMAND_LOAD = "codebots.command.load";
-
-    @Permission(allowed = Permission.Allowed.OP)
     public static final String COMMAND_START = "codebots.command.start";
 
     @Permission(allowed = Permission.Allowed.OP)
@@ -30,6 +27,9 @@ public class Permissions {
 
     @Permission(allowed = Permission.Allowed.OP)
     public static final String COMMAND_INVENTORY = "codebots.command.inventory";
+
+    @Permission(allowed = Permission.Allowed.OP)
+    public static final String COMMAND_RELOAD = "codebots.command.reload";
 
     @Permission(allowed = Permission.Allowed.OP)
     public static final String ACTION_OPEN_ANY_INVENTORY = "codebots.bot.openany";

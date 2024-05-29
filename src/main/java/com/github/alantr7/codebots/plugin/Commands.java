@@ -232,4 +232,13 @@ public class Commands {
                 ctx.respond("§eBot has been saved.");
             });
 
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command reload = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_RELOAD)
+            .parameter("reload")
+            .executes(ctx -> {
+                plugin.getSingleton(DataLoader.class).reload();
+                ctx.respond("§ePrograms and bots have been reloaded.");
+            });
+
 }
