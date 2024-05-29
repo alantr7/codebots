@@ -91,4 +91,9 @@ public interface CodeBot {
      */
     void setSelectedSlot(int slot);
 
+    /**
+     * Deletes the bot and all of its files and data
+     */
+    void remove();
+
 }

@@ -13,6 +13,7 @@ import com.github.alantr7.codebots.plugin.codeint.modules.MemoryModule;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
+import com.github.alantr7.codebots.plugin.utils.FileHelper;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.Getter;
 import lombok.Setter;
@@ -264,6 +265,34 @@ public class CraftCodeBot implements CodeBot {
 
         selectedSlot = slot;
         inventory.updateSelectedSlotHighlights();
+    }
+
+    @Override
+    public void remove() {
+        // Load the chunk so that entities can be removed
+        boolean isChunkLoaded;
+        if (isChunkLoaded()) {
+            isChunkLoaded = true;
+        } else {
+            cachedLocation.getChunk().load();
+            isChunkLoaded = false;
+        }
+
+        var blockDisplay = getEntity();
+        if (blockDisplay != null) {
+            blockDisplay.remove();
+        }
+
+        var interaction = getInteraction();
+        if (interaction != null) {
+            interaction.remove();
+        }
+
+        FileHelper.deleteDirectory(getDirectory());
+
+        if (!isChunkLoaded) {
+            cachedLocation.getChunk().unload();
+        }
     }
 
 }

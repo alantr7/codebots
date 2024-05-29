@@ -73,6 +73,8 @@ public class Commands {
 
                 botsRegistry.registerBot(bot);
                 loader.save(bot);
+
+                ctx.respond("§eSuccessfully created a new bot.");
             });
 
     @CommandHandler
@@ -86,11 +88,8 @@ public class Commands {
                     return;
                 }
 
-                bot.getEntity().remove();
-                bot.getInteraction().remove();
-
-                FileHelper.deleteDirectory(bot.getDirectory());
-                ctx.respond("Bot and its files successfully deleted.");
+                bot.remove();
+                ctx.respond("§eBot and its files successfully deleted.");
             });
 
     @CommandHandler
@@ -107,58 +106,27 @@ public class Commands {
                 );
 
                 if (interaction == null) {
-                    player.sendMessage("Please look at a bot when using this command.");
+                    player.sendMessage("§cPlease look at a bot when using this command.");
                     return;
                 }
 
                 var botId = interaction.getHitEntity().getPersistentDataContainer().get(new NamespacedKey(plugin, "bot_id"), PersistentDataType.STRING);
                 if (botId == null) {
-                    player.sendMessage("Please look at a bot when using this command.");
+                    player.sendMessage("§cPlease look at a bot when using this command.");
                     return;
                 }
 
                 var bot = botsRegistry.getBots().get(UUID.fromString(botId));
 
                 if (bot == null) {
-                    player.sendMessage("Please look at a bot when using this command.");
+                    player.sendMessage("§cPlease look at a bot when using this command.");
                     return;
                 }
 
                 var playerData = PlayerData.get(player);
                 playerData.setSelectedBot(bot);
 
-                ctx.respond("Bot selected!");
-            });
-
-    @CommandHandler
-    public com.github.alantr7.bukkitplugin.commands.registry.Command load = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_LOAD)
-            .parameter("load")
-            .parameter("{path}", p -> p.defaultValue(ctx -> null))
-            .executes(ctx -> {
-                var bot = (CraftCodeBot) PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
-                if (bot == null) {
-                    ctx.respond("§cPlease select a bot first.");
-                    return;
-                }
-
-                var programFile = new File(bot.getProgramsDirectory(), (String) ctx.getArgument("path"));
-
-                try {
-                    var program = Program.createFromSourceFile(programFile);
-                    program.setExtra("bot", bot);
-
-                    var botModule = new BotModule(program);
-                    program.registerNativeModule("bot", botModule);
-
-                    bot.setProgram(program);
-                    program.action(Program.Mode.FULL_EXEC);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                ctx.respond("Program loaded.");
-                loader.save(bot);
+                ctx.respond("§eBot selected.");
             });
 
     @CommandHandler
@@ -173,7 +141,7 @@ public class Commands {
                 }
 
                 bot.setActive(true);
-                ctx.respond("Bot started!");
+                ctx.respond("§eBot started!");
             });
 
     @CommandHandler
@@ -188,9 +156,7 @@ public class Commands {
                 }
 
                 bot.setActive(false);
-                ((CraftCodeBot) bot).fixTransformation();
-
-                ctx.respond("Bot stopped.");
+                ctx.respond("§eBot stopped.");
             });
 
     @CommandHandler
@@ -205,7 +171,33 @@ public class Commands {
                 }
 
                 bot.setLocation(((Player) ctx.getExecutor()).getLocation());
-                ctx.respond("Bot teleported!");
+                ctx.respond("§eBot has been teleported to your location!");
+            });
+
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command rotate = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_TELEPORT)
+            .parameter("rotate")
+            .parameter("{direction}", p -> p.ifNotProvided(ctx -> ctx.respond("§cPlease provide a direction.")))
+            .requireMatches(1)
+            .executes(ctx -> {
+                var directionRaw = (String) ctx.getArgument("direction");
+                var direction = Direction.toDirection(directionRaw.toUpperCase());
+
+                if (direction == null) {
+                    ctx.respond("§cInvalid direction specified. Valid directions are:");
+                    ctx.respond("§6 - north, east, south, west");
+                    return;
+                }
+
+                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
+
+                bot.setDirection(direction, true);
+                ctx.respond("§eBot has been rotated.");
             });
 
     @CommandHandler
@@ -234,7 +226,7 @@ public class Commands {
                 }
 
                 CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(bot);
-                ctx.respond("Bot saved.");
+                ctx.respond("§eBot has been saved.");
             });
 
 }
