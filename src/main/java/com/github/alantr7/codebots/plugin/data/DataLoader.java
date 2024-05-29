@@ -49,7 +49,17 @@ public class DataLoader {
         loadConfig();
 
         var programsDirectory = new File(plugin.getDataFolder(), "programs");
-        programsDirectory.mkdirs();
+        if (!programsDirectory.exists()) {
+            programsDirectory.mkdirs();
+            var resource = plugin.getResource("example.js");
+            if (resource != null) {
+                try {
+                    Files.write(new File(programsDirectory, "example.js").toPath(), resource.readAllBytes());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
         for (var programFile : programsDirectory.listFiles()) {
             try {
