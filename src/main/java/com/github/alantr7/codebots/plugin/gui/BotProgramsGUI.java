@@ -8,7 +8,7 @@ import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.data.DataLoader;
+import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import org.bukkit.Material;
@@ -44,7 +44,9 @@ public class BotProgramsGUI extends GUI {
         createInventory("Manage Bot > Programs", 54);
         setInteractionEnabled(false);
 
-        selectedCategory = bot.getProgramSource() != null && bot.getProgramSource().getDirectory() == Directory.LOCAL_PROGRAMS ? CATEGORY_LOCAL : CATEGORY_SHARED;
+        selectedCategory = Config.BOT_ALLOWED_SCRIPTS == 0
+                ? bot.getProgramSource() != null && bot.getProgramSource().getDirectory() == Directory.LOCAL_PROGRAMS ? CATEGORY_LOCAL : CATEGORY_SHARED
+                : Config.BOT_ALLOWED_SCRIPTS == 1 ? CATEGORY_LOCAL : CATEGORY_SHARED;
     }
 
     @Override
@@ -80,12 +82,20 @@ public class BotProgramsGUI extends GUI {
 
         setItem(10, categoryAll);
         registerInteractionCallback(10, ClickType.LEFT, () -> {
+            if (Config.BOT_ALLOWED_SCRIPTS == 1) {
+                return;
+            }
+
             selectedCategory = CATEGORY_SHARED;
             refill();
         });
 
         setItem(19, categoryLocal);
         registerInteractionCallback(19, ClickType.LEFT, () -> {
+            if (Config.BOT_ALLOWED_SCRIPTS == 0) {
+                return;
+            }
+
             selectedCategory = CATEGORY_LOCAL;
             refill();
         });
@@ -100,7 +110,7 @@ public class BotProgramsGUI extends GUI {
                     int row = index / 5;
 
                     boolean isSelected = bot.getProgramSource() != null && bot.getProgramSource().getDirectory() == Directory.LOCAL_PROGRAMS && bot.getProgramSource().getSource().getName().equals(file.getName());
-                    setItem(12 + row * 9 + column, ItemFactory.createItem(isSelected?  Material.ENCHANTED_BOOK : Material.BOOK, "§f" + file.getName()));
+                    setItem(12 + row * 9 + column, ItemFactory.createItem(isSelected ? Material.ENCHANTED_BOOK : Material.BOOK, "§f" + file.getName()));
                     registerInteractionCallback(12 + row * 9 + column, ClickType.LEFT, () -> {
                         try {
                             bot.loadProgram(CodeBots.loadProgram(Directory.LOCAL_PROGRAMS, file));
@@ -113,9 +123,7 @@ public class BotProgramsGUI extends GUI {
                     index++;
                 }
             }
-        }
-
-        else if (selectedCategory == CATEGORY_SHARED) {
+        } else if (selectedCategory == CATEGORY_SHARED) {
             var programs = CodeBotsPlugin.inst().getSingleton(ProgramRegistry.class).getPrograms();
             int index = 0;
 
@@ -124,7 +132,7 @@ public class BotProgramsGUI extends GUI {
                 int row = index / 5;
 
                 boolean isSeleceted = bot.getProgramSource() != null && bot.getProgramSource().getDirectory() == program.getDirectory() && bot.getProgramSource().getSource().getName().equals(program.getName());
-                setItem(12 + row * 9 + column, ItemFactory.createItem(isSeleceted?  Material.ENCHANTED_BOOK : Material.BOOK, "§f" + program.getName()));
+                setItem(12 + row * 9 + column, ItemFactory.createItem(isSeleceted ? Material.ENCHANTED_BOOK : Material.BOOK, "§f" + program.getName()));
                 registerInteractionCallback(12 + row * 9 + column, ClickType.LEFT, () -> {
                     try {
                         bot.loadProgram(program);

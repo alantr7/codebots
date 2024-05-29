@@ -71,6 +71,9 @@ public class Commands {
                 bot.setOwnerId(player.getUniqueId());
                 interaction.getPersistentDataContainer().set(new NamespacedKey(plugin, "bot_id"), PersistentDataType.STRING, bot.getId().toString());
 
+                bot.setLocation(((Player) ctx.getExecutor()).getLocation());
+                bot.fixTransformation();
+
                 botsRegistry.registerBot(bot);
                 loader.save(bot);
 
