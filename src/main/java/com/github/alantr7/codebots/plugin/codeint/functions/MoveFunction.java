@@ -32,7 +32,10 @@ public class MoveFunction extends RuntimeNativeFunction {
         // If this is the first tick, then begin movement
         if (context.getLineIndex() == 0) {
             try {
-                beginMovement(context, call);
+                if (!beginMovement(context, call)) {
+                    environment.setHalted(true);
+                    return;
+                }
             } catch (Exception e) {
                 environment.interrupt(e);
                 return;
@@ -45,20 +48,25 @@ public class MoveFunction extends RuntimeNativeFunction {
         environment.setHalted(true);
     }
 
-    private void beginMovement(BlockContext context, FunctionCall call) throws Exception {
+    private boolean beginMovement(BlockContext context, FunctionCall call) throws Exception {
         Assertions.assertEquals(call.getArguments().length, 1, "Expected 1 argument");
         Assertions.assertEquals(call.getArguments()[0] instanceof String, true, "Expected a string argument");
 
         var bot = (CodeBot) environment.getProgram().getExtra("bot");
         var entity = bot.getEntity();
-        var initialTransformation = entity.getTransformation();
-        var initialTranslation = initialTransformation.getTranslation();
         var arg = call.getArguments()[0];
         var direction = (arg.equals("forward")
                 ? bot.getDirection()
                 : arg.equals("back")
                 ? bot.getDirection().getRight().getRight()
                 : Direction.toDirection((String) call.getArguments()[0])).toVector();
+
+        if (!bot.getLocation().add(direction).getBlock().getType().isAir()) {
+            return false;
+        }
+
+        var initialTransformation = entity.getTransformation();
+        var initialTranslation = initialTransformation.getTranslation();
 
         var nextTranslation = direction.toVector3f().add(initialTranslation);
 
@@ -74,6 +82,8 @@ public class MoveFunction extends RuntimeNativeFunction {
 
         context.setExtra("initialTranslation", initialTranslation);
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation((CraftCodeBot) bot);
+
+        return true;
     }
 
     private void completeMovement(BlockContext context, FunctionCall call) {
