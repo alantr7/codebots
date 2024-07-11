@@ -11,6 +11,7 @@ import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
+import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -20,10 +21,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-
 public class BotProgramsGUI extends GUI {
 
+    @Getter
     private final CodeBot bot;
 
     private static final int CATEGORY_SHARED = 0;

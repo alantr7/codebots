@@ -8,25 +8,14 @@ import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
 import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.player.PlayerData;
-import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
-import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
-import com.github.alantr7.codebots.plugin.utils.FileHelper;
-import com.github.alantr7.codebots.plugin.utils.MathHelper;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.util.Transformation;
-import org.joml.Vector3f;
 
-import java.io.File;
 import java.util.UUID;
 
 @Singleton
@@ -50,32 +39,7 @@ public class Commands {
             .parameter("create")
             .executes(ctx -> {
                 var player = ((Player) ctx.getExecutor());
-                var blockDisplay = (BlockDisplay) player.getWorld().spawnEntity(player.getLocation().getBlock().getLocation(), EntityType.BLOCK_DISPLAY);
-                blockDisplay.setBlock(Material.FURNACE.createBlockData());
-                blockDisplay.setRotation(0, 0);
-                var transformation = blockDisplay.getTransformation();
-                blockDisplay.setTransformation(new Transformation(
-                        transformation.getTranslation().add(0.2f, 0.2f, 0.2f),
-                        transformation.getLeftRotation(),
-                        new Vector3f(0.6f, 0.6f, 0.6f),
-                        transformation.getRightRotation()
-                ));
-                blockDisplay.setInterpolationDuration(20);
-
-                var interaction = (Interaction) player.getWorld().spawnEntity(player.getLocation().getBlock().getLocation().add(.5, 0, .5), EntityType.INTERACTION);
-                interaction.setInteractionWidth(0.8f);
-
-                var bot = new CraftCodeBot(player.getWorld(), UUID.randomUUID(), blockDisplay.getUniqueId(), interaction.getUniqueId());
-                bot.setCachedLocation(MathHelper.toBlockLocation(blockDisplay.getLocation()));
-                bot.setCachedDirection(Direction.WEST);
-                bot.setOwnerId(player.getUniqueId());
-                interaction.getPersistentDataContainer().set(new NamespacedKey(plugin, "bot_id"), PersistentDataType.STRING, bot.getId().toString());
-
-                bot.setLocation(((Player) ctx.getExecutor()).getLocation());
-                bot.fixTransformation();
-
-                botsRegistry.registerBot(bot);
-                loader.save(bot);
+                CodeBots.createBot(player.getUniqueId(), player.getLocation());
 
                 ctx.respond("§eSuccessfully created a new bot.");
             });

@@ -63,6 +63,8 @@ public interface CodeBot {
      */
     Memory getMemory();
 
+    boolean hasProgram();
+
     Program getProgram();
 
     ProgramSource getProgramSource();

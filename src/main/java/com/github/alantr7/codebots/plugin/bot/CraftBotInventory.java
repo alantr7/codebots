@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
 public class CraftBotInventory implements BotInventory {
@@ -24,6 +25,11 @@ public class CraftBotInventory implements BotInventory {
     private final ItemStack CONTROL_STOP = ItemFactory.createItem(Material.RED_CONCRETE, "§cStop Program");
 
     private final ItemStack PROGRAM_INFO = new ItemStack(Material.PAPER);
+
+    private final ItemStack PICKUP_BOT = ItemFactory.createItem(Material.DISPENSER, meta -> {
+        meta.setDisplayName("§fPick Up");
+        meta.setLore(Collections.singletonList("§7Click to pick up the bot"));
+    });
 
     private final ItemStack INVENTORY_SLOT_NOT_SELECTED = ItemFactory.createItem(Material.BLACK_STAINED_GLASS_PANE, "§7");
 
@@ -57,6 +63,7 @@ public class CraftBotInventory implements BotInventory {
 
         updateControlButton();
         updateProgramButton();
+        inventory.setItem(15, PICKUP_BOT);
         updateSelectedSlotHighlights();
     }
 

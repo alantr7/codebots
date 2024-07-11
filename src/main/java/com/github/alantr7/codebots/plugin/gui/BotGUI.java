@@ -5,6 +5,8 @@ import com.github.alantr7.bukkitplugin.gui.CloseInitiator;
 import com.github.alantr7.bukkitplugin.gui.GUI;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.program.ItemFactory;
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -13,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class BotGUI extends GUI {
 
+    @Getter
     private final CodeBot bot;
 
     public BotGUI(Player player, CodeBot bot) {
@@ -26,11 +29,7 @@ public class BotGUI extends GUI {
     protected void init() {
         createInventory(bot.getInventory().getInternal());
         registerInteractionCallback(11, ClickType.LEFT, () -> {
-            if (bot.isActive()) {
-                bot.setActive(false);
-            } else {
-                bot.setActive(true);
-            }
+            bot.setActive(!bot.isActive());
         });
 
         registerInteractionCallback(13, ClickType.LEFT, () -> {
@@ -38,6 +37,17 @@ public class BotGUI extends GUI {
             var player = getPlayer();
             programs.registerEventCallback(Action.CLOSE, () -> new BotGUI(player, bot).open());
             programs.open();
+        });
+
+        registerInteractionCallback(15, ClickType.LEFT, () -> {
+            var botItem = ItemFactory.createBotItem("§7Bot", bot);
+            if (getPlayer().getInventory().getItemInMainHand().getType().isAir()) {
+                getPlayer().getInventory().setItemInMainHand(botItem);
+            } else {
+                getPlayer().getInventory().addItem(botItem);
+            }
+
+            bot.remove();
         });
     }
 

@@ -1,9 +1,11 @@
 package com.github.alantr7.codebots.plugin.bot;
 
-import com.github.alantr7.codebots.api.bot.Memory;
-import com.github.alantr7.codebots.api.bot.ProgramSource;
+import com.github.alantr7.bukkitplugin.gui.CloseInitiator;
+import com.github.alantr7.bukkitplugin.gui.GuiModule;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
+import com.github.alantr7.codebots.api.bot.Memory;
+import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
@@ -13,6 +15,8 @@ import com.github.alantr7.codebots.plugin.codeint.modules.MemoryModule;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
+import com.github.alantr7.codebots.plugin.gui.BotGUI;
+import com.github.alantr7.codebots.plugin.gui.BotProgramsGUI;
 import com.github.alantr7.codebots.plugin.utils.FileHelper;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.Getter;
@@ -44,12 +48,14 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private final UUID interactionId;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private UUID ownerId;
 
     private final File directory;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private Program program;
 
     @Getter
@@ -57,19 +63,23 @@ public class CraftCodeBot implements CodeBot {
 
     private boolean isActive = false;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private Location lastSavedLocation;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private Location cachedLocation;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private Direction cachedDirection;
 
     @Getter
     private final CraftBotInventory inventory;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private Memory memory;
 
     @Getter
@@ -197,11 +207,16 @@ public class CraftCodeBot implements CodeBot {
 
     private static float[] getTranslation(Direction direction) {
         return switch (direction) {
-            case EAST -> new float[] {0.6f, 0f};
-            case SOUTH -> new float[] {0.6f, 0.6f};
+            case EAST -> new float[]{0.6f, 0f};
+            case SOUTH -> new float[]{0.6f, 0.6f};
             case WEST -> new float[]{0f, 0.6f};
-            default -> new float[] {0f, 0f};
+            default -> new float[]{0f, 0f};
         };
+    }
+
+    @Override
+    public boolean hasProgram() {
+        return this.programSource != null;
     }
 
     @Override
@@ -236,7 +251,7 @@ public class CraftCodeBot implements CodeBot {
             try {
                 loadProgram(this.programSource);
                 program.prepareMainFunction();
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 isActive = false;
             }
@@ -292,6 +307,24 @@ public class CraftCodeBot implements CodeBot {
 
         if (!isChunkLoaded) {
             cachedLocation.getChunk().unload();
+        }
+
+        // Remove this bot from the registry
+        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).unregisterBot(id);
+
+        // Close all GUIs related to this bot
+        inventory.getInternal().clear();
+        for (var player : Bukkit.getOnlinePlayers()) {
+            var gui = GuiModule.getManager().getOpenInventory(player);
+            if (gui == null)
+                continue;
+
+            CodeBot bot = gui.is(BotGUI.class) ? ((BotGUI) gui).getBot() :
+                    gui.is(BotProgramsGUI.class) ? ((BotProgramsGUI) gui).getBot() : null;
+
+            if (bot == this) {
+                gui.close(CloseInitiator.EXTERNAL);
+            }
         }
     }
 

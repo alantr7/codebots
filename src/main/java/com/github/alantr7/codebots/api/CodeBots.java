@@ -6,11 +6,12 @@ import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.bot.BotFactory;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +20,10 @@ import java.io.IOException;
 import java.util.UUID;
 
 public interface CodeBots {
+
+    static CodeBot createBot(@NotNull UUID ownerId, @NotNull Location location) {
+        return BotFactory.createBot(ownerId, location);
+    }
 
     static @Nullable CodeBot getBot(UUID id) {
         return CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getBots().get(id);
