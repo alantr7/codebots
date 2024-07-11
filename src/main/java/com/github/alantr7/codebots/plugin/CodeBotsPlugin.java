@@ -6,7 +6,7 @@ import com.github.alantr7.bukkitplugin.annotations.generative.JavaPlugin;
 import com.github.alantr7.bukkitplugin.annotations.relocate.Relocate;
 import com.github.alantr7.bukkitplugin.annotations.relocate.Relocations;
 
-@JavaPlugin(name = "CodeBots")
+@JavaPlugin(name = "CodeBots", version = "0.1.1")
 @Relocations(@Relocate(from = "com.github.alantr7.bukkitplugin", to = "com.github.alantr7.codebots.bpf"))
 public class CodeBotsPlugin extends BukkitPlugin {
 
