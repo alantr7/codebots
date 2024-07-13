@@ -75,6 +75,9 @@ public class CraftCodeBot implements CodeBot {
     @Setter
     private Direction cachedDirection;
 
+    @Getter @Setter
+    private BotMovement movement;
+
     @Getter
     private final CraftBotInventory inventory;
 
@@ -142,28 +145,6 @@ public class CraftCodeBot implements CodeBot {
         return cachedDirection;
     }
 
-    /*
-    public Direction getDirectionFromEntity() {
-        var entity = getEntity();
-        if (entity == null)
-            return null;
-
-        var rotation = new AxisAngle4f(entity.getTransformation().getLeftRotation());
-        if (rotation.angle == 0)
-            return Direction.NORTH;
-
-        if (MathHelper.floatsEqual(rotation.angle, RotateFunction.ANGLE_EAST))
-            return Direction.EAST;
-
-        if (MathHelper.floatsEqual(rotation.angle, RotateFunction.ANGLE_SOUTH))
-            return Direction.SOUTH;
-
-        if (MathHelper.floatsEqual(rotation.angle, RotateFunction.ANGLE_WEST))
-            return Direction.WEST;
-
-        return Direction.NORTH;
-    }*/
-
     @Override
     public void setDirection(Direction direction) {
         setDirection(direction, false);
@@ -172,7 +153,7 @@ public class CraftCodeBot implements CodeBot {
     @Override
     public void setDirection(Direction direction, boolean interpolate) {
         BlockDisplay entity;
-        if (!isChunkLoaded() || (entity = getEntity()) == null)
+        if (isMoving() || !isChunkLoaded() || (entity = getEntity()) == null)
             return;
 
         var translationFloats = getTranslation(direction);
@@ -203,6 +184,64 @@ public class CraftCodeBot implements CodeBot {
         ));
 
         cachedDirection = direction;
+        this.movement = new BotMovement(getLocation(), BotMovement.Type.ROTATION, direction, initialTransformation);
+        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getMovingBots().put(id, this);
+    }
+
+    @Override
+    public boolean move(Direction direction) {
+        return move(direction, false);
+    }
+
+    @Override
+    public boolean move(Direction direction, boolean interpolate) {
+        if (isMoving())
+            return false;
+
+        var entity = getEntity();
+        if (!getLocation().add(direction.toVector()).getBlock().getType().isAir()) {
+            return false;
+        }
+
+        var initialTransformation = entity.getTransformation();
+        var initialTranslation = initialTransformation.getTranslation();
+
+        var nextTranslation = direction.toVector().toVector3f().add(initialTranslation);
+
+        entity.setInterpolationDelay(0);
+        entity.setInterpolationDuration(Config.BOT_MOVEMENT_DURATION * 2);
+
+        entity.setTransformation(new Transformation(
+                nextTranslation,
+                initialTransformation.getLeftRotation(),
+                initialTransformation.getScale(),
+                initialTransformation.getRightRotation()
+        ));
+
+        this.movement = new BotMovement(getLocation(), BotMovement.Type.TRANSLATION, direction, initialTransformation);
+        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation(this);
+        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getMovingBots().put(id, this);
+
+        return true;
+    }
+
+    @Override
+    public boolean isMoving() {
+        return movement != null;
+    }
+
+    public void completeTranslation() {
+        var entity = getEntity();
+        var initialTranslation = movement.getInitialTransformation().getTranslation();
+        var direction = movement.getDirection().toVector();
+        entity.setInterpolationDuration(0);
+        entity.setTransformation(new Transformation(
+                initialTranslation,
+                entity.getTransformation().getLeftRotation(),
+                entity.getTransformation().getScale(),
+                entity.getTransformation().getRightRotation()
+        ));
+        setLocation(entity.getLocation().add(direction));
     }
 
     private static float[] getTranslation(Direction direction) {

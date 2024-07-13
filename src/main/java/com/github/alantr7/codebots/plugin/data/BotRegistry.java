@@ -1,13 +1,15 @@
 package com.github.alantr7.codebots.plugin.data;
 
 import com.github.alantr7.bukkitplugin.annotations.core.Inject;
-import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.InvokePeriodically;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
+import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.language.runtime.Program;
+import com.github.alantr7.codebots.plugin.bot.BotMovement;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import lombok.Getter;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 
 import java.util.*;
@@ -17,6 +19,9 @@ public class BotRegistry {
 
     @Getter
     private final Map<UUID, CraftCodeBot> bots = new LinkedHashMap<>();
+
+    @Getter
+    private final Map<UUID, CraftCodeBot> movingBots = new HashMap<>();
 
     private final Map<Vector2i, Map<UUID, CraftCodeBot>> botsPerChunk = new LinkedHashMap<>();
 
@@ -30,6 +35,20 @@ public class BotRegistry {
 
     public void unregisterBot(UUID id) {
         bots.remove(id);
+        movingBots.remove(id);
+    }
+
+    public CodeBot getBotAt(@NotNull Location location) {
+        var bots = botsPerChunk.get(new Vector2i(location.getBlockX() >> 4, location.getBlockZ() >> 4));
+        if (bots == null)
+            return null;
+
+        // TODO: Use BlockVector instead of getting the block and then getting its location
+        for (var bot : bots.values())
+            if (bot.getLocation().getBlock().getLocation().equals(location.getBlock().getLocation()))
+                return bot;
+
+        return null;
     }
 
     public void updateBotLocation(CraftCodeBot bot) {
@@ -77,6 +96,22 @@ public class BotRegistry {
                 }
             }
         });
+
+        var it = movingBots.entrySet().iterator();
+        while (it.hasNext()) {
+            var bot = it.next().getValue();
+            if (bot.getMovement().isCompleted()) {
+                if (bot.getMovement().getType() == BotMovement.Type.TRANSLATION) {
+                    try {
+                        bot.completeTranslation();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                bot.setMovement(null);
+                it.remove();
+            }
+        }
     }
 
 }

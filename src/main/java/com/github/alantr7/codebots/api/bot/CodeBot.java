@@ -57,6 +57,15 @@ public interface CodeBot {
      */
     void setDirection(Direction direction);
 
+    boolean move(Direction direction, boolean interpolate);
+
+    boolean move(Direction direction);
+
+    /**
+     * Returns whether the bot is currently moving or rotating
+     */
+    boolean isMoving();
+
     /**
      * Data stored by programs. This is not bot's working memory.
      * @return bot's memory
