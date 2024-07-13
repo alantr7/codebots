@@ -20,8 +20,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Interaction;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -160,6 +162,14 @@ public class Events implements Listener {
             }
         }
         new BotGUI(event.getPlayer(), bot).open();
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    void onPlaceBlockInsideOfBot(BlockPlaceEvent event) {
+        var bot = CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getBotAt(event.getBlockPlaced().getLocation());
+        if (bot != null) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler

@@ -26,6 +26,11 @@ public class CraftBotInventory implements BotInventory {
 
     private final ItemStack PROGRAM_INFO = new ItemStack(Material.PAPER);
 
+    private final ItemStack MANUAL_MOVEMENT = ItemFactory.createItem(Material.COMPASS, meta -> {
+        meta.setDisplayName("§fManual Movement");
+        meta.setLore(Collections.singletonList("§7Click to manually move the bot"));
+    });
+
     private final ItemStack PICKUP_BOT = ItemFactory.createItem(Material.DISPENSER, meta -> {
         meta.setDisplayName("§fPick Up");
         meta.setLore(Collections.singletonList("§7Click to pick up the bot"));
@@ -63,7 +68,8 @@ public class CraftBotInventory implements BotInventory {
 
         updateControlButton();
         updateProgramButton();
-        inventory.setItem(15, PICKUP_BOT);
+        inventory.setItem(14, MANUAL_MOVEMENT);
+        inventory.setItem(16, PICKUP_BOT);
         updateSelectedSlotHighlights();
     }
 
@@ -136,11 +142,7 @@ public class CraftBotInventory implements BotInventory {
     }
 
     public void updateControlButton() {
-        if (!bot.isActive()) {
-            inventory.setItem(11, CONTROL_START);
-        } else {
-            inventory.setItem(11, CONTROL_STOP);
-        }
+        inventory.setItem(10, bot.isActive() ? CONTROL_STOP : CONTROL_START);
     }
 
     public void updateProgramButton() {
@@ -163,7 +165,7 @@ public class CraftBotInventory implements BotInventory {
         }
         PROGRAM_INFO.setItemMeta(meta);
 
-        inventory.setItem(13, PROGRAM_INFO);
+        inventory.setItem(12, PROGRAM_INFO);
     }
 
     public void updateSelectedSlotHighlights() {

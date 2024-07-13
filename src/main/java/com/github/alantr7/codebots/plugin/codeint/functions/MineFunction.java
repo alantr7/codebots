@@ -58,6 +58,10 @@ public class MineFunction extends RuntimeNativeFunction {
             bot.getInventory().addItem(bot.getLocation().add(0, -1, 0).getBlock().getDrops().toArray(new ItemStack[0]));
             bot.getLocation().add(0, -1, 0).getBlock().setType(Material.AIR);
 
+            for (var player : Bukkit.getOnlinePlayers()) {
+                player.sendBlockDamage(bot.getLocation().add(0, -1, 0), 0, bot.getEntity());
+            }
+
             CodeBotsPlugin.inst().getSingleton(DataLoader.class).saveInventory(bot);
             return;
         }

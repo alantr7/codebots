@@ -28,18 +28,26 @@ public class BotGUI extends GUI {
     @Override
     protected void init() {
         createInventory(bot.getInventory().getInternal());
-        registerInteractionCallback(11, ClickType.LEFT, () -> {
+        registerInteractionCallback(10, ClickType.LEFT, () -> {
             bot.setActive(!bot.isActive());
         });
 
-        registerInteractionCallback(13, ClickType.LEFT, () -> {
+        registerInteractionCallback(12, ClickType.LEFT, () -> {
             var programs = new BotProgramsGUI(getPlayer(), bot);
             var player = getPlayer();
             programs.registerEventCallback(Action.CLOSE, () -> new BotGUI(player, bot).open());
             programs.open();
         });
 
-        registerInteractionCallback(15, ClickType.LEFT, () -> {
+        registerInteractionCallback(14, ClickType.LEFT, () -> {
+            if (bot.isActive()) {
+                getPlayer().sendMessage("§cYou can not manually move the bot while it's running a program.");
+                return;
+            }
+            new BotControllerGUI(getPlayer(), bot).open();
+        });
+
+        registerInteractionCallback(16, ClickType.LEFT, () -> {
             var botItem = ItemFactory.createBotItem("§7Bot", bot);
             if (getPlayer().getInventory().getItemInMainHand().getType().isAir()) {
                 getPlayer().getInventory().setItemInMainHand(botItem);
