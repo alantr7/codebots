@@ -36,6 +36,8 @@ public interface CodeBot {
 
     Location getLocation();
 
+    Location getBlockLocation();
+
     /**
      * Teleports the bot to the specified location
      * @param location new location

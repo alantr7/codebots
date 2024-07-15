@@ -2,6 +2,7 @@ package com.github.alantr7.codebots.plugin.bot;
 
 import com.github.alantr7.bukkitplugin.gui.CloseInitiator;
 import com.github.alantr7.bukkitplugin.gui.GuiModule;
+import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Memory;
@@ -127,6 +128,12 @@ public class CraftCodeBot implements CodeBot {
     }
 
     @Override
+    public Location getBlockLocation() {
+        var location = getLocation();
+        return location != null ? new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ()) : null;
+    }
+
+    @Override
     public void setLocation(@NotNull Location location) {
         var blockLocation = MathHelper.toBlockLocation(location);
         getEntity().teleport(blockLocation.clone().add(.2, 0, .2));
@@ -199,7 +206,7 @@ public class CraftCodeBot implements CodeBot {
             return false;
 
         var entity = getEntity();
-        if (!getLocation().add(direction.toVector()).getBlock().getType().isAir()) {
+        if (CodeBots.isBlockOccupied(getBlockLocation().add(direction.toVector()))) {
             return false;
         }
 
@@ -218,7 +225,7 @@ public class CraftCodeBot implements CodeBot {
                 initialTransformation.getRightRotation()
         ));
 
-        this.movement = new BotMovement(getLocation(), BotMovement.Type.TRANSLATION, direction, initialTransformation);
+        this.movement = new BotMovement(getBlockLocation(), BotMovement.Type.TRANSLATION, direction, initialTransformation);
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation(this);
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getMovingBots().put(id, this);
 

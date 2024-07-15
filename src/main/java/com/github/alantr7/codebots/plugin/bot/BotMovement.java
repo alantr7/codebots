@@ -32,6 +32,14 @@ public final class BotMovement {
         this.startTick = Bukkit.getCurrentTick();
     }
 
+    public Location getOrigin() {
+        return origin.clone();
+    }
+
+    public Location getDestination() {
+        return type == Type.TRANSLATION ? origin.clone().add(direction.toVector()) : origin.clone();
+    }
+
     public boolean isCompleted() {
         return Bukkit.getCurrentTick() - startTick >
                 (type == Type.TRANSLATION ? Config.BOT_MOVEMENT_DURATION : Config.BOT_ROTATION_DURATION) * 2L;

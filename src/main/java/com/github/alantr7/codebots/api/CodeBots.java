@@ -29,6 +29,10 @@ public interface CodeBots {
         return CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getBots().get(id);
     }
 
+    static boolean isBlockOccupied(@NotNull Location location) {
+        return CodeBotsPlugin.inst().getSingleton(BotRegistry.class).isOccupied(location);
+    }
+
     static @Nullable PlayerData getPlayer(UUID id) {
         return CodeBotsPlugin.inst().getSingleton(PlayerRegistry.class).getPlayer(id);
     }

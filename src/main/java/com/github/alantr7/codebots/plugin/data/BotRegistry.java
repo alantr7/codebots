@@ -34,7 +34,17 @@ public class BotRegistry {
     }
 
     public void unregisterBot(UUID id) {
-        bots.remove(id);
+        var bot = bots.remove(id);
+        if (bot != null) {
+            var lastLocation = bot.getLastSavedLocation();
+            if (lastLocation != null) {
+                var bots = botsPerChunk.get(new Vector2i(lastLocation.getBlockX() >> 4, lastLocation.getBlockZ() >> 4));
+                if (bots != null) {
+                    bots.remove(id);
+                }
+            }
+        }
+
         movingBots.remove(id);
     }
 
@@ -43,12 +53,25 @@ public class BotRegistry {
         if (bots == null)
             return null;
 
-        // TODO: Use BlockVector instead of getting the block and then getting its location
+        var blockLocation = new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
         for (var bot : bots.values())
-            if (bot.getLocation().getBlock().getLocation().equals(location.getBlock().getLocation()))
+            if (bot.getBlockLocation().equals(blockLocation))
                 return bot;
 
         return null;
+    }
+
+    public CodeBot getBotMovingTo(@NotNull Location location) {
+        var blockLocation = new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        for (var bot : movingBots.values())
+            if (bot.getMovement().getDestination().equals(blockLocation))
+                return bot;
+
+        return null;
+    }
+
+    public boolean isOccupied(@NotNull Location location) {
+        return !location.getBlock().getType().isAir() || getBotAt(location) != null || getBotMovingTo(location) != null;
     }
 
     public void updateBotLocation(CraftCodeBot bot) {

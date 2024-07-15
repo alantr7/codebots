@@ -166,9 +166,17 @@ public class Events implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     void onPlaceBlockInsideOfBot(BlockPlaceEvent event) {
-        var bot = CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getBotAt(event.getBlockPlaced().getLocation());
+        var registry = CodeBotsPlugin.inst().getSingleton(BotRegistry.class);
+        var bot = registry.getBotAt(event.getBlockPlaced().getLocation());
         if (bot != null) {
             event.setCancelled(true);
+            return;
+        }
+
+        bot = registry.getBotMovingTo(event.getBlockPlaced().getLocation());
+        if (bot != null) {
+            event.setCancelled(true);
+            return;
         }
     }
 
