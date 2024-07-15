@@ -206,7 +206,7 @@ public class CraftCodeBot implements CodeBot {
             return false;
 
         var entity = getEntity();
-        if (CodeBots.isBlockOccupied(getBlockLocation().add(direction.toVector()))) {
+        if (CodeBots.isBlockOccupied(getBlockLocation().add(direction.toVector()), this)) {
             return false;
         }
 

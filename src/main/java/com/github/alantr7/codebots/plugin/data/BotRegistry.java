@@ -10,6 +10,7 @@ import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 import java.util.*;
@@ -70,8 +71,10 @@ public class BotRegistry {
         return null;
     }
 
-    public boolean isOccupied(@NotNull Location location) {
-        return !location.getBlock().getType().isAir() || getBotAt(location) != null || getBotMovingTo(location) != null;
+    public boolean isOccupied(@NotNull Location location, @Nullable CodeBot bot) {
+        CodeBot occupying;
+        return !location.getBlock().getType().isAir() || getBotAt(location) != null ||
+                ((occupying = getBotMovingTo(location)) != null && occupying != bot);
     }
 
     public void updateBotLocation(CraftCodeBot bot) {
