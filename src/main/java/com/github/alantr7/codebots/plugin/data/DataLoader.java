@@ -3,10 +3,10 @@ package com.github.alantr7.codebots.plugin.data;
 import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
+import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
-import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.language.compiler.Compiler;
 import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
@@ -14,15 +14,15 @@ import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.bot.CraftMemory;
-import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
-import com.github.alantr7.codebots.plugin.codeint.modules.MemoryModule;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.utils.BotLoader;
+import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.joml.AxisAngle4f;
 
 import java.io.File;
 import java.io.IOException;
@@ -124,7 +124,6 @@ public class DataLoader {
         Config.BOT_MAX_MEMORY_ENTRIES = config.getInt("Bots.MaxMemoryEntries", Config.BOT_MAX_MEMORY_ENTRIES);
 
 
-
         Config.SCRIPTS_MAX_FUNCTION_CALL_STACK_SIZE = config.getInt("Scripts.MaxFunctionCallStackSize", Config.SCRIPTS_MAX_FUNCTION_CALL_STACK_SIZE);
         Config.SCRIPTS_MAX_VARIABLES_COUNT = config.getInt("Scripts.MaxVariablesCount", Config.SCRIPTS_MAX_VARIABLES_COUNT);
         Config.SCRIPTS_MAX_FUNCTIONS_COUNT = config.getInt("Scripts.MaxFunctionsCount", Config.SCRIPTS_MAX_FUNCTIONS_COUNT);
@@ -144,6 +143,15 @@ public class DataLoader {
         var bot = new CraftCodeBot(world, botId, entityId, interactionId);
         bot.setCachedLocation(new Location(world, position[0], position[1], position[2]));
         bot.setCachedDirection(direction);
+
+        if (bot.isChunkLoaded()) {
+            var entity = bot.getEntity();
+            var radians = new AxisAngle4f(entity.getTransformation().getLeftRotation()).angle;
+            var entityDirection = MathHelper.getDirectionFromAngle(radians);
+
+            if (entityDirection != null)
+                bot.setCachedDirection(entityDirection);
+        }
 
         var programTag = data.getCompoundTag("Program");
         if (programTag != null) {

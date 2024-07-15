@@ -1,5 +1,7 @@
 package com.github.alantr7.codebots.plugin.utils;
 
+import com.github.alantr7.codebots.api.bot.Direction;
+import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
 import org.bukkit.Location;
 
 public class MathHelper {
@@ -8,6 +10,22 @@ public class MathHelper {
 
     public static boolean floatsEqual(float f1, float f2) {
         return Math.abs(f1 - f2) < EPSILON;
+    }
+
+    public static Direction getDirectionFromAngle(float rad) {
+        if (floatsEqual(rad, RotateFunction.ANGLE_NORTH))
+            return Direction.NORTH;
+
+        if (floatsEqual(rad, RotateFunction.ANGLE_EAST))
+            return Direction.EAST;
+
+        if (floatsEqual(rad, RotateFunction.ANGLE_SOUTH))
+            return Direction.SOUTH;
+
+        if (floatsEqual(rad, RotateFunction.ANGLE_WEST))
+            return Direction.WEST;
+
+        return null;
     }
 
     public static Location toBlockLocation(Location location) {
