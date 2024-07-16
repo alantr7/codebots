@@ -60,6 +60,7 @@ public class Events implements Listener {
         registry.getBotsInChunk(event.getChunk().getX(), event.getChunk().getZ()).forEach(bot -> {
             bot.setActive(false);
             bot.setProgram(null);
+            registry.getMovingBots().remove(bot.getId());
 
             plugin.getLogger().info("Bot " + bot.getId() + " has been deactivated due to chunk unload.");
         });

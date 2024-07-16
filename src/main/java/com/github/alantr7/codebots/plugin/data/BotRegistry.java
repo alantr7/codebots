@@ -1,6 +1,7 @@
 package com.github.alantr7.codebots.plugin.data;
 
 import com.github.alantr7.bukkitplugin.annotations.core.Inject;
+import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.InvokePeriodically;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.bot.CodeBot;
@@ -108,6 +109,17 @@ public class BotRegistry {
 
     public Collection<CraftCodeBot> getBotsInChunk(int x, int z) {
         return botsPerChunk.getOrDefault(new Vector2i(x, z), Collections.emptyMap()).values();
+    }
+
+    @Invoke(Invoke.Schedule.AFTER_PLUGIN_DISABLE)
+    public void unloadBots() {
+        // Stop all moving bots
+        movingBots.values().forEach(bot -> {
+            bot.setProgram(null);
+            bot.setMovement(null);
+            bot.fixTransformation();
+        });
+        movingBots.clear();
     }
 
     @InvokePeriodically(interval = 2)
