@@ -191,8 +191,10 @@ public class CraftCodeBot implements CodeBot {
         ));
 
         cachedDirection = direction;
-        this.movement = new BotMovement(getLocation(), BotMovement.Type.ROTATION, direction, initialTransformation);
-        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getMovingBots().put(id, this);
+        if (interpolate) {
+            this.movement = new BotMovement(getLocation(), BotMovement.Type.ROTATION, direction, initialTransformation);
+            CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getMovingBots().put(id, this);
+        }
     }
 
     @Override
@@ -207,6 +209,19 @@ public class CraftCodeBot implements CodeBot {
 
         var entity = getEntity();
         if (CodeBots.isBlockOccupied(getBlockLocation().add(direction.toVector()), this)) {
+            var destination = getBlockLocation().add(direction.toVector());
+            var registry = CodeBotsPlugin.inst().getSingleton(BotRegistry.class);
+            CodeBot occupying;
+            if (!destination.getBlock().getType().isAir()) {
+                Bukkit.broadcastMessage("Destination obstructed by a block: " + destination);
+            }
+            else if ((occupying = registry.getBotAt(destination)) != null) {
+                Bukkit.broadcastMessage("Destination obstructed by a bot: " + occupying.getBlockLocation());
+            }
+            else if ((occupying = registry.getBotMovingTo(destination)) != null) {
+                Bukkit.broadcastMessage("Destination obstructed by a moving bot: " + occupying.getBlockLocation());
+            }
+            Bukkit.broadcastMessage("Bot is at " + getBlockLocation());
             return false;
         }
 

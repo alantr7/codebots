@@ -5,16 +5,15 @@ import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.CodeBots;
+import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.bot.BotFactory;
-import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
 import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
@@ -52,7 +51,10 @@ public class Events implements Listener {
 
     @EventHandler
     void onChunkLoad(ChunkLoadEvent event) {
-        registry.getBotsInChunk(event.getChunk().getX(), event.getChunk().getZ()).forEach(CraftCodeBot::fixTransformation);
+        registry.getBotsInChunk(event.getChunk().getX(), event.getChunk().getZ()).forEach(bot -> {
+            bot.fixTransformation();
+            registry.updateBotLocation(bot);
+        });
     }
 
     @EventHandler
@@ -97,6 +99,8 @@ public class Events implements Listener {
         var location = block.getType().isSolid() ? block.getRelative(event.getBlockFace()).getLocation() : block.getLocation();
 
         var bot = BotFactory.createBot(id, event.getPlayer().getUniqueId(), location, item.getType());
+        bot.setDirection(Direction.fromVector(event.getPlayer().getFacing().getOppositeFace().getDirection()), false);
+
         item.setAmount(item.getAmount() - 1);
 
         var pdcProgram = pdc.get(key("Program"), PersistentDataType.TAG_CONTAINER);
