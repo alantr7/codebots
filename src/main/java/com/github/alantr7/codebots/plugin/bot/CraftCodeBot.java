@@ -209,6 +209,7 @@ public class CraftCodeBot implements CodeBot {
 
         var entity = getEntity();
         if (CodeBots.isBlockOccupied(getBlockLocation().add(direction.toVector()), this)) {
+            /*
             var destination = getBlockLocation().add(direction.toVector());
             var registry = CodeBotsPlugin.inst().getSingleton(BotRegistry.class);
             CodeBot occupying;
@@ -222,6 +223,7 @@ public class CraftCodeBot implements CodeBot {
                 Bukkit.broadcastMessage("Destination obstructed by a moving bot: " + occupying.getBlockLocation());
             }
             Bukkit.broadcastMessage("Bot is at " + getBlockLocation());
+            */
             return false;
         }
 
