@@ -22,12 +22,12 @@ import java.util.UUID;
 public class BotFactory {
 
     public static CodeBot createBot(@NotNull UUID ownerId, @NotNull Location location) {
-        return createBot(UUID.randomUUID(), ownerId, location);
+        return createBot(UUID.randomUUID(), ownerId, location, Material.FURNACE);
     }
 
-    public static CodeBot createBot(@NotNull UUID botId, @NotNull UUID ownerId, @NotNull Location location) {
+    public static CodeBot createBot(@NotNull UUID botId, @NotNull UUID ownerId, @NotNull Location location, @NotNull Material type) {
         var blockDisplay = (BlockDisplay) location.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
-        blockDisplay.setBlock(Material.FURNACE.createBlockData());
+        blockDisplay.setBlock(type.createBlockData());
         blockDisplay.setRotation(0, 0);
         var transformation = blockDisplay.getTransformation();
         blockDisplay.setTransformation(new Transformation(

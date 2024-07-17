@@ -75,9 +75,7 @@ public class Events implements Listener {
         if (item == null)
             return;
 
-        // TODO: Do not check for item type (so that any item can be a bot in the future)
-        //       This is just a temporary thing for optimization
-        if (item.getType() != Material.FURNACE)
+        if (!item.getType().isBlock())
             return;
 
         var pdc = item.getItemMeta().getPersistentDataContainer();
@@ -98,7 +96,7 @@ public class Events implements Listener {
         var block = event.getClickedBlock();
         var location = block.getType().isSolid() ? block.getRelative(event.getBlockFace()).getLocation() : block.getLocation();
 
-        var bot = BotFactory.createBot(id, event.getPlayer().getUniqueId(), location);
+        var bot = BotFactory.createBot(id, event.getPlayer().getUniqueId(), location, item.getType());
         item.setAmount(item.getAmount() - 1);
 
         var pdcProgram = pdc.get(key("Program"), PersistentDataType.TAG_CONTAINER);

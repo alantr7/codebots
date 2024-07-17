@@ -37,4 +37,8 @@ public class MathHelper {
         );
     }
 
+    public static <T> T any(T val, T def) {
+        return val != null ? val : def;
+    }
+
 }

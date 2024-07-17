@@ -6,16 +6,20 @@ import com.github.alantr7.bukkitplugin.annotations.generative.Command;
 import com.github.alantr7.bukkitplugin.commands.annotations.CommandHandler;
 import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
 import com.github.alantr7.codebots.api.CodeBots;
+import com.github.alantr7.codebots.api.bot.BotBuilder;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
+import com.github.alantr7.codebots.plugin.program.ItemFactory;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Collections;
 import java.util.UUID;
 
 @Singleton
@@ -37,11 +41,26 @@ public class Commands {
     public com.github.alantr7.bukkitplugin.commands.registry.Command create = CommandBuilder.using("codebots")
             .permission(Permissions.COMMAND_CREATE)
             .parameter("create")
+            .parameter("{model}", p -> p.defaultValue(c -> null).tabComplete(c -> Collections.singletonList("furnace")))
+            .requireMatches(1)
             .executes(ctx -> {
                 var player = ((Player) ctx.getExecutor());
-                CodeBots.createBot(player.getUniqueId(), player.getLocation());
+                Material model;
+
+                try {
+                    model = Material.valueOf(((String) ctx.optArgument("model").orElse("furnace")).toUpperCase());
+                } catch (Exception e) {
+                    ctx.respond("§cInvalid block-type specified.");
+                    return;
+                }
+
+                var item = ItemFactory.createBotItem(new BotBuilder()
+                        .name("§7Bot")
+                        .model(model)
+                );
 
                 ctx.respond("§eSuccessfully created a new bot.");
+                player.getInventory().addItem(item);
             });
 
     @CommandHandler

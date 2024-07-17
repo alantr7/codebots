@@ -1,7 +1,9 @@
 package com.github.alantr7.codebots.plugin.program;
 
+import com.github.alantr7.codebots.api.bot.BotBuilder;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -10,7 +12,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.function.Consumer;
+
+import static com.github.alantr7.codebots.plugin.utils.MathHelper.any;
 
 public class ItemFactory {
 
@@ -51,6 +56,15 @@ public class ItemFactory {
             pdc.set(key("Inventory"), PersistentDataType.TAG_CONTAINER, pdcInventory);
 
             meta.setDisplayName(name);
+        });
+    }
+
+    public static ItemStack createBotItem(BotBuilder bot) {
+        return createItem(any(bot.model(), Material.FURNACE), meta -> {
+            var pdc = meta.getPersistentDataContainer();
+            pdc.set(key("BotId"), PersistentDataType.STRING, UUID.randomUUID().toString());
+
+            meta.setDisplayName("§7Bot");
         });
     }
 
