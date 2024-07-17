@@ -29,6 +29,10 @@ public class BotGUI extends GUI {
     protected void init() {
         createInventory(bot.getInventory().getInternal());
         registerInteractionCallback(10, ClickType.LEFT, () -> {
+            if (!bot.hasProgram()) {
+                getPlayer().sendMessage("§cProgram is not loaded.");
+                return;
+            }
             bot.setActive(!bot.isActive());
         });
 
