@@ -54,6 +54,11 @@ public class Commands {
                     return;
                 }
 
+                if (!model.isBlock()) {
+                    ctx.respond("§cInvalid block-type specified.");
+                    return;
+                }
+
                 var item = ItemFactory.createBotItem(new BotBuilder()
                         .name("§7Bot")
                         .model(model)
