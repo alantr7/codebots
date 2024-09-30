@@ -8,17 +8,25 @@ import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
 import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.BotBuilder;
 import com.github.alantr7.codebots.api.bot.Direction;
+import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.player.PlayerData;
+import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
+import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -26,10 +34,13 @@ import java.util.UUID;
 public class Commands {
 
     @Inject
+    CodeBotsPlugin plugin;
+
+    @Inject
     BotRegistry botsRegistry;
 
     @Inject
-    CodeBotsPlugin plugin;
+    CodeEditorClient editorClient;
 
     @Inject
     DataLoader loader;
@@ -118,6 +129,48 @@ public class Commands {
                 playerData.setSelectedBot(bot);
 
                 ctx.respond("§eBot selected.");
+            });
+
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command editor = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_RELOAD)
+            .parameter("editor")
+            .executes(ctx -> {
+                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
+
+                if (!bot.hasProgram() || bot.getProgramSource().getDirectory() != Directory.LOCAL_PROGRAMS) {
+                    ctx.respond("§cBot doesn't have a program loaded or it's a shared program.");
+                    return;
+                }
+
+                try {
+                    var futureSession = editorClient.createSession(String.join("\n", Files.readAllLines(bot.getProgramSource().getSource().toPath())).getBytes(StandardCharsets.UTF_8));
+                    futureSession.whenComplete((session, e) -> {
+                        if (session == null) {
+                            ctx.respond("§cError.");
+                            return;
+                        }
+
+                        ctx.respond("Created a new editor session!");
+                        var editorButton = Component.text("here")
+                                .decorate(TextDecoration.UNDERLINED)
+                                .clickEvent(ClickEvent.openUrl(
+                                        Config.EDITOR_URL + "/edit/" + session.id() + "?token=" + session.accessToken()
+                                ));
+
+                        ctx.getExecutor().sendMessage(
+                                Component.text("Click ")
+                                        .append(editorButton)
+                                        .append(Component.text("§r to open the editor."))
+                        );
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             });
 
     @CommandHandler
