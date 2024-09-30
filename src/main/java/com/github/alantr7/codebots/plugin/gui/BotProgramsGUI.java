@@ -92,7 +92,7 @@ public class BotProgramsGUI extends GUI {
 
         setItem(19, categoryLocal);
         registerInteractionCallback(19, ClickType.LEFT, () -> {
-            if (Config.BOT_ALLOWED_SCRIPTS == 0) {
+            if (Config.BOT_ALLOWED_SCRIPTS == 2) {
                 return;
             }
 
