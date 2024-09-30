@@ -24,4 +24,6 @@ public class Config {
     public static int SCRIPTS_MAX_FUNCTIONS_COUNT = 10;
     // </editor-fold>
 
+    public static String EDITOR_URL = "https://codebots.myqualia.net";
+
 }

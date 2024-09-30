@@ -43,3 +43,5 @@ Scripts:
 
   # The maximum number of function definitions that can be defined in a script
   MaxFunctionsCount: 10
+
+EditorUrl: "https://codebots.myqualia.net"
