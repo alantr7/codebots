@@ -1,6 +1,5 @@
 package com.github.alantr7.codebots.plugin;
 
-
 import com.github.alantr7.bukkitplugin.BukkitPlugin;
 import com.github.alantr7.bukkitplugin.annotations.generative.JavaPlugin;
 import com.github.alantr7.bukkitplugin.annotations.relocate.Relocate;
