@@ -155,7 +155,9 @@ public class Commands {
                             return;
                         }
 
+                        session.setAttachedBot(bot);
                         ctx.respond("Created a new editor session!");
+
                         var editorButton = Component.text("here")
                                 .decorate(TextDecoration.UNDERLINED)
                                 .clickEvent(ClickEvent.openUrl(
@@ -171,6 +173,40 @@ public class Commands {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            });
+
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command editorApply = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_RELOAD)
+            .parameter("editor-apply")
+            .executes(ctx -> {
+                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
+
+                if (!bot.hasProgram() || bot.getProgramSource().getDirectory() != Directory.LOCAL_PROGRAMS) {
+                    ctx.respond("§cBot doesn't have a program loaded or it's a shared program.");
+                    return;
+                }
+
+                var session = editorClient.getActiveSessionByBot(bot);
+                if (session == null) {
+                    ctx.respond("§cBot does not have an active editing session.");
+                    return;
+                }
+
+                session.fetch().whenComplete((v, t) -> {
+                    try {
+                        Files.write(bot.getProgramSource().getSource().toPath(), session.getCode().getBytes(StandardCharsets.UTF_8));
+                        bot.reloadProgram();
+                        ctx.respond("§cChanges are applied!");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        ctx.respond("§cCould not apply the changes!");
+                    }
+                });
             });
 
     @CommandHandler

@@ -2,8 +2,12 @@ package com.github.alantr7.codebots.plugin.editor;
 
 import com.github.alantr7.bukkitplugin.annotations.core.InvokePeriodically;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
+import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.config.Config;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -21,6 +25,8 @@ import java.util.concurrent.CompletableFuture;
 public class CodeEditorClient {
 
     private final HttpClient client;
+
+    private final Map<UUID, EditorSession> activeSessions = new HashMap<>();
 
     public CodeEditorClient() {
         this.client = HttpClient.newHttpClient();
@@ -43,12 +49,15 @@ public class CodeEditorClient {
                     return null;
 
                 var responseSession = (JSONObject) new JSONParser().parse(response.body());
-                return new EditorSession(
+                var session = new EditorSession(
                         UUID.fromString((String) responseSession.get("id")),
                         (String) responseSession.get("access_token"),
                         (Long) responseSession.get("expires_at"),
                         (String) responseSession.get("content")
                 );
+
+                Bukkit.getScheduler().runTask(CodeBotsPlugin.inst(), () -> activeSessions.put(session.id(), session));
+                return session;
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
@@ -70,18 +79,23 @@ public class CodeEditorClient {
                     return;
 
                 var responseSession = (JSONObject) new JSONParser().parse(response.body());
-                var newSession = new EditorSession(
-                        UUID.fromString((String) responseSession.get("id")),
-                        (String) responseSession.get("access_token"),
-                        (Long) responseSession.get("expires_at"),
-                        (String) responseSession.get("content")
-                );
-
-                session.setCode(newSession.getCode());
+                session.setCode((String) responseSession.get("content"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
+    }
+
+    public @Nullable EditorSession getActiveSession(@NotNull UUID id) {
+        return activeSessions.get(id);
+    }
+
+    public @Nullable EditorSession getActiveSessionByBot(@NotNull CodeBot bot) {
+        for (var entry : activeSessions.entrySet()) {
+            if (entry.getValue().getAttachedBot() != null && entry.getValue().getAttachedBot().getId().equals(bot.getId()))
+                return entry.getValue();
+        }
+        return null;
     }
 
 }

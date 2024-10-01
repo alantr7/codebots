@@ -1,6 +1,9 @@
 package com.github.alantr7.codebots.plugin.editor;
 
+import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -19,6 +22,9 @@ public final class EditorSession {
 
     private int lastChangeId;
 
+    @Getter @Setter
+    private CodeBot attachedBot;
+
     public EditorSession(UUID id, String accessToken, long expiry, String code) {
         this.id = id;
         this.accessToken = accessToken;
@@ -27,9 +33,7 @@ public final class EditorSession {
     }
 
     public CompletableFuture<Void> fetch() {
-        return CompletableFuture.runAsync(() -> {
-            CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).fetchSession(this);
-        });
+        return CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).fetchSession(this);
     }
 
     public UUID id() {
