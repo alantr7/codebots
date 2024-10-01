@@ -7,6 +7,7 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Memory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
@@ -33,6 +34,7 @@ import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
 public class CraftCodeBot implements CodeBot {
@@ -295,6 +297,15 @@ public class CraftCodeBot implements CodeBot {
         inventory.updateProgramButton();
 
         CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
+    }
+
+    @Override
+    public void reloadProgram() throws ParserException, ParseException, IOException {
+        if (this.programSource == null)
+            return;
+
+        var programSource = CodeBots.loadProgram(this.programSource.getDirectory(), this.programSource.getSource());
+        loadProgram(programSource);
     }
 
     public boolean isActive() {

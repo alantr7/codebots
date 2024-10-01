@@ -1,5 +1,6 @@
 package com.github.alantr7.codebots.api.bot;
 
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import org.bukkit.Location;
@@ -8,6 +9,7 @@ import org.bukkit.entity.Interaction;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
 public interface CodeBot {
@@ -81,6 +83,8 @@ public interface CodeBot {
     ProgramSource getProgramSource();
 
     void loadProgram(ProgramSource program) throws ParseException;
+
+    void reloadProgram() throws ParserException, ParseException, IOException;
 
     boolean isActive();
 
