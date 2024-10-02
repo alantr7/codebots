@@ -128,71 +128,24 @@ public class Commands {
             });
 
     @CommandHandler
-    public com.github.alantr7.bukkitplugin.commands.registry.Command editor = CommandBuilder.using("codebots")
+    public com.github.alantr7.bukkitplugin.commands.registry.Command closeEditor = CommandBuilder.using("codebots")
             .permission(Permissions.COMMAND_EDITOR)
-            .parameter("editor")
+            .parameter("close-editor")
             .executes(ctx -> {
                 var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
                 if (bot == null) {
                     ctx.respond("§cPlease select a bot first.");
-                    return;
-                }
-
-                if (!bot.hasProgram() || bot.getProgramSource().getDirectory() != Directory.LOCAL_PROGRAMS) {
-                    ctx.respond("§cBot doesn't have a program loaded or it's a shared program.");
-                    return;
-                }
-
-                try {
-                    var futureSession = editorClient.createSession(String.join("\n", Files.readAllLines(bot.getProgramSource().getSource().toPath())).getBytes(StandardCharsets.UTF_8));
-                    futureSession.whenComplete((session, e) -> {
-                        if (session == null) {
-                            ctx.respond("§cError.");
-                            return;
-                        }
-
-                        session.setAttachedBot(bot);
-                        session.sendLink(ctx.getExecutor());
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-
-    @CommandHandler
-    public com.github.alantr7.bukkitplugin.commands.registry.Command editorApply = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_EDITOR)
-            .parameter("editor-apply")
-            .executes(ctx -> {
-                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
-                if (bot == null) {
-                    ctx.respond("§cPlease select a bot first.");
-                    return;
-                }
-
-                if (!bot.hasProgram() || bot.getProgramSource().getDirectory() != Directory.LOCAL_PROGRAMS) {
-                    ctx.respond("§cBot doesn't have a program loaded or it's a shared program.");
                     return;
                 }
 
                 var session = editorClient.getActiveSessionByBot(bot);
-                if (session == null) {
-                    ctx.respond("§cBot does not have an active editing session.");
+                if (session == null || !bot.hasProgram() || bot.getProgramSource().getDirectory() != Directory.LOCAL_PROGRAMS) {
+                    ctx.respond("§cBot doesn't have an active editing session.");
                     return;
                 }
 
-                session.fetch().whenComplete((v, t) -> {
-                    try {
-                        if (t == null) {
-                            Files.write(bot.getProgramSource().getSource().toPath(), session.getCode().getBytes(StandardCharsets.UTF_8));
-                            bot.reloadProgram();
-                            ctx.respond("§eChanges have been applied!");
-                        } else throw t;
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                        ctx.respond("§cCould not apply the changes!");
-                    }
-                });
+                editorClient.deleteSession(session);
+                ctx.respond("§eEditor session deleted!");
             });
 
     @CommandHandler

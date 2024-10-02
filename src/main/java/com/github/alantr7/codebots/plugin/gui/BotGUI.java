@@ -57,6 +57,13 @@ public class BotGUI extends GUI {
         });
 
         registerInteractionCallback(12, ClickType.LEFT, () -> {
+            var session = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
+            if (session != null) {
+                getPlayer().sendMessage("§cYou can not change program while editing.");
+                getPlayer().sendMessage("§cUse /codebots close-editor.");
+                return;
+            }
+
             var programs = new BotProgramsGUI(getPlayer(), bot);
             var player = getPlayer();
             programs.registerEventCallback(Action.CLOSE, () -> new BotGUI(player, bot).open());

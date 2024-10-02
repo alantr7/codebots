@@ -171,6 +171,23 @@ public class CodeEditorClient {
         return null;
     }
 
+    public void deleteSession(EditorSession session) {
+        activeSessions.remove(session.id());
+        activeSessionsByFile.remove(session.getAttachedBot().getProgramSource().getSource().getPath());
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                HttpRequest.newBuilder()
+                        .uri(new URI(Config.EDITOR_URL + "/api/sessions/" + session.id()))
+                        .header("Authorization", "Bearer " + serverToken)
+                        .DELETE()
+                        .build();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     @InvokePeriodically(interval = 20 * 60 * 60)
     void renewAccessToken() {
         fetchAccessToken();
