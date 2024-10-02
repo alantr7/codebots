@@ -2,13 +2,16 @@ package com.github.alantr7.codebots.plugin.editor;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.config.Config;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.command.CommandSender;
 
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 public final class EditorSession {
 
@@ -18,6 +21,8 @@ public final class EditorSession {
 
     private final long expiry;
 
+    @Getter
+    @Setter
     private String code;
 
     private int lastChangeId;
@@ -48,36 +53,18 @@ public final class EditorSession {
         return expiry;
     }
 
-    public String getCode() {
-        return code;
+    public void sendLink(CommandSender receiver) {
+        receiver.sendMessage("Created a new editor session!");
+        var editorButton = Component.text("here")
+                .decorate(TextDecoration.UNDERLINED)
+                .clickEvent(ClickEvent.openUrl(
+                        Config.EDITOR_URL + "/edit/" + id + "?token=" + accessToken
+                ));
+        receiver.sendMessage(
+                Component.text("Click ")
+                        .append(editorButton)
+                        .append(Component.text("§r to open the editor."))
+        );
     }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (EditorSession) obj;
-        return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.accessToken, that.accessToken) &&
-                this.expiry == that.expiry;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, accessToken, expiry);
-    }
-
-    @Override
-    public String toString() {
-        return "EditorSession[" +
-                "id=" + id + ", " +
-                "accessToken=" + accessToken + ", " +
-                "expiry=" + expiry + ']';
-    }
-
 
 }

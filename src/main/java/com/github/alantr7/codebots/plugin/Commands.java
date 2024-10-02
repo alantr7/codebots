@@ -10,15 +10,11 @@ import com.github.alantr7.codebots.api.bot.BotBuilder;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.player.PlayerData;
-import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
@@ -156,19 +152,7 @@ public class Commands {
                         }
 
                         session.setAttachedBot(bot);
-                        ctx.respond("Created a new editor session!");
-
-                        var editorButton = Component.text("here")
-                                .decorate(TextDecoration.UNDERLINED)
-                                .clickEvent(ClickEvent.openUrl(
-                                        Config.EDITOR_URL + "/edit/" + session.id() + "?token=" + session.accessToken()
-                                ));
-
-                        ctx.getExecutor().sendMessage(
-                                Component.text("Click ")
-                                        .append(editorButton)
-                                        .append(Component.text("§r to open the editor."))
-                        );
+                        session.sendLink(ctx.getExecutor());
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
