@@ -8,7 +8,6 @@ import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 
 @Getter
@@ -35,8 +34,7 @@ public class ProgramSource {
 
     public CompletableFuture<EditorSession> createEditor() {
         try {
-            var bytes = Files.readAllBytes(source.toPath());
-            return CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).createSession(bytes);
+            return CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).createSession(source);
         } catch (Exception e) {
             return CompletableFuture.failedFuture(e);
         }

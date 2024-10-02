@@ -5,13 +5,18 @@ import com.github.alantr7.bukkitplugin.gui.CloseInitiator;
 import com.github.alantr7.bukkitplugin.gui.GUI;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 public class BotGUI extends GUI {
 
@@ -33,7 +38,22 @@ public class BotGUI extends GUI {
                 getPlayer().sendMessage("§cProgram is not loaded.");
                 return;
             }
-            bot.setActive(!bot.isActive());
+
+            // TODO: Prevent chaos by spam-clicking
+            var session = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
+            if (session != null && !bot.isActive()) {
+                session.fetch().whenComplete((v, t) -> {
+                    try {
+                        Files.write(bot.getProgramSource().getSource().toPath(), session.getCode().getBytes(StandardCharsets.UTF_8));
+                        bot.reloadProgram();
+                        Bukkit.getScheduler().runTask(getPlugin(), () -> bot.setActive(!bot.isActive()));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            } else {
+                bot.setActive(!bot.isActive());
+            }
         });
 
         registerInteractionCallback(12, ClickType.LEFT, () -> {

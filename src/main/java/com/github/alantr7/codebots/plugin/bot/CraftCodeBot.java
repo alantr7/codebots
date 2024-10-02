@@ -17,6 +17,7 @@ import com.github.alantr7.codebots.plugin.codeint.modules.MemoryModule;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
+import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.plugin.gui.BotProgramsGUI;
 import com.github.alantr7.codebots.plugin.utils.FileHelper;
@@ -284,8 +285,9 @@ public class CraftCodeBot implements CodeBot {
         return this.programSource != null;
     }
 
-    @Override
-    public void loadProgram(ProgramSource program) throws ParseException {
+    // This method handles program loading logic. It is separated from the method below to
+    // allow reloading without checking whether the editor is active
+    private void _loadProgram(ProgramSource program) throws ParseException {
         this.program = Program.createFromCompiledCode(program.getSource().getParentFile(), program.getSource(), program.getCode());
         this.program.setExtra("bot", this);
 
@@ -300,12 +302,20 @@ public class CraftCodeBot implements CodeBot {
     }
 
     @Override
+    public void loadProgram(ProgramSource program) throws ParseException {
+        if (CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(this) != null)
+            return;
+
+        _loadProgram(program);
+    }
+
+    @Override
     public void reloadProgram() throws ParserException, ParseException, IOException {
         if (this.programSource == null)
             return;
 
         var programSource = CodeBots.loadProgram(this.programSource.getDirectory(), this.programSource.getSource());
-        loadProgram(programSource);
+        _loadProgram(programSource);
     }
 
     public boolean isActive() {

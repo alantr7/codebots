@@ -1,6 +1,5 @@
 package com.github.alantr7.codebots.plugin.editor;
 
-import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.InvokePeriodically;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
@@ -14,11 +13,15 @@ import org.jetbrains.annotations.Nullable;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.*;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Singleton
@@ -27,6 +30,8 @@ public class CodeEditorClient {
     private final HttpClient client;
 
     private final Map<UUID, EditorSession> activeSessions = new HashMap<>();
+
+    private final Map<String, EditorSession> activeSessionsByFile = new HashMap<>();
 
     private String serverToken;
 
@@ -71,13 +76,17 @@ public class CodeEditorClient {
         });
     }
 
-    public CompletableFuture<EditorSession> createSession(byte[] code) {
+    public CompletableFuture<EditorSession> createSession(File file) {
         if (serverToken == null)
             return CompletableFuture.completedFuture(null);
+
+        if (activeSessionsByFile.containsKey(file.getPath()))
+            return CompletableFuture.completedFuture(activeSessionsByFile.get(file.getPath()));
 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var json = new JSONObject();
+                var code = Files.readAllBytes(file.toPath());
                 json.put("file", new String(code));
 
                 var request = HttpRequest.newBuilder()
@@ -99,7 +108,10 @@ public class CodeEditorClient {
                         (String) responseSession.get("content")
                 );
 
-                Bukkit.getScheduler().runTask(CodeBotsPlugin.inst(), () -> activeSessions.put(session.id(), session));
+                Bukkit.getScheduler().runTask(CodeBotsPlugin.inst(), () -> {
+                    activeSessions.put(session.id(), session);
+                    activeSessionsByFile.put(file.getPath(), session);
+                });
                 return session;
             } catch (Exception e) {
                 e.printStackTrace();
