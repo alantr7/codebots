@@ -133,7 +133,7 @@ public class Commands {
 
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command editor = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_RELOAD)
+            .permission(Permissions.COMMAND_EDITOR)
             .parameter("editor")
             .executes(ctx -> {
                 var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
@@ -177,7 +177,7 @@ public class Commands {
 
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command editorApply = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_RELOAD)
+            .permission(Permissions.COMMAND_EDITOR)
             .parameter("editor-apply")
             .executes(ctx -> {
                 var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
