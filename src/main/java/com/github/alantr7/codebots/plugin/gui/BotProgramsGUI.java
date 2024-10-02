@@ -21,6 +21,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class BotProgramsGUI extends GUI {
 
     @Getter
@@ -108,10 +110,19 @@ public class BotProgramsGUI extends GUI {
                 for (var file : files) {
                     int column = index % 5;
                     int row = index / 5;
+                    int slot = 12 + row * 9 + column;
 
                     boolean isSelected = bot.getProgramSource() != null && bot.getProgramSource().getDirectory() == Directory.LOCAL_PROGRAMS && bot.getProgramSource().getSource().getName().equals(file.getName());
-                    setItem(12 + row * 9 + column, ItemFactory.createItem(isSelected ? Material.ENCHANTED_BOOK : Material.BOOK, "§f" + file.getName()));
-                    registerInteractionCallback(12 + row * 9 + column, ClickType.LEFT, () -> {
+                    setItem(slot, ItemFactory.createItem(
+                            isSelected ? Material.ENCHANTED_BOOK : Material.BOOK,
+                            meta -> {
+                                meta.setDisplayName("§f" + file.getName());
+                                meta.setLore(List.of(
+                                        isSelected ? "§eRight-click to edit the program" : "§eLeft-click to load the program"
+                                ));
+                            }
+                    ));
+                    registerInteractionCallback(slot, ClickType.LEFT, () -> {
                         try {
                             bot.loadProgram(CodeBots.loadProgram(Directory.LOCAL_PROGRAMS, file));
                             refill();
@@ -119,6 +130,17 @@ public class BotProgramsGUI extends GUI {
                             e.printStackTrace();
                         }
                     });
+                    if (isSelected) {
+                        registerInteractionCallback(slot, ClickType.RIGHT, () -> {
+                            var player = getPlayer();
+                            bot.getProgramSource().createEditor().whenComplete((session, t) -> {
+                                session.setAttachedBot(bot);
+                                session.sendLink(player);
+                            });
+
+                            close();
+                        });
+                    }
 
                     index++;
                 }
