@@ -183,10 +183,12 @@ public class Commands {
 
                 session.fetch().whenComplete((v, t) -> {
                     try {
-                        Files.write(bot.getProgramSource().getSource().toPath(), session.getCode().getBytes(StandardCharsets.UTF_8));
-                        bot.reloadProgram();
-                        ctx.respond("§cChanges are applied!");
-                    } catch (Exception e) {
+                        if (t == null) {
+                            Files.write(bot.getProgramSource().getSource().toPath(), session.getCode().getBytes(StandardCharsets.UTF_8));
+                            bot.reloadProgram();
+                            ctx.respond("§eChanges have been applied!");
+                        } else throw t;
+                    } catch (Throwable e) {
                         e.printStackTrace();
                         ctx.respond("§cCould not apply the changes!");
                     }

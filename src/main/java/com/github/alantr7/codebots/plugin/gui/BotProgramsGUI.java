@@ -1,6 +1,5 @@
 package com.github.alantr7.codebots.plugin.gui;
 
-import com.github.alantr7.bukkitplugin.BukkitPlugin;
 import com.github.alantr7.bukkitplugin.gui.ClickType;
 import com.github.alantr7.bukkitplugin.gui.CloseInitiator;
 import com.github.alantr7.bukkitplugin.gui.GUI;

@@ -25,7 +25,11 @@ public final class EditorSession {
     @Setter
     private String code;
 
-    private int lastChangeId;
+    @Getter @Setter
+    private String lastChangeId;
+
+    @Getter @Setter
+    private long lastChangeTimestamp;
 
     @Getter @Setter
     private CodeBot attachedBot;

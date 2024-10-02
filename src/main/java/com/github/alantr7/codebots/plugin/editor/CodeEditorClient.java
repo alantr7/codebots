@@ -114,20 +114,33 @@ public class CodeEditorClient {
 
         return CompletableFuture.runAsync(() -> {
             try {
+                StringBuilder url = new StringBuilder(Config.EDITOR_URL);
+                url.append("/api/sessions/");
+                url.append(session.id().toString());
+
+                if (session.getLastChangeId() != null) {
+                    url.append("?last_change_id=").append(session.getLastChangeId());
+                }
+
                 var request = HttpRequest.newBuilder()
-                        .uri(new URI(Config.EDITOR_URL + "/api/sessions/" + session.id().toString()))
+                        .uri(new URI(url.toString()))
                         .header("Authorization", "Bearer " + serverToken)
                         .header("Cookie", "access_token=" + session.accessToken())
                         .GET()
                         .build();
 
                 var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 304) {
+                    return;
+                }
                 if (response.statusCode() != 200) {
                     throw new Exception("Status code: " + response.statusCode());
                 }
 
                 var responseSession = (JSONObject) new JSONParser().parse(response.body());
                 session.setCode((String) responseSession.get("content"));
+                session.setLastChangeId((String) responseSession.get("last_change_id"));
+                session.setLastChangeTimestamp((Long) responseSession.getOrDefault("last_change_timestamp", 0L));
             } catch (Exception e) {
                 e.printStackTrace();
             }
