@@ -34,6 +34,12 @@ public final class EditorSession {
     @Getter @Setter
     private CodeBot attachedBot;
 
+    @Getter @Setter
+    private boolean isCurrentlyFetching = false;
+
+    @Getter @Setter
+    private long lastFetched = 0;
+
     public EditorSession(UUID id, String accessToken, long expiry, String code) {
         this.id = id;
         this.accessToken = accessToken;

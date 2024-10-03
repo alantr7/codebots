@@ -39,9 +39,13 @@ public class BotGUI extends GUI {
                 return;
             }
 
-            // TODO: Prevent chaos by spam-clicking
             var session = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
-            if (session != null && !bot.isActive()) {
+            if (session != null && session.isCurrentlyFetching()) {
+                getPlayer().sendMessage("§cProgram download is in progress. Please try again.");
+                return;
+            }
+
+            if (session != null && !bot.isActive() && (System.currentTimeMillis() - session.getLastFetched() > 3000)) {
                 session.fetch().whenComplete((v, t) -> {
                     try {
                         Files.write(bot.getProgramSource().getSource().toPath(), session.getCode().getBytes(StandardCharsets.UTF_8));

@@ -6,6 +6,7 @@ import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.config.Config;
+import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
@@ -124,6 +125,11 @@ public class CodeEditorClient {
         if (serverToken == null)
             return CompletableFuture.completedFuture(null);
 
+        if (session.isCurrentlyFetching())
+            return CompletableFuture.completedFuture(null);
+
+        session.setCurrentlyFetching(true);
+
         return CompletableFuture.runAsync(() -> {
             try {
                 StringBuilder url = new StringBuilder(Config.EDITOR_URL);
@@ -152,9 +158,12 @@ public class CodeEditorClient {
                 var responseSession = (JSONObject) new JSONParser().parse(response.body());
                 session.setCode((String) responseSession.get("content"));
                 session.setLastChangeId((String) responseSession.get("last_change_id"));
-                session.setLastChangeTimestamp((Long) responseSession.getOrDefault("last_change_timestamp", 0L));
+                session.setLastChangeTimestamp((Long) MathHelper.any(responseSession.get("last_change_timestamp"), 0L));
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                session.setCurrentlyFetching(false);
+                session.setLastFetched(System.currentTimeMillis());
             }
         });
     }
