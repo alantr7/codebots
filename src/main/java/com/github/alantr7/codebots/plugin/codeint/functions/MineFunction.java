@@ -66,6 +66,14 @@ public class MineFunction extends RuntimeNativeFunction {
             progress = (int) context.getExtra("progress");
         }
 
+        var blockLocation = bot.getLocation().add(direction.toVector());
+        if (blockLocation.getBlock().getType().isAir()) {
+            context.setFlag(BlockContext.FLAG_COMPLETED, true);
+            context.advance();
+
+            return;
+        }
+
         if (progress == 6) {
             context.setFlag(BlockContext.FLAG_COMPLETED, true);
             context.advance();
