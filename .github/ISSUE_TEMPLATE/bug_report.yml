@@ -12,11 +12,19 @@ body:
       value: "A bug happened!"
     validations:
       required: true
+  - type: input
+    id: server_version
+    attributes:
+      label: Server version
+      description: What is your server version?
+      placeholder: Paper 1.20.1
+    validations:
+      required: true
   - type: dropdown
     id: version
     attributes:
       label: Version
-      description: What version of our software are you running?
+      description: What version of the plugin are you using?
       options:
         - 0.3.1
         - 0.3.0
@@ -25,13 +33,5 @@ body:
         - 0.1.1
         - 0.1.0
       default: 0
-    validations:
-      required: true
-  - type: input
-    id: server_version
-    attributes:
-      label: Server version
-      description: What is your server version?
-      placeholder: Paper 1.20.1
     validations:
       required: true
