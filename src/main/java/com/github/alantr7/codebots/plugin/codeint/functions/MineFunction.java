@@ -1,13 +1,13 @@
 package com.github.alantr7.codebots.plugin.codeint.functions;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.language.runtime.BlockContext;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
 import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.config.Config;
-import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -32,7 +32,30 @@ public class MineFunction extends RuntimeNativeFunction {
             return;
         }
 
+        var call = environment.getCallStack().getLast();
+        if (call.getArguments().length != 1) {
+            environment.interrupt(new ExecutionException("Expected 1 argument, but received " + call.getArguments().length));
+            return;
+        }
+
+        if (!(call.getArguments()[0] instanceof String)) {
+            environment.interrupt(new ExecutionException("Expected a string argument"));
+            return;
+        }
+
         var bot = (CodeBot) environment.getProgram().getExtra("bot");
+        var arg = call.getArguments()[0];
+        var direction = (arg.equals("forward")
+                ? bot.getDirection()
+                : arg.equals("back")
+                ? bot.getDirection().getRight().getRight()
+                : Direction.toDirection((String) call.getArguments()[0]));
+
+        if (direction == null) {
+            environment.interrupt(new ExecutionException(arg + " is not a valid direction"));
+            return;
+        }
+
         int progress;
 
         if (context.getLineIndex() == 0) {
@@ -47,19 +70,19 @@ public class MineFunction extends RuntimeNativeFunction {
             context.setFlag(BlockContext.FLAG_COMPLETED, true);
             context.advance();
 
-            var blockData = bot.getLocation().add(0, -1, 0).getBlock().getBlockData();
+            var blockData = bot.getLocation().add(direction.toVector()).getBlock().getBlockData();
             bot.getLocation().getWorld().spawnParticle(
                     Particle.BLOCK_CRACK,
-                    bot.getLocation().getBlock().getLocation().add(.5, -.5, .5),
+                    blockLocation.add(.5, .5, .5),
                     12,  0, 0, 0,
                     blockData
             );
-            bot.getLocation().getWorld().playSound(bot.getLocation().add(0, -1, 0), blockData.getSoundGroup().getBreakSound(), 1, 1);
-            bot.getInventory().addItem(bot.getLocation().add(0, -1, 0).getBlock().getDrops().toArray(new ItemStack[0]));
-            bot.getLocation().add(0, -1, 0).getBlock().setType(Material.AIR);
+            bot.getLocation().getWorld().playSound(blockLocation, blockData.getSoundGroup().getBreakSound(), 1, 1);
+            bot.getInventory().addItem(blockLocation.getBlock().getDrops().toArray(new ItemStack[0]));
+            blockLocation.getBlock().setType(Material.AIR);
 
             for (var player : Bukkit.getOnlinePlayers()) {
-                player.sendBlockDamage(bot.getLocation().add(0, -1, 0), 0, bot.getEntity());
+                player.sendBlockDamage(blockLocation, 0, bot.getEntity());
             }
 
             CodeBotsPlugin.inst().getSingleton(DataLoader.class).saveInventory(bot);
@@ -70,7 +93,7 @@ public class MineFunction extends RuntimeNativeFunction {
             float damage = progress / 5f;
 
             for (var player : Bukkit.getOnlinePlayers()) {
-                player.sendBlockDamage(bot.getLocation().add(0, -1, 0), damage, bot.getEntity());
+                player.sendBlockDamage(blockLocation, damage, bot.getEntity());
             }
 
             context.setExtra("progress", progress + 1);
