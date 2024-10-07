@@ -5,6 +5,7 @@ import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.InvokePeriodically;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.plugin.bot.BotMovement;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
@@ -131,6 +132,15 @@ public class BotRegistry {
                     program.action(Program.Mode.AUTO_HALT);
                 } else {
                     bot.setActive(false);
+
+                    // If there was an exception, save it to the bot instance
+                    if (program.getEnvironment().isInterrupted()) {
+                        bot.setError(new ProgramError(
+                                ProgramError.ErrorLocation.EXECUTION,
+                                program.getEnvironment().getException().getMessage(),
+                                program.getEnvironment().getStackTrace()
+                        ));
+                    }
                 }
             }
         });

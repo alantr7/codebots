@@ -7,6 +7,7 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Memory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
+import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
@@ -31,6 +32,7 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Interaction;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
@@ -65,6 +67,9 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private ProgramSource programSource;
 
+    @Getter(onMethod_ = @Nullable)
+    private ProgramError error;
+
     private boolean isActive = false;
 
     @Getter
@@ -79,7 +84,8 @@ public class CraftCodeBot implements CodeBot {
     @Setter
     private Direction cachedDirection;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private BotMovement movement;
 
     @Getter
@@ -288,17 +294,22 @@ public class CraftCodeBot implements CodeBot {
     // This method handles program loading logic. It is separated from the method below to
     // allow reloading without checking whether the editor is active
     private void _loadProgram(ProgramSource program) throws ParseException {
-        this.program = Program.createFromCompiledCode(program.getSource().getParentFile(), program.getSource(), program.getCode());
-        this.program.setExtra("bot", this);
+        try {
+            this.program = Program.createFromCompiledCode(program.getSource().getParentFile(), program.getSource(), program.getCode());
+            this.program.setExtra("bot", this);
 
-        this.program.registerNativeModule("bot", new BotModule(this.program));
-        this.program.registerNativeModule("memory", new MemoryModule(this.program));
-        this.programSource = program;
+            this.program.registerNativeModule("bot", new BotModule(this.program));
+            this.program.registerNativeModule("memory", new MemoryModule(this.program));
+            this.programSource = program;
 
-        this.program.action(Program.Mode.FULL_EXEC);
-        inventory.updateProgramButton();
+            this.program.action(Program.Mode.FULL_EXEC);
+            inventory.updateProgramButton();
 
-        CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
+            CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
+        } catch (ParseException e) {
+            setError(new ProgramError(ProgramError.ErrorLocation.PARSER, e.getMessage()));
+            throw e;
+        }
     }
 
     @Override
@@ -327,8 +338,23 @@ public class CraftCodeBot implements CodeBot {
         inventory.updateProgramButton();
     }
 
+    @Override
+    public boolean hasError() {
+        return error != null;
+    }
+
+    public void setError(ProgramError error) {
+        this.error = error;
+        inventory.updateProgramButton();
+        inventory.updateControlButton();
+    }
+
     public void setActive(boolean active) {
         isActive = active;
+        if (active && error != null && error.getLocation() == ProgramError.ErrorLocation.EXECUTION) {
+            setError(null);
+        }
+
         fixTransformation();
 
         if (active) {

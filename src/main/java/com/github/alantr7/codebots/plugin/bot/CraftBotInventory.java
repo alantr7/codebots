@@ -2,7 +2,7 @@ package com.github.alantr7.codebots.plugin.bot;
 
 import com.github.alantr7.codebots.api.bot.BotInventory;
 import com.github.alantr7.codebots.api.bot.CodeBot;
-import com.github.alantr7.codebots.language.runtime.modules.FileModule;
+import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -11,7 +11,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class CraftBotInventory implements BotInventory {
@@ -142,14 +144,31 @@ public class CraftBotInventory implements BotInventory {
     }
 
     public void updateControlButton() {
-        inventory.setItem(10, bot.isActive() ? CONTROL_STOP : CONTROL_START);
+        var item = bot.isActive() ? CONTROL_STOP : CONTROL_START.clone();
+        if (!bot.isActive() && bot.hasError() && bot.getError().getLocation() == ProgramError.ErrorLocation.EXECUTION) {
+            var meta = item.getItemMeta();
+            var lore = new LinkedList<String>();
+            var error = bot.getError();
+
+            lore.add("§cProgram has crashed!");
+            lore.add("§cError: §4" + error.getMessage());
+            lore.add("§cStack trace:");
+            lore.addAll(Arrays.stream(error.getStackTrace()).map(s -> " §4" + s).toList());
+
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+
+        inventory.setItem(10, item);
     }
 
     public void updateProgramButton() {
         var meta = PROGRAM_INFO.getItemMeta();
+        var lore = new LinkedList<String>();
+
         if (bot.getProgramSource() != null) {
             meta.setDisplayName("§eProgram is ready");
-            meta.setLore(List.of(
+            lore.addAll(List.of(
                     "§7Click to change program",
                     "",
                     "§fFile: §e" + bot.getProgramSource().getName(),
@@ -159,10 +178,19 @@ public class CraftBotInventory implements BotInventory {
             meta.setDisplayName("§fProgram: §e" + bot.getProgramSource().getName());
         } else {
             meta.setDisplayName("§cProgram not loaded");
-            meta.setLore(List.of(
+            lore.addAll(List.of(
                     "§7Click to browse programs"
             ));
         }
+        if (bot.hasError() && bot.getError().getLocation() == ProgramError.ErrorLocation.PARSER) {
+            lore.addAll(List.of(
+                    "",
+                    "§cCould not parse program!"
+            ));
+            lore.addAll(List.of(bot.getError().getStackTrace()));
+        }
+
+        meta.setLore(lore);
         PROGRAM_INFO.setItemMeta(meta);
 
         inventory.setItem(12, PROGRAM_INFO);

@@ -6,7 +6,10 @@ import com.github.alantr7.bukkitplugin.gui.GUI;
 import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Directory;
+import com.github.alantr7.codebots.api.error.ProgramError;
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
@@ -125,7 +128,13 @@ public class BotProgramsGUI extends GUI {
                         try {
                             bot.loadProgram(CodeBots.loadProgram(Directory.LOCAL_PROGRAMS, file));
                             refill();
+                        } catch (ParserException e) {
+                            ((CraftCodeBot) bot).setError(new ProgramError(ProgramError.ErrorLocation.PARSER, e.getMessage()));
+                            getPlayer().sendMessage("§cThere was an error while loading the program.");
+
+                            e.printStackTrace();
                         } catch (Exception e) {
+                            getPlayer().sendMessage("§cThere was an error while loading the program.");
                             e.printStackTrace();
                         }
                     });
