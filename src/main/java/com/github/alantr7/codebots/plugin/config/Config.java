@@ -14,6 +14,8 @@ public class Config {
     public static String BOT_CHAT_FORMAT = "&7[Bot] {message}";
 
     public static int BOT_MAX_MEMORY_ENTRIES = 32;
+
+    public static int BOT_MAX_LOCAL_PROGRAMS = 4;
     // </editor-fold>
 
     // <editor-fold desc="Scripts Configuration">

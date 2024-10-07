@@ -13,6 +13,7 @@ import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
+import com.github.alantr7.codebots.plugin.utils.FileHelper;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -23,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.List;
 
 public class BotProgramsGUI extends GUI {
@@ -33,6 +35,8 @@ public class BotProgramsGUI extends GUI {
     private static final int CATEGORY_SHARED = 0;
 
     private static final int CATEGORY_LOCAL = 1;
+
+    private static final ItemStack BTN_CREATE_PROGRAM = ItemFactory.createItem(Material.WRITABLE_BOOK, "§eCreate Program");
 
     private int selectedCategory;
 
@@ -55,6 +59,7 @@ public class BotProgramsGUI extends GUI {
 
     @Override
     protected void fill(Inventory inventory) {
+        clearInteractionCallbacks();
 
         // Create filler items
         var filler = ItemFactory.createItem(Material.GRAY_STAINED_GLASS_PANE, "§7");
@@ -110,9 +115,7 @@ public class BotProgramsGUI extends GUI {
             int index = 0;
             if (files != null) {
                 for (var file : files) {
-                    int column = index % 5;
-                    int row = index / 5;
-                    int slot = 12 + row * 9 + column;
+                    int slot = getProgramSlot(index);
 
                     boolean isSelected = bot.getProgramSource() != null && bot.getProgramSource().getDirectory() == Directory.LOCAL_PROGRAMS && bot.getProgramSource().getSource().getName().equals(file.getName());
                     setItem(slot, ItemFactory.createItem(
@@ -120,7 +123,8 @@ public class BotProgramsGUI extends GUI {
                             meta -> {
                                 meta.setDisplayName("§f" + file.getName());
                                 meta.setLore(List.of(
-                                        isSelected ? "§eRight-click to edit the program" : "§eLeft-click to load the program"
+                                        (isSelected ? "§eRight-click to edit the program" : "§eLeft-click to load the program"),
+                                        "§eShift-right-click to delete §c(Irreversible!)"
                                 ));
                             }
                     ));
@@ -138,7 +142,24 @@ public class BotProgramsGUI extends GUI {
                             e.printStackTrace();
                         }
                     });
+                    registerInteractionCallback(slot, ClickType.RIGHT, () -> {
+                        if (!hasClickEvent() || !getClickEvent().isShiftClick())
+                            return;
+
+                        if (bot.hasProgram() && bot.getProgramSource().getSource().getPath().equals(file.getPath())) {
+                            getPlayer().sendMessage("§cYou can not delete a program that's being used.");
+                            return;
+                        }
+
+                        file.delete();
+                        refill();
+
+                        getPlayer().sendMessage("§eSuccessfully deleted a program.");
+                    });
                     if (isSelected) {
+                        if (hasClickEvent() && getClickEvent().isShiftClick())
+                            return;
+
                         registerInteractionCallback(slot, ClickType.RIGHT, () -> {
                             var player = getPlayer();
                             bot.getProgramSource().createEditor().whenComplete((session, t) -> {
@@ -151,6 +172,23 @@ public class BotProgramsGUI extends GUI {
                     }
 
                     index++;
+                }
+
+                // Add a button for creating a new program
+                if (index < Config.BOT_MAX_LOCAL_PROGRAMS) {
+                    int slot = getProgramSlot(index);
+
+                    setItem(slot, BTN_CREATE_PROGRAM);
+
+                    int fileNameId = 0;
+                    while (new File(bot.getProgramsDirectory(), "program_" + fileNameId + ".js").exists())
+                        fileNameId++;
+
+                    var fileName = "program_" + fileNameId + ".js";
+                    registerInteractionCallback(slot, ClickType.LEFT, () -> {
+                        FileHelper.saveResource("default_program.js", new File(bot.getProgramsDirectory(), fileName));
+                        refill();
+                    });
                 }
             }
         } else if (selectedCategory == CATEGORY_SHARED) {
@@ -176,6 +214,12 @@ public class BotProgramsGUI extends GUI {
             }
         }
 
+    }
+
+    private static int getProgramSlot(int index) {
+        int column = index % 5;
+        int row = index / 5;
+        return 12 + row * 9 + column;
     }
 
     @Override

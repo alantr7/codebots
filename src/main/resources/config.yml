@@ -28,6 +28,9 @@ Bots:
   # This is not bot's working memory, but memory used to store data that persists through bot restarts
   MaxMemoryEntries: 32
 
+  # The maximum number of local programs that users can make per bot
+  MaxLocalPrograms: 4
+
 # Section for configuring rules for the programming language used by bots
 Scripts:
 

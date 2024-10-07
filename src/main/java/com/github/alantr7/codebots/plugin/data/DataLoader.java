@@ -122,6 +122,7 @@ public class DataLoader {
         Config.BOT_ALLOWED_SCRIPTS = scriptsOption.equals("LOCAL") ? 1 : scriptsOption.equals("SHARED") ? 2 : 0;
         Config.BOT_CHAT_FORMAT = config.getString("Bots.ChatFormat", Config.BOT_CHAT_FORMAT);
         Config.BOT_MAX_MEMORY_ENTRIES = config.getInt("Bots.MaxMemoryEntries", Config.BOT_MAX_MEMORY_ENTRIES);
+        Config.BOT_MAX_LOCAL_PROGRAMS = config.getInt("Bots.MaxLocalPrograms", Config.BOT_MAX_LOCAL_PROGRAMS);
 
 
         Config.SCRIPTS_MAX_FUNCTION_CALL_STACK_SIZE = config.getInt("Scripts.MaxFunctionCallStackSize", Config.SCRIPTS_MAX_FUNCTION_CALL_STACK_SIZE);
