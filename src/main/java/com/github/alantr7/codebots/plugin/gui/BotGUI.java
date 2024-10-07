@@ -5,6 +5,8 @@ import com.github.alantr7.bukkitplugin.gui.CloseInitiator;
 import com.github.alantr7.bukkitplugin.gui.GUI;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.bot.CraftBotInventory;
+import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import lombok.Getter;
@@ -64,7 +66,6 @@ public class BotGUI extends GUI {
             var session = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
             if (session != null) {
                 getPlayer().sendMessage("§cYou can not change program while editing.");
-                getPlayer().sendMessage("§cUse /codebots close-editor.");
                 return;
             }
 
@@ -72,6 +73,20 @@ public class BotGUI extends GUI {
             var player = getPlayer();
             programs.registerEventCallback(Action.CLOSE, () -> new BotGUI(player, bot).open());
             programs.open();
+        });
+
+        registerInteractionCallback(12, ClickType.RIGHT, () -> {
+            if (!hasClickEvent() || !getClickEvent().isShiftClick())
+                return;
+
+            var session = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
+            if (session == null)
+                return;
+
+            CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).deleteSession(session);
+            ((CraftCodeBot) bot).getInventory().updateProgramButton();
+
+            getPlayer().sendMessage("§eCode editor session closed.");
         });
 
         registerInteractionCallback(14, ClickType.LEFT, () -> {
@@ -92,10 +107,13 @@ public class BotGUI extends GUI {
 
             bot.remove();
         });
+
+        ((CraftCodeBot) bot).getInventory().updateProgramButton();
     }
 
     @Override
     protected void fill(Inventory inventory) {
+        ((CraftBotInventory) bot.getInventory()).updateProgramButton();
     }
 
     @Override

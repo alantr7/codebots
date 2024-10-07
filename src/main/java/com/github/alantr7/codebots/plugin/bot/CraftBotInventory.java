@@ -3,6 +3,8 @@ package com.github.alantr7.codebots.plugin.bot;
 import com.github.alantr7.codebots.api.bot.BotInventory;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.error.ProgramError;
+import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -172,8 +174,7 @@ public class CraftBotInventory implements BotInventory {
                     "§7Click to change program",
                     "",
                     "§fFile: §e" + bot.getProgramSource().getName(),
-                    "§fLocation: §e" + bot.getProgramSource().getDirectory().name(),
-                    ""
+                    "§fLocation: §e" + bot.getProgramSource().getDirectory().name()
             ));
             meta.setDisplayName("§fProgram: §e" + bot.getProgramSource().getName());
         } else {
@@ -182,6 +183,14 @@ public class CraftBotInventory implements BotInventory {
                     "§7Click to browse programs"
             ));
         }
+
+        var editorSession = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
+        if (editorSession != null) {
+            lore.add("");
+            lore.add("§eEditor session is active!");
+            lore.add("§eShift-right-click to close the editor");
+        }
+
         if (bot.hasError() && bot.getError().getLocation() == ProgramError.ErrorLocation.PARSER) {
             lore.addAll(List.of(
                     "",
