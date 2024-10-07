@@ -331,17 +331,19 @@ public class CraftCodeBot implements CodeBot {
         isActive = active;
         fixTransformation();
 
-        if (program == null && this.programSource != null) {
-            try {
-                loadProgram(this.programSource);
+        if (active) {
+            if (program == null && this.programSource != null) {
+                try {
+                    loadProgram(this.programSource);
+                    program.prepareMainFunction();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    isActive = false;
+                }
+            } else if (this.programSource != null) {
+                program.reset();
                 program.prepareMainFunction();
-            } catch (Exception e) {
-                e.printStackTrace();
-                isActive = false;
             }
-        } else if (this.programSource != null) {
-            program.reset();
-            program.prepareMainFunction();
         }
 
         inventory.updateControlButton();
