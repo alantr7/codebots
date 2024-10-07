@@ -1,10 +1,13 @@
 package com.github.alantr7.codebots.plugin.bot;
 
+import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
+import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
+import com.github.alantr7.codebots.plugin.utils.FileHelper;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,6 +20,7 @@ import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
+import java.io.File;
 import java.util.UUID;
 
 public class BotFactory {
@@ -49,9 +53,18 @@ public class BotFactory {
 
         bot.setLocation(location);
         bot.fixTransformation();
-
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).registerBot(bot);
         CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(bot);
+
+        // Create a default program file, and load it into the bot
+        var defaultProgramFile = new File(bot.getProgramsDirectory(), "default.js");
+        FileHelper.saveResource("default_program.js", defaultProgramFile);
+
+        try {
+            bot.loadProgram(CodeBots.loadProgram(Directory.LOCAL_PROGRAMS, defaultProgramFile));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return bot;
     }
