@@ -156,9 +156,7 @@ public class Program {
     }
 
     public void reset() {
-        environment.getTokenStack().clear();
-        environment.getBlockStack().clear();
-        environment.getCallStack().clear();
+        environment.reset();
     }
 
     public static Program createFromSourceFile(File file) throws Exception {

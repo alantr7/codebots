@@ -115,4 +115,15 @@ public class RuntimeEnvironment {
         return trace;
     }
 
+    public void reset() {
+        stackTrace = null;
+        exception = null;
+        isInterrupted = false;
+        isHalted = false;
+
+        getTokenStack().clear();
+        getBlockStack().clear();
+        getCallStack().clear();
+    }
+
 }
