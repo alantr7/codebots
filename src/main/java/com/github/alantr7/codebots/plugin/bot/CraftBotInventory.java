@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CraftBotInventory implements BotInventory {
 
@@ -196,7 +197,7 @@ public class CraftBotInventory implements BotInventory {
                     "",
                     "§cCould not parse program!"
             ));
-            lore.addAll(List.of(bot.getError().getStackTrace()));
+            lore.addAll(Arrays.stream(bot.getError().getStackTrace()).map(l -> "§4" + l).collect(Collectors.toList()));
         }
 
         meta.setLore(lore);

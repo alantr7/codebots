@@ -4,6 +4,8 @@ import com.github.alantr7.bukkitplugin.gui.ClickType;
 import com.github.alantr7.bukkitplugin.gui.CloseInitiator;
 import com.github.alantr7.bukkitplugin.gui.GUI;
 import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
+import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftBotInventory;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
@@ -52,8 +54,14 @@ public class BotGUI extends GUI {
                     try {
                         Files.write(bot.getProgramSource().getSource().toPath(), session.getCode().getBytes(StandardCharsets.UTF_8));
                         bot.reloadProgram();
+
                         Bukkit.getScheduler().runTask(getPlugin(), () -> bot.setActive(!bot.isActive()));
                     } catch (Exception e) {
+                        getPlayer().sendMessage("§cThere was an error while loading the program.");
+                        if (e instanceof ParserException || e instanceof ParseException) {
+                            getPlayer().sendMessage("§4" + e.getMessage());
+                        }
+
                         e.printStackTrace();
                     }
                 });

@@ -325,8 +325,13 @@ public class CraftCodeBot implements CodeBot {
         if (this.programSource == null)
             return;
 
-        var programSource = CodeBots.loadProgram(this.programSource.getDirectory(), this.programSource.getSource());
-        _loadProgram(programSource);
+        try {
+            var programSource = CodeBots.loadProgram(this.programSource.getDirectory(), this.programSource.getSource());
+            _loadProgram(programSource);
+        } catch (ParserException | ParseException e) {
+            setError(new ProgramError(ProgramError.ErrorLocation.PARSER, e.getMessage(), new String[] { e.getMessage() }));
+            throw e;
+        }
     }
 
     public boolean isActive() {
@@ -369,6 +374,8 @@ public class CraftCodeBot implements CodeBot {
             } else if (this.programSource != null) {
                 program.reset();
                 program.prepareMainFunction();
+
+                setError(null);
             }
         }
 
