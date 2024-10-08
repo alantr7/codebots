@@ -115,7 +115,7 @@ public class BotProgramsGUI extends GUI {
             int index = 0;
             if (files != null) {
                 for (var file : files) {
-                    int slot = getProgramSlot(index);
+                    int slot = getProgramSlot(index++);
 
                     boolean isSelected = bot.getProgramSource() != null && bot.getProgramSource().getDirectory() == Directory.LOCAL_PROGRAMS && bot.getProgramSource().getSource().getName().equals(file.getName());
                     setItem(slot, ItemFactory.createItem(
@@ -158,10 +158,10 @@ public class BotProgramsGUI extends GUI {
                         getPlayer().sendMessage("§eSuccessfully deleted a program.");
                     });
                     if (isSelected) {
-                        if (hasClickEvent() && getClickEvent().isShiftClick())
-                            return;
-
                         registerInteractionCallback(slot, ClickType.RIGHT, () -> {
+                            if (hasClickEvent() && getClickEvent().isShiftClick())
+                                return;
+
                             var player = getPlayer();
                             bot.getProgramSource().createEditor().whenComplete((session, t) -> {
                                 session.setAttachedBot(bot);
@@ -171,8 +171,6 @@ public class BotProgramsGUI extends GUI {
                             close();
                         });
                     }
-
-                    index++;
                 }
 
                 // Add a button for creating a new program
