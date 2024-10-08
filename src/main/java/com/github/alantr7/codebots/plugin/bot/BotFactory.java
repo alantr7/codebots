@@ -57,7 +57,7 @@ public class BotFactory {
         CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(bot);
 
         // Create a default program file, and load it into the bot
-        var defaultProgramFile = new File(bot.getProgramsDirectory(), "default.js");
+        var defaultProgramFile = new File(bot.getProgramsDirectory(), "program_0.js");
         FileHelper.saveResource("default_program.js", defaultProgramFile);
 
         try {
