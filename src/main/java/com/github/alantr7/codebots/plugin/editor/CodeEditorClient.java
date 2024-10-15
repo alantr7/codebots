@@ -1,5 +1,6 @@
 package com.github.alantr7.codebots.plugin.editor;
 
+import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.InvokePeriodically;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
@@ -36,6 +37,9 @@ public class CodeEditorClient {
 
     private String serverToken;
 
+    @Inject
+    private CodeBotsPlugin plugin;
+
     public CodeEditorClient() {
         this.client = HttpClient.newHttpClient();
     }
@@ -66,6 +70,7 @@ public class CodeEditorClient {
 
                 var response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() != 200) {
+                    plugin.getLogger().warning("Received status code " + response.statusCode() + " from the editor while fetching server token.");
                     return null;
                 }
 
