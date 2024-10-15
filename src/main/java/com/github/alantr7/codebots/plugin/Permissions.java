@@ -14,6 +14,9 @@ public class Permissions {
     public static final String COMMAND_SELECT = "codebots.command.select";
 
     @Permission(allowed = Permission.Allowed.OP)
+    public static final String COMMAND_SET_SKIN = "codebots.command.setskin";
+
+    @Permission(allowed = Permission.Allowed.OP)
     public static final String COMMAND_EDITOR = "codebots.command.editor";
 
     @Permission(allowed = Permission.Allowed.OP)

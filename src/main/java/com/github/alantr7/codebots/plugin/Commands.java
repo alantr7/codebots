@@ -4,6 +4,7 @@ import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.bukkitplugin.annotations.generative.Command;
 import com.github.alantr7.bukkitplugin.commands.annotations.CommandHandler;
+import com.github.alantr7.bukkitplugin.commands.executor.ExecutorType;
 import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
 import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.BotBuilder;
@@ -18,12 +19,10 @@ import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Collections;
 import java.util.UUID;
 
 @Singleton
@@ -48,28 +47,10 @@ public class Commands {
     public com.github.alantr7.bukkitplugin.commands.registry.Command create = CommandBuilder.using("codebots")
             .permission(Permissions.COMMAND_CREATE)
             .parameter("create")
-            .parameter("{model}", p -> p.defaultValue(c -> null).tabComplete(c -> Collections.singletonList("furnace")))
             .requireMatches(1)
             .executes(ctx -> {
                 var player = ((Player) ctx.getExecutor());
-                Material model;
-
-                try {
-                    model = Material.valueOf(((String) ctx.optArgument("model").orElse("furnace")).toUpperCase());
-                } catch (Exception e) {
-                    ctx.respond("§cInvalid block-type specified.");
-                    return;
-                }
-
-                if (!model.isBlock()) {
-                    ctx.respond("§cInvalid block-type specified.");
-                    return;
-                }
-
-                var item = ItemFactory.createBotItem(new BotBuilder()
-                        .name("§7Bot")
-                        .model(model)
-                );
+                var item = ItemFactory.createBotItem(new BotBuilder().name("§7Bot"));
 
                 ctx.respond("§eSuccessfully created a new bot.");
                 player.getInventory().addItem(item);
@@ -88,6 +69,35 @@ public class Commands {
 
                 bot.remove();
                 ctx.respond("§eBot and its files successfully deleted.");
+            });
+
+
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command setSkin = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_SET_SKIN)
+            .forExecutors(ExecutorType.PLAYER)
+            .parameter("setskin")
+            .executes(ctx -> {
+                var bot = CodeBots.getSelectedBot((Player) ctx.getExecutor());
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
+
+                var hand = ((Player) ctx.getExecutor()).getInventory().getItemInMainHand();
+                if (hand.getType() != Material.PLAYER_HEAD) {
+                    ctx.respond("§cYou must hold a head.");
+                    return;
+                }
+
+                var entity = bot.getEntity();
+                if (!(entity instanceof ItemDisplay id)) {
+                    ctx.respond("§cEntity is not valid. Please report this issue.");
+                    return;
+                }
+
+                id.setItemStack(hand.clone());
+                ctx.respond("§eBot skin updated!");
             });
 
     @CommandHandler

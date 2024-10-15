@@ -70,7 +70,7 @@ public class ItemFactory {
     }
 
     public static ItemStack createBotItem(BotBuilder bot) {
-        return createItem(any(bot.model(), Material.FURNACE), meta -> {
+        return createItem(Material.DISPENSER, meta -> {
             var pdc = meta.getPersistentDataContainer();
             pdc.set(key("BotId"), PersistentDataType.STRING, UUID.randomUUID().toString());
 
