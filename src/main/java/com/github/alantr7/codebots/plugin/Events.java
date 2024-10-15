@@ -98,7 +98,7 @@ public class Events implements Listener {
         var block = event.getClickedBlock();
         var location = block.getType().isSolid() ? block.getRelative(event.getBlockFace()).getLocation() : block.getLocation();
 
-        var bot = BotFactory.createBot(id, event.getPlayer().getUniqueId(), location, item.getType());
+        var bot = BotFactory.createBot(id, event.getPlayer().getUniqueId(), location);
         bot.setDirection(Direction.fromVector(event.getPlayer().getFacing().getOppositeFace().getDirection()), false);
 
         item.setAmount(item.getAmount() - 1);

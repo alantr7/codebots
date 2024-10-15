@@ -9,12 +9,13 @@ import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.utils.FileHelper;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
+import com.github.alantr7.codebots.plugin.utils.SkullFactory;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Interaction;
+import org.bukkit.entity.ItemDisplay;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
@@ -25,23 +26,14 @@ import java.util.UUID;
 
 public class BotFactory {
 
+    private static final ItemStack ROBOT_HEAD = SkullFactory.createSkull("http://textures.minecraft.net/texture/60d4fed78f246fbed9a2d9fe3887b9b3e08e42ffcfb842819cd171b3f5d319");
+
     public static CodeBot createBot(@NotNull UUID ownerId, @NotNull Location location) {
-        return createBot(UUID.randomUUID(), ownerId, location, Material.FURNACE);
+        return createBot(UUID.randomUUID(), ownerId, location);
     }
 
-    public static CodeBot createBot(@NotNull UUID botId, @NotNull UUID ownerId, @NotNull Location location, @NotNull Material type) {
-        var blockDisplay = (BlockDisplay) location.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
-        blockDisplay.setBlock(type.createBlockData());
-        blockDisplay.setRotation(0, 0);
-        var transformation = blockDisplay.getTransformation();
-        blockDisplay.setTransformation(new Transformation(
-                transformation.getTranslation().add(0.2f, 0.2f, 0.2f),
-                transformation.getLeftRotation(),
-                new Vector3f(0.6f, 0.6f, 0.6f),
-                transformation.getRightRotation()
-        ));
-        blockDisplay.setInterpolationDuration(20);
-
+    public static CodeBot createBot(@NotNull UUID botId, @NotNull UUID ownerId, @NotNull Location location) {
+        var blockDisplay = createBotEntity(location);
         var interaction = (Interaction) location.getWorld().spawnEntity(location.getBlock().getLocation().add(.5, 0, .5), EntityType.INTERACTION);
         interaction.setInteractionWidth(0.8f);
 
@@ -67,6 +59,24 @@ public class BotFactory {
         }
 
         return bot;
+    }
+
+    public static ItemDisplay createBotEntity(@NotNull Location location) {
+        var entity = (ItemDisplay) location.getWorld().spawnEntity(location, EntityType.ITEM_DISPLAY);
+        var skin = ROBOT_HEAD.clone();
+
+        entity.setItemStack(skin);
+        entity.setRotation(0, 0);
+        var transformation = entity.getTransformation();
+        entity.setTransformation(new Transformation(
+                transformation.getTranslation().add(0.3f, 0.75f, 0.3f),
+                transformation.getLeftRotation(),
+                new Vector3f(1, 1f, 1f),
+                transformation.getRightRotation()
+        ));
+        entity.setInterpolationDuration(20);
+
+        return entity;
     }
 
 }

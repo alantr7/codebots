@@ -5,7 +5,7 @@ import com.github.alantr7.codebots.language.compiler.parser.error.ParserExceptio
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import org.bukkit.Location;
-import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Interaction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +20,7 @@ public interface CodeBot {
 
     UUID getEntityId();
 
-    BlockDisplay getEntity();
+    Display getEntity();
 
     boolean isEntityLoaded();
 

@@ -150,6 +150,11 @@ public class DataLoader {
 
         if (bot.isChunkLoaded()) {
             var entity = bot.getEntity();
+
+            // Upgrade the bot if needed
+            if (entity instanceof BlockDisplay)
+                Compatibility.upgradeBotTo0_4_0(bot);
+
             var radians = new AxisAngle4f(entity.getTransformation().getLeftRotation()).angle;
             var entityDirection = MathHelper.getDirectionFromAngle(radians);
 

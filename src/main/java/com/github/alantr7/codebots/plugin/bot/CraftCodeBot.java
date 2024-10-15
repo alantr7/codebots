@@ -28,7 +28,7 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Interaction;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
@@ -48,8 +48,8 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private final UUID id;
 
-    @Getter
-    private final UUID entityId;
+    @Getter @Setter
+    private UUID entityId;
 
     @Getter
     private final UUID interactionId;
@@ -98,6 +98,9 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private int selectedSlot = 0;
 
+    @Getter @Setter
+    private boolean isDirty = false;
+
     public CraftCodeBot(World world, UUID id, UUID entityId, UUID interactionId) {
         this.world = world;
         this.id = id;
@@ -109,8 +112,8 @@ public class CraftCodeBot implements CodeBot {
     }
 
     @Override
-    public BlockDisplay getEntity() {
-        return (BlockDisplay) Bukkit.getEntity(entityId);
+    public Display getEntity() {
+        return (Display) Bukkit.getEntity(entityId);
     }
 
     @Override
@@ -168,7 +171,7 @@ public class CraftCodeBot implements CodeBot {
 
     @Override
     public void setDirection(Direction direction, boolean interpolate) {
-        BlockDisplay entity;
+        Display entity;
         if (isMoving() || !isChunkLoaded() || (entity = getEntity()) == null)
             return;
 
@@ -277,12 +280,22 @@ public class CraftCodeBot implements CodeBot {
         setLocation(entity.getLocation().add(direction));
     }
 
+    /*
     private static float[] getTranslation(Direction direction) {
         return switch (direction) {
             case EAST -> new float[]{0.6f, 0f};
             case SOUTH -> new float[]{0.6f, 0.6f};
             case WEST -> new float[]{0f, 0.6f};
             default -> new float[]{0f, 0f};
+        };
+    }*/
+
+    private static float[] getTranslation(Direction direction) {
+        return switch (direction) {
+//            case EAST -> new float[]{0.3f, 0.3f};
+//            case SOUTH -> new float[]{0.6f, 0.6f};
+//            case WEST -> new float[]{0f, 0.6f};
+            default -> new float[]{0.3f, 0.3f};
         };
     }
 
