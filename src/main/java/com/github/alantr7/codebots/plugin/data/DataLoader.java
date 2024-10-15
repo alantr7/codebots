@@ -16,12 +16,14 @@ import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.bot.CraftMemory;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.utils.BotLoader;
+import com.github.alantr7.codebots.plugin.utils.Compatibility;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.BlockDisplay;
 import org.joml.AxisAngle4f;
 
 import java.io.File;
@@ -205,6 +207,10 @@ public class DataLoader {
         }
 
         this.registry.registerBot(bot);
+
+        if (bot.isDirty()) {
+            save(bot);
+        }
     }
 
     public ProgramSource loadProgram(Directory directory, File file) throws ParserException, IOException {
@@ -258,6 +264,8 @@ public class DataLoader {
 
         var programs = new File(directory, "programs");
         programs.mkdirs();
+
+        ((CraftCodeBot) bot).setDirty(false);
     }
 
     public void saveInventory(CodeBot bot) {
