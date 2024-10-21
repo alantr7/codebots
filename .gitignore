@@ -4,3 +4,8 @@
 /Source Before Block Contexts/
 /Source Before Per Context Scopes/
 /Source Before Member Access Rewrite/
+/Source Before Item Display/
+/Source Before Boolean Operations/
+/Source After Failed Boolean Operations/
+/Doesnt WOrk/
+/.github/
