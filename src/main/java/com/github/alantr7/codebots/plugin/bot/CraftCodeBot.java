@@ -30,6 +30,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Interaction;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,6 +54,12 @@ public class CraftCodeBot implements CodeBot {
 
     @Getter
     private final UUID interactionId;
+
+    @Getter @Setter
+    private UUID nameEntityId;
+
+    @Getter @Setter
+    private UUID textEntityId;
 
     @Getter
     @Setter
@@ -129,6 +136,14 @@ public class CraftCodeBot implements CodeBot {
         return world.isChunkLoaded(chunkX, chunkZ);
     }
 
+    public TextDisplay getNameDisplay() {
+        return (TextDisplay) Bukkit.getEntity(nameEntityId);
+    }
+
+    public TextDisplay getTextDisplay() {
+        return (TextDisplay) Bukkit.getEntity(textEntityId);
+    }
+
     @Override
     public Interaction getInteraction() {
         return (Interaction) Bukkit.getEntity(interactionId);
@@ -149,7 +164,8 @@ public class CraftCodeBot implements CodeBot {
     public void setLocation(@NotNull Location location) {
         var blockLocation = MathHelper.toBlockLocation(location);
         getEntity().teleport(blockLocation.clone().add(.2, 0, .2));
-        getInteraction().teleport(blockLocation.add(.5, 0, .5));
+        getInteraction().teleport(blockLocation.clone().add(.5, 0, .5));
+        getTextDisplay().teleport(blockLocation.clone().add(.5, Config.TEXT_DISPLAY_CHAT_OFFSET, .5));
 
         this.cachedLocation = location;
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation(this);
@@ -220,6 +236,8 @@ public class CraftCodeBot implements CodeBot {
             return false;
 
         var entity = getEntity();
+        var textDisplay = getTextDisplay();
+
         if (CodeBots.isBlockOccupied(getBlockLocation().add(direction.toVector()), this)) {
             /*
             var destination = getBlockLocation().add(direction.toVector());
@@ -246,12 +264,21 @@ public class CraftCodeBot implements CodeBot {
 
         entity.setInterpolationDelay(0);
         entity.setInterpolationDuration(Config.BOT_MOVEMENT_DURATION * 2);
-
         entity.setTransformation(new Transformation(
                 nextTranslation,
                 initialTransformation.getLeftRotation(),
                 initialTransformation.getScale(),
                 initialTransformation.getRightRotation()
+        ));
+
+        // Interpolate text display above the bot
+        textDisplay.setInterpolationDelay(0);
+        textDisplay.setInterpolationDuration(Config.BOT_MOVEMENT_DURATION * 2);
+        textDisplay.setTransformation(new Transformation(
+                direction.toVector().toVector3f(),
+                new AxisAngle4f(0, 0, 0, 0),
+                new Vector3f(1, 1, 1),
+                new AxisAngle4f(0, 0, 0, 0)
         ));
 
         this.movement = new BotMovement(getBlockLocation(), BotMovement.Type.TRANSLATION, direction, initialTransformation);
@@ -277,7 +304,26 @@ public class CraftCodeBot implements CodeBot {
                 entity.getTransformation().getScale(),
                 entity.getTransformation().getRightRotation()
         ));
+        var textDisplay = getTextDisplay();
+        textDisplay.setInterpolationDuration(0);
+        textDisplay.setTransformation(new Transformation(
+                new Vector3f(0, 0, 0),
+                new AxisAngle4f(0, 0, 0, 0),
+                new Vector3f(1, 1, 1),
+                new AxisAngle4f(0, 0, 0, 0)
+        ));
         setLocation(entity.getLocation().add(direction));
+    }
+
+    public void onChunkLoad() {
+        // Check if all entities exist
+        if (getTextDisplay() == null) {
+            this.textEntityId = BotFactory.createBotTextEntity(getLocation().clone().add(0.5, 2, 0.5)).getUniqueId();
+            isDirty = true;
+        }
+
+        if (isDirty)
+            CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
     }
 
     /*

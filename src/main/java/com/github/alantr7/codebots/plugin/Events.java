@@ -13,6 +13,7 @@ import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
 import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
+import com.github.alantr7.codebots.plugin.utils.EventDispatcher;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -54,6 +55,8 @@ public class Events implements Listener {
         registry.getBotsInChunk(event.getChunk().getX(), event.getChunk().getZ()).forEach(bot -> {
             bot.fixTransformation();
             registry.updateBotLocation(bot);
+
+            EventDispatcher.callBotLoadEvent(bot);
         });
     }
 

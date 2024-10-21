@@ -17,6 +17,7 @@ import com.github.alantr7.codebots.plugin.bot.CraftMemory;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.utils.BotLoader;
 import com.github.alantr7.codebots.plugin.utils.Compatibility;
+import com.github.alantr7.codebots.plugin.utils.EventDispatcher;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.tag.CompoundTag;
@@ -141,6 +142,7 @@ public class DataLoader {
 
         var entityId = UUID.fromString(data.getString("EntityId"));
         var interactionId = UUID.fromString(data.getString("InteractionId"));
+        var textDisplayId = data.getString("TextDisplayId");
 
         var world = Bukkit.getWorld(data.getString("World"));
         var position = data.getIntArray("Location");
@@ -149,6 +151,9 @@ public class DataLoader {
         var bot = new CraftCodeBot(world, botId, entityId, interactionId);
         bot.setCachedLocation(new Location(world, position[0], position[1], position[2]));
         bot.setCachedDirection(direction);
+
+        if (textDisplayId != null && !textDisplayId.isEmpty())
+            bot.setTextEntityId(UUID.fromString(textDisplayId));
 
         if (bot.isChunkLoaded()) {
             var entity = bot.getEntity();
@@ -211,6 +216,10 @@ public class DataLoader {
         if (bot.isDirty()) {
             save(bot);
         }
+
+        if (bot.isChunkLoaded()) {
+            EventDispatcher.callBotLoadEvent(bot);
+        }
     }
 
     public ProgramSource loadProgram(Directory directory, File file) throws ParserException, IOException {
@@ -240,6 +249,7 @@ public class DataLoader {
 
         data.putString("EntityId", bot.getEntityId().toString());
         data.putString("InteractionId", bot.getInteractionId().toString());
+        data.putString("TextDisplayId", ((CraftCodeBot) bot).getTextEntityId().toString());
 
         if (bot.getOwnerId() != null) {
             data.putString("OwnerID", bot.getOwnerId().toString());
