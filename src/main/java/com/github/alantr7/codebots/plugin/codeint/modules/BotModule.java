@@ -25,11 +25,7 @@ public class BotModule extends NativeModule {
         registerFunction("chat", arguments -> {
             Assertions.expectArguments(arguments, String.class);
             var bot = (CodeBot) program.getExtra("bot");
-            var receivers = bot.getLocation().getWorld().getNearbyEntities(bot.getLocation(), 15, 15, 15, e -> e.getType() == EntityType.PLAYER);
-
-            var message = ChatColor.translateAlternateColorCodes('&', Config.BOT_CHAT_FORMAT
-                    .replace("{message}", (String) arguments[0]));
-            receivers.forEach(e -> e.sendMessage(message));
+            bot.chat((String) arguments[0]);
             return null;
         });
 

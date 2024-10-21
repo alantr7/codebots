@@ -73,6 +73,12 @@ public interface CodeBot {
     boolean isMoving();
 
     /**
+     * Sends a message to the chat as sent by bot
+     * @param message Message to be sent
+     */
+    void chat(String message);
+
+    /**
      * Data stored by programs. This is not bot's working memory.
      * @return bot's memory
      */

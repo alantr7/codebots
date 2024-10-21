@@ -125,6 +125,7 @@ public class BotRegistry {
 
     @InvokePeriodically(interval = 2)
     public void tickBots() {
+        long time = System.currentTimeMillis();
         bots.forEach((id, bot) -> {
             var program = bot.getProgram();
             if (program != null && bot.isActive()) {
@@ -141,6 +142,14 @@ public class BotRegistry {
                                 program.getEnvironment().getStackTrace()
                         ));
                     }
+                }
+            }
+
+            if (bot.isChunkLoaded() && bot.getTextDisplay() != null) {
+                if (time > bot.getLastChatMessageExpiry()) {
+                    bot.getTextDisplay().setText("");
+                } else {
+                    bot.getTextDisplay().setText(bot.getLastChatMessage());
                 }
             }
         });

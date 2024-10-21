@@ -26,9 +26,11 @@ import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.util.Transformation;
@@ -104,6 +106,12 @@ public class CraftCodeBot implements CodeBot {
 
     @Getter
     private int selectedSlot = 0;
+
+    @Getter
+    private String lastChatMessage;
+
+    @Getter
+    private long lastChatMessageExpiry;
 
     @Getter @Setter
     private boolean isDirty = false;
@@ -313,6 +321,18 @@ public class CraftCodeBot implements CodeBot {
                 new AxisAngle4f(0, 0, 0, 0)
         ));
         setLocation(entity.getLocation().add(direction));
+    }
+
+    @Override
+    public void chat(String raw) {
+        var message = ChatColor.translateAlternateColorCodes('&', Config.BOT_CHAT_FORMAT
+                .replace("{message}", raw));
+
+        var receivers = getLocation().getWorld().getNearbyEntities(getLocation(), 15, 15, 15, e -> e.getType() == EntityType.PLAYER);
+        receivers.forEach(e -> e.sendMessage(message));
+
+        lastChatMessage = "§7" + raw;
+        lastChatMessageExpiry = System.currentTimeMillis() + 7500;
     }
 
     public void onChunkLoad() {
