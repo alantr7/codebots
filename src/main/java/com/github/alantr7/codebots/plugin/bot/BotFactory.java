@@ -5,6 +5,7 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.utils.FileHelper;
@@ -12,9 +13,7 @@ import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import com.github.alantr7.codebots.plugin.utils.SkullFactory;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Interaction;
-import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Transformation;
@@ -36,11 +35,13 @@ public class BotFactory {
         var blockDisplay = createBotEntity(location);
         var interaction = (Interaction) location.getWorld().spawnEntity(location.getBlock().getLocation().add(.5, 0, .5), EntityType.INTERACTION);
         interaction.setInteractionWidth(0.8f);
+        var textDisplay = createBotTextEntity(location.getBlock().getLocation().add(.5, Config.TEXT_DISPLAY_CHAT_OFFSET, .5));
 
         var bot = new CraftCodeBot(location.getWorld(), botId, blockDisplay.getUniqueId(), interaction.getUniqueId());
         bot.setCachedLocation(MathHelper.toBlockLocation(blockDisplay.getLocation()));
         bot.setCachedDirection(Direction.WEST);
         bot.setOwnerId(ownerId);
+        bot.setTextEntityId(textDisplay.getUniqueId());
         interaction.getPersistentDataContainer().set(new NamespacedKey(CodeBotsPlugin.inst(), "bot_id"), PersistentDataType.STRING, bot.getId().toString());
 
         bot.setLocation(location);
@@ -75,6 +76,13 @@ public class BotFactory {
                 transformation.getRightRotation()
         ));
         entity.setInterpolationDuration(20);
+
+        return entity;
+    }
+
+    public static TextDisplay createBotTextEntity(@NotNull Location location) {
+        var entity = (TextDisplay) location.getWorld().spawnEntity(location, EntityType.TEXT_DISPLAY);
+        entity.setBillboard(Display.Billboard.VERTICAL);
 
         return entity;
     }

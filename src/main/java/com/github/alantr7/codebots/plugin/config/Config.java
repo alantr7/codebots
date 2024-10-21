@@ -28,4 +28,8 @@ public class Config {
 
     public static String EDITOR_URL = "https://codebots.myqualia.net";
 
+    public static final double TEXT_DISPLAY_NAME_OFFSET = 1.2d;
+
+    public static final double TEXT_DISPLAY_CHAT_OFFSET = 1d;
+
 }
