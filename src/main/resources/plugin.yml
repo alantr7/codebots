@@ -1,1 +1,3 @@
 api-version: 1.19
+load: POSTWORLD
+softdepend: ["Multiverse-Core"]
