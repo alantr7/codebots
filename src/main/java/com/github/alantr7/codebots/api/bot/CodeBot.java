@@ -79,6 +79,19 @@ public interface CodeBot {
     void chat(String message);
 
     /**
+     * Sets a status message (a message above the bot)
+     * @param status Status to be set
+     */
+    void setStatus(String status);
+
+    /**
+     * Sets a status message with an expiration timestamp
+     * @param status Status to be set
+     * @param expiry Expiry date (milliseconds since 01.01.1970.)
+     */
+    void setStatus(String status, long expiry);
+
+    /**
      * Data stored by programs. This is not bot's working memory.
      * @return bot's memory
      */

@@ -151,8 +151,8 @@ public class BotRegistry {
                 String text = (bot.isActive() ? "" : "§7") + "ʙᴏᴛ ";
                 text += bot.isActive() ? "§6ᴀᴄᴛɪᴠᴇ" : bot.hasError() ? "§cᴄʀᴀꜱʜᴇᴅ" : "ᴏꜰꜰʟɪɴᴇ";
 
-                if (time <= bot.getLastChatMessageExpiry()) {
-                    text += "\n" + bot.getLastChatMessage();
+                if (time <= bot.getLastStatusExpiry()) {
+                    text += "\n" + bot.getLastStatus();
                 }
 
                 bot.getTextDisplay().setText(text);

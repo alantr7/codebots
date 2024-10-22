@@ -108,10 +108,10 @@ public class CraftCodeBot implements CodeBot {
     private int selectedSlot = 0;
 
     @Getter
-    private String lastChatMessage;
+    private String lastStatus;
 
     @Getter
-    private long lastChatMessageExpiry;
+    private long lastStatusExpiry;
 
     @Getter @Setter
     private boolean isDirty = false;
@@ -324,8 +324,23 @@ public class CraftCodeBot implements CodeBot {
         var receivers = getLocation().getWorld().getNearbyEntities(getLocation(), 15, 15, 15, e -> e.getType() == EntityType.PLAYER);
         receivers.forEach(e -> e.sendMessage(message));
 
-        lastChatMessage = "§7" + raw;
-        lastChatMessageExpiry = System.currentTimeMillis() + 7500;
+        if (Config.BOT_SHOW_CHAT_AS_STATUS) {
+            setStatus(raw);
+        }
+    }
+
+    @Override
+    public void setStatus(String status) {
+        setStatus(status, System.currentTimeMillis() + 5000);
+    }
+
+    @Override
+    public void setStatus(String status, long expiry) {
+        if (status.length() > Config.BOT_MAX_STATUS_LENGTH) {
+            status = status.substring(0, Config.BOT_MAX_STATUS_LENGTH - 3) + "...";
+        }
+        lastStatus = "§7" + status;
+        lastStatusExpiry = expiry;
     }
 
     public void onChunkLoad() {
