@@ -28,6 +28,22 @@ public class BotModule extends NativeModule {
             bot.chat((String) arguments[0]);
             return null;
         });
+        registerFunction("setStatus", arguments -> {
+            Assertions.assertBool(arguments.length <= 2, "setStatus function expects either 1 or 2 arguments");
+            Assertions.assertBool(arguments[0] instanceof String, "Status must be of type string!");
+            int statusDuration;
+
+            if (arguments.length > 1) {
+                Assertions.expectArguments(arguments, String.class, Integer.class);
+                statusDuration = (int) arguments[1];
+            } else {
+                statusDuration = 5;
+            }
+
+            var bot = (CodeBot) program.getExtra("bot");
+            bot.setStatus((String) arguments[0], System.currentTimeMillis() + statusDuration * 1000L);
+            return null;
+        });
 
         getRootScope().setFunction("move", new MoveFunction(program));
         getRootScope().setFunction("rotateLeft", new RotateFunction(program, "rotateLeft"));
