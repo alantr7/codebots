@@ -41,8 +41,15 @@ public final class BotMovement {
     }
 
     public boolean isCompleted() {
-        return Bukkit.getCurrentTick() - startTick >
-                (type == Type.TRANSLATION ? Config.BOT_MOVEMENT_DURATION : Config.BOT_ROTATION_DURATION) * 2L;
+        return Bukkit.getCurrentTick() - startTick > getDuration();
+    }
+
+    public long getDuration() {
+        return (type == Type.TRANSLATION ? Config.BOT_MOVEMENT_DURATION : Config.BOT_ROTATION_DURATION) * 2L;
+    }
+
+    public double getProgress() {
+        return Math.min(1, (Bukkit.getCurrentTick() - startTick) / (double) getDuration());
     }
 
 }

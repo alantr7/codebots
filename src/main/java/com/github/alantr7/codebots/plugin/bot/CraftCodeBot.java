@@ -280,6 +280,7 @@ public class CraftCodeBot implements CodeBot {
         ));
 
         // Interpolate text display above the bot
+        /*
         textDisplay.setInterpolationDelay(0);
         textDisplay.setInterpolationDuration(Config.BOT_MOVEMENT_DURATION * 2);
         textDisplay.setTransformation(new Transformation(
@@ -287,7 +288,7 @@ public class CraftCodeBot implements CodeBot {
                 new AxisAngle4f(0, 0, 0, 0),
                 new Vector3f(1, 1, 1),
                 new AxisAngle4f(0, 0, 0, 0)
-        ));
+        ));*/
 
         this.movement = new BotMovement(getBlockLocation(), BotMovement.Type.TRANSLATION, direction, initialTransformation);
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation(this);
@@ -312,14 +313,6 @@ public class CraftCodeBot implements CodeBot {
                 entity.getTransformation().getScale(),
                 entity.getTransformation().getRightRotation()
         ));
-        var textDisplay = getTextDisplay();
-        textDisplay.setInterpolationDuration(0);
-        textDisplay.setTransformation(new Transformation(
-                new Vector3f(0, 0, 0),
-                new AxisAngle4f(0, 0, 0, 0),
-                new Vector3f(1, 1, 1),
-                new AxisAngle4f(0, 0, 0, 0)
-        ));
         setLocation(entity.getLocation().add(direction));
     }
 
@@ -338,7 +331,7 @@ public class CraftCodeBot implements CodeBot {
     public void onChunkLoad() {
         // Check if all entities exist
         if (getTextDisplay() == null) {
-            this.textEntityId = BotFactory.createBotTextEntity(getLocation().clone().add(0.5, 2, 0.5)).getUniqueId();
+            this.textEntityId = BotFactory.createBotTextEntity(getLocation().clone().add(0.5, Config.TEXT_DISPLAY_NAME_OFFSET, 0.5)).getUniqueId();
             isDirty = true;
         }
 
@@ -346,23 +339,8 @@ public class CraftCodeBot implements CodeBot {
             CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
     }
 
-    /*
     private static float[] getTranslation(Direction direction) {
-        return switch (direction) {
-            case EAST -> new float[]{0.6f, 0f};
-            case SOUTH -> new float[]{0.6f, 0.6f};
-            case WEST -> new float[]{0f, 0.6f};
-            default -> new float[]{0f, 0f};
-        };
-    }*/
-
-    private static float[] getTranslation(Direction direction) {
-        return switch (direction) {
-//            case EAST -> new float[]{0.3f, 0.3f};
-//            case SOUTH -> new float[]{0.6f, 0.6f};
-//            case WEST -> new float[]{0f, 0.6f};
-            default -> new float[]{0.3f, 0.3f};
-        };
+        return new float[]{0.3f, 0.3f};
     }
 
     @Override

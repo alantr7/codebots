@@ -9,7 +9,10 @@ import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.plugin.bot.BotMovement;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import com.github.alantr7.codebots.plugin.config.Config;
+import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -146,11 +149,14 @@ public class BotRegistry {
             }
 
             if (bot.isChunkLoaded() && bot.getTextDisplay() != null) {
-                if (time > bot.getLastChatMessageExpiry()) {
-                    bot.getTextDisplay().setText("");
-                } else {
-                    bot.getTextDisplay().setText(bot.getLastChatMessage());
+                String text = (bot.isActive() ? "" : "§7") + "ʙᴏᴛ ";
+                text += bot.isActive() ? "§6ᴀᴄᴛɪᴠᴇ" : bot.hasError() ? "§cᴄʀᴀꜱʜᴇᴅ" : "ᴏꜰꜰʟɪɴᴇ";
+
+                if (time <= bot.getLastChatMessageExpiry()) {
+                    text += "\n" + bot.getLastChatMessage();
                 }
+
+                bot.getTextDisplay().setText(text);
             }
         });
 
@@ -167,6 +173,19 @@ public class BotRegistry {
                 }
                 bot.setMovement(null);
                 it.remove();
+            } else {
+                if (bot.getMovement().getType() != BotMovement.Type.TRANSLATION)
+                    continue;
+
+                // Teleport the text display entity
+                var textDisplay = bot.getTextDisplay();
+                if (textDisplay == null)
+                    continue;
+
+                var destination = MathHelper.toBlockLocation(bot.getLocation())
+                        .add(.5, Config.TEXT_DISPLAY_CHAT_OFFSET, .5)
+                        .add(bot.getMovement().getDirection().toVector().multiply(bot.getMovement().getProgress()));
+                textDisplay.teleport(destination);
             }
         }
     }
