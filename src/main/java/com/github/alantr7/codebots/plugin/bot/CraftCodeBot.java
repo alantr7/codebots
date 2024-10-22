@@ -173,7 +173,7 @@ public class CraftCodeBot implements CodeBot {
         var blockLocation = MathHelper.toBlockLocation(location);
         getEntity().teleport(blockLocation.clone().add(.2, 0, .2));
         getInteraction().teleport(blockLocation.clone().add(.5, 0, .5));
-        getTextDisplay().teleport(blockLocation.clone().add(.5, Config.TEXT_DISPLAY_CHAT_OFFSET, .5));
+        getTextDisplay().teleport(blockLocation.clone().add(.5, Config.BOT_STATUS_ENTITY_OFFSET, .5));
 
         this.cachedLocation = location;
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation(this);
@@ -331,7 +331,7 @@ public class CraftCodeBot implements CodeBot {
     public void onChunkLoad() {
         // Check if all entities exist
         if (getTextDisplay() == null) {
-            this.textEntityId = BotFactory.createBotTextEntity(getLocation().clone().add(0.5, Config.TEXT_DISPLAY_NAME_OFFSET, 0.5)).getUniqueId();
+            this.textEntityId = BotFactory.createBotTextEntity(getLocation().clone().add(0.5, Config.BOT_STATUS_ENTITY_OFFSET, 0.5)).getUniqueId();
             isDirty = true;
         }
 

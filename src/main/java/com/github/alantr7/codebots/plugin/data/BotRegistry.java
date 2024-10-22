@@ -12,7 +12,6 @@ import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -183,7 +182,7 @@ public class BotRegistry {
                     continue;
 
                 var destination = MathHelper.toBlockLocation(bot.getLocation())
-                        .add(.5, Config.TEXT_DISPLAY_CHAT_OFFSET, .5)
+                        .add(.5, Config.BOT_STATUS_ENTITY_OFFSET, .5)
                         .add(bot.getMovement().getDirection().toVector().multiply(bot.getMovement().getProgress()));
                 textDisplay.teleport(destination);
             }

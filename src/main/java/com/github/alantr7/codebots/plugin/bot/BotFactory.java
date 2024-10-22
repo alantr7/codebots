@@ -35,7 +35,7 @@ public class BotFactory {
         var blockDisplay = createBotEntity(location);
         var interaction = (Interaction) location.getWorld().spawnEntity(location.getBlock().getLocation().add(.5, 0, .5), EntityType.INTERACTION);
         interaction.setInteractionWidth(0.8f);
-        var textDisplay = createBotTextEntity(location.getBlock().getLocation().add(.5, Config.TEXT_DISPLAY_CHAT_OFFSET, .5));
+        var textDisplay = createBotTextEntity(location.getBlock().getLocation().add(.5, Config.BOT_STATUS_ENTITY_OFFSET, .5));
 
         var bot = new CraftCodeBot(location.getWorld(), botId, blockDisplay.getUniqueId(), interaction.getUniqueId());
         bot.setCachedLocation(MathHelper.toBlockLocation(blockDisplay.getLocation()));
