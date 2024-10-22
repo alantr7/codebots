@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.util.UUID;
@@ -64,16 +66,17 @@ public final class EditorSession {
     }
 
     public void sendLink(CommandSender receiver) {
-        receiver.sendMessage("Created a new editor session!");
+        receiver.sendMessage("§eEditor session created!");
         var editorButton = Component.text("here")
                 .decorate(TextDecoration.UNDERLINED)
+                .color(TextColor.color(255, 200, 0))
                 .clickEvent(ClickEvent.openUrl(
                         Config.EDITOR_URL + "/edit/" + id + "?token=" + accessToken
                 ));
         receiver.sendMessage(
-                Component.text("Click ")
+                Component.text("§eClick ")
                         .append(editorButton)
-                        .append(Component.text("§r to open the editor."))
+                        .append(Component.text("§e to open the editor."))
         );
     }
 

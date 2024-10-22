@@ -163,6 +163,7 @@ public class BotProgramsGUI extends GUI {
                                 return;
 
                             var player = getPlayer();
+                            player.sendMessage("§oCreating an editor session. Please wait...");
                             bot.getProgramSource().createEditor().whenComplete((session, t) -> {
                                 session.setAttachedBot(bot);
                                 session.sendLink(player);
