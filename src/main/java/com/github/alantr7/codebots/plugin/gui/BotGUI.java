@@ -57,6 +57,8 @@ public class BotGUI extends GUI {
                 session.fetch().whenComplete((sess, err) -> {
                     Bukkit.getScheduler().runTaskLater(CodeBotsPlugin.inst(), () -> bot.setActive(!bot.isActive()), 1L);
                 });
+            } else {
+                bot.setActive(!bot.isActive());
             }
         });
 
@@ -65,20 +67,6 @@ public class BotGUI extends GUI {
             var player = getPlayer();
             programs.registerEventCallback(Action.CLOSE, () -> new BotGUI(player, bot).open());
             programs.open();
-        });
-
-        registerInteractionCallback(12, ClickType.RIGHT, () -> {
-            if (!hasClickEvent() || !getClickEvent().isShiftClick())
-                return;
-
-            var session = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
-            if (session == null)
-                return;
-
-            CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).deleteSession(session);
-            ((CraftCodeBot) bot).getInventory().updateProgramButton();
-
-            getPlayer().sendMessage("§eCode editor session closed.");
         });
 
         registerInteractionCallback(14, ClickType.LEFT, () -> {

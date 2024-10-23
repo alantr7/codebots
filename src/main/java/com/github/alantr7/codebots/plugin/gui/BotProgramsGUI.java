@@ -11,7 +11,6 @@ import com.github.alantr7.codebots.language.compiler.parser.error.ParserExceptio
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.config.Config;
-import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
 import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.editor.EditorSession;
@@ -85,6 +84,13 @@ public class BotProgramsGUI extends GUI {
             meta.setDisplayName("§eLocal Programs");
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         });
+        var editorSession = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
+        var editorButton = ItemFactory.createItem(Material.WRITABLE_BOOK, meta -> {
+            meta.setDisplayName("§eOpen §6Code Editor");
+            if (editorSession != null) {
+                meta.setLore(List.of("§eEditor session is active!", "§eShift-right-click to close the editor"));
+            }
+        });
 
         if (selectedCategory == CATEGORY_LOCAL) {
             categoryLocal.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 1);
@@ -110,6 +116,37 @@ public class BotProgramsGUI extends GUI {
 
             selectedCategory = CATEGORY_LOCAL;
             refill();
+        });
+
+        setItem(37, editorButton);
+        registerInteractionCallback(37, ClickType.LEFT, () -> {
+            if (editorSession != null) {
+                editorSession.sendLink(getPlayer());
+            } else {
+                var player = getPlayer();
+
+                player.sendMessage("§oCreating an editor session. Please wait...");
+                CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).createSession(bot.getProgramsDirectory().listFiles())
+                        .whenComplete((sess, err) -> {
+                            CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).registerActiveSessionByBot(sess, bot);
+                            sess.subscribe(EditorSession.createBotSubscriber(bot));
+                            sess.sendLink(player);
+                        });
+            }
+            close();
+        });
+        registerInteractionCallback(37, ClickType.RIGHT, () -> {
+            if (!hasClickEvent() || !getClickEvent().isShiftClick())
+                return;
+
+            var session = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
+            if (session == null)
+                return;
+
+            CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).deleteSession(session);
+            ((CraftCodeBot) bot).getInventory().updateProgramButton();
+
+            getPlayer().sendMessage("§eCode editor session closed.");
         });
 
 

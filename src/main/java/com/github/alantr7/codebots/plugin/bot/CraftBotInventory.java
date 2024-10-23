@@ -185,13 +185,6 @@ public class CraftBotInventory implements BotInventory {
             ));
         }
 
-        var editorSession = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
-        if (editorSession != null) {
-            lore.add("");
-            lore.add("§eEditor session is active!");
-            lore.add("§eShift-right-click to close the editor");
-        }
-
         if (bot.hasError() && bot.getError().getLocation() == ProgramError.ErrorLocation.PARSER) {
             lore.addAll(List.of(
                     "",
