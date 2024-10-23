@@ -53,7 +53,11 @@ public class BotGUI extends GUI {
                 return;
             }
 
-            bot.setActive(!bot.isActive());
+            if (session != null && System.currentTimeMillis() - session.getLastFetched() > 3000) {
+                session.fetch().whenComplete((sess, err) -> {
+                    Bukkit.getScheduler().runTaskLater(CodeBotsPlugin.inst(), () -> bot.setActive(!bot.isActive()), 1L);
+                });
+            }
         });
 
         registerInteractionCallback(12, ClickType.LEFT, () -> {
