@@ -12,6 +12,7 @@ import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -22,6 +23,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -34,6 +36,8 @@ public class CodeEditorClient {
     private final Map<UUID, EditorSession> activeSessions = new HashMap<>();
 
     private final Map<String, EditorSession> activeSessionsByFile = new HashMap<>();
+
+    private final Map<UUID, EditorSession> activeSessionsByBots = new HashMap<>();
 
     private String serverToken;
 
@@ -74,6 +78,7 @@ public class CodeEditorClient {
                     return null;
                 }
 
+                plugin.getLogger().info("Server token fetched.");
                 return serverToken = response.body();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -82,18 +87,33 @@ public class CodeEditorClient {
         });
     }
 
-    public CompletableFuture<EditorSession> createSession(File file) {
-        if (serverToken == null)
-            return CompletableFuture.completedFuture(null);
+    public void registerActiveSessionByBot(EditorSession session, CodeBot bot) {
+        activeSessionsByBots.put(bot.getId(), session);
+    }
 
-        if (activeSessionsByFile.containsKey(file.getPath()))
-            return CompletableFuture.completedFuture(activeSessionsByFile.get(file.getPath()));
+    public CompletableFuture<EditorSession> createSession(File[] files) {
+        if (serverToken == null || files == null)
+            return CompletableFuture.completedFuture(null);
 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var json = new JSONObject();
-                var code = Files.readAllBytes(file.toPath());
-                json.put("file", new String(code));
+                var jsonFiles = new JSONArray();
+                json.put("files", jsonFiles);
+
+                var sessionFiles = new LinkedHashMap<String, EditorSessionFile>();
+
+                for (var file : files) {
+                    var name = file.getName();
+                    var content = new String(Files.readAllBytes(file.toPath()));
+
+                    var fileObject = new JSONObject();
+                    fileObject.put("name", name);
+                    fileObject.put("content", content);
+                    jsonFiles.add(fileObject);
+
+                    sessionFiles.put(name, new EditorSessionFile(content));
+                }
 
                 var request = HttpRequest.newBuilder()
                         .uri(new URI(Config.EDITOR_URL + "/api/create-session"))
@@ -111,12 +131,11 @@ public class CodeEditorClient {
                         UUID.fromString((String) responseSession.get("id")),
                         (String) responseSession.get("access_token"),
                         (Long) responseSession.get("expires_at"),
-                        (String) responseSession.get("content")
+                        sessionFiles
                 );
 
                 Bukkit.getScheduler().runTask(CodeBotsPlugin.inst(), () -> {
                     activeSessions.put(session.id(), session);
-                    activeSessionsByFile.put(file.getPath(), session);
                 });
                 return session;
             } catch (Exception e) {
@@ -161,9 +180,25 @@ public class CodeEditorClient {
                 }
 
                 var responseSession = (JSONObject) new JSONParser().parse(response.body());
-                session.setCode((String) responseSession.get("content"));
-                session.setLastChangeId((String) responseSession.get("last_change_id"));
-                session.setLastChangeTimestamp((Long) MathHelper.any(responseSession.get("last_change_timestamp"), 0L));
+                var filesArray = (JSONArray) responseSession.get("files");
+
+                filesArray.forEach(fileJsonObject -> {
+                    var fileJson = (JSONObject) fileJsonObject;
+                    var fileName = (String) fileJson.get("name");
+                    var fileContent = (String) fileJson.get("content");
+                    var fileLastChangeId = (String) fileJson.get("last_change_id");
+                    var fileLastChangeTimestamp = (Long) MathHelper.any(responseSession.get("last_change_timestamp"), 0L);
+
+                    var file = session.getFiles().get(fileName);
+                    if (file == null)
+                        return;
+
+                    file.setCode(fileContent);
+                    file.setLastChangeId(fileLastChangeId);
+                    file.setLastChangeTimestamp(fileLastChangeTimestamp);
+                });
+
+                session.notifySubscribers();
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -178,16 +213,18 @@ public class CodeEditorClient {
     }
 
     public @Nullable EditorSession getActiveSessionByBot(@NotNull CodeBot bot) {
-        for (var entry : activeSessions.entrySet()) {
-            if (entry.getValue().getAttachedBot() != null && entry.getValue().getAttachedBot().getId().equals(bot.getId()))
-                return entry.getValue();
-        }
-        return null;
+        return activeSessionsByBots.get(bot.getId());
     }
 
     public void deleteSession(EditorSession session) {
         activeSessions.remove(session.id());
-        activeSessionsByFile.remove(session.getAttachedBot().getProgramSource().getSource().getPath());
+        var it = activeSessionsByBots.entrySet().iterator();
+        while (it.hasNext()) {
+            if (it.next().getValue() == session) {
+                it.remove();
+                break;
+            }
+        }
 
         CompletableFuture.runAsync(() -> {
             try {

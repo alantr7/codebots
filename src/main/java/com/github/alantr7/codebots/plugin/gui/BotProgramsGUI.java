@@ -11,7 +11,10 @@ import com.github.alantr7.codebots.language.compiler.parser.error.ParserExceptio
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.config.Config;
+import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
+import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
+import com.github.alantr7.codebots.plugin.editor.EditorSession;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import com.github.alantr7.codebots.plugin.utils.FileHelper;
 import lombok.Getter;
@@ -123,7 +126,7 @@ public class BotProgramsGUI extends GUI {
                             meta -> {
                                 meta.setDisplayName("§f" + file.getName());
                                 meta.setLore(List.of(
-                                        (isSelected ? "§eRight-click to edit the program" : "§eLeft-click to load the program"),
+                                        "§eLeft-click to load the program",
                                         "§eShift-right-click to delete §c(Irreversible!)"
                                 ));
                             }
@@ -157,21 +160,6 @@ public class BotProgramsGUI extends GUI {
 
                         getPlayer().sendMessage("§eSuccessfully deleted a program.");
                     });
-                    if (isSelected) {
-                        registerInteractionCallback(slot, ClickType.RIGHT, () -> {
-                            if (hasClickEvent() && getClickEvent().isShiftClick())
-                                return;
-
-                            var player = getPlayer();
-                            player.sendMessage("§oCreating an editor session. Please wait...");
-                            bot.getProgramSource().createEditor().whenComplete((session, t) -> {
-                                session.setAttachedBot(bot);
-                                session.sendLink(player);
-                            });
-
-                            close();
-                        });
-                    }
                 }
 
                 // Add a button for creating a new program

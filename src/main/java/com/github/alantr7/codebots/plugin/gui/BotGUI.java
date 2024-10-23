@@ -32,6 +32,10 @@ public class BotGUI extends GUI {
         this.bot = bot;
 
         init();
+        var session = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
+        if (session != null && !bot.isActive() && (System.currentTimeMillis() - session.getLastFetched() > 3000)) {
+            session.fetch();
+        }
     }
 
     @Override
@@ -49,34 +53,10 @@ public class BotGUI extends GUI {
                 return;
             }
 
-            if (session != null && !bot.isActive() && (System.currentTimeMillis() - session.getLastFetched() > 3000)) {
-                session.fetch().whenComplete((v, t) -> {
-                    try {
-                        Files.write(bot.getProgramSource().getSource().toPath(), session.getCode().getBytes(StandardCharsets.UTF_8));
-                        bot.reloadProgram();
-
-                        Bukkit.getScheduler().runTask(getPlugin(), () -> bot.setActive(!bot.isActive()));
-                    } catch (Exception e) {
-                        getPlayer().sendMessage("§cThere was an error while loading the program.");
-                        if (e instanceof ParserException || e instanceof ParseException) {
-                            getPlayer().sendMessage("§4" + e.getMessage());
-                        }
-
-                        e.printStackTrace();
-                    }
-                });
-            } else {
-                bot.setActive(!bot.isActive());
-            }
+            bot.setActive(!bot.isActive());
         });
 
         registerInteractionCallback(12, ClickType.LEFT, () -> {
-            var session = CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(bot);
-            if (session != null) {
-                getPlayer().sendMessage("§cYou can not change program while editing.");
-                return;
-            }
-
             var programs = new BotProgramsGUI(getPlayer(), bot);
             var player = getPlayer();
             programs.registerEventCallback(Action.CLOSE, () -> new BotGUI(player, bot).open());

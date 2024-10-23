@@ -14,6 +14,7 @@ import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
+import com.github.alantr7.codebots.plugin.editor.EditorSession;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import org.bukkit.Material;
@@ -135,6 +136,31 @@ public class Commands {
                 playerData.setSelectedBot(bot);
 
                 ctx.respond("§eBot selected.");
+            });
+
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command editor = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_EDITOR)
+            .parameter("editor")
+            .executes(ctx -> {
+                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
+                if (bot == null) {
+                    ctx.respond("§cPlease select a bot first.");
+                    return;
+                }
+
+                var session = editorClient.getActiveSessionByBot(bot);
+                if (session != null) {
+                    ctx.respond("§cBot already has an active session.");
+                    return;
+                }
+
+                ctx.getExecutor().sendMessage("§oCreating an editor session. Please wait...");
+                editorClient.createSession(bot.getProgramsDirectory().listFiles()).whenComplete((sess, err) -> {
+                    editorClient.registerActiveSessionByBot(sess, bot);
+                    sess.sendLink(ctx.getExecutor());
+                    sess.subscribe(EditorSession.createBotSubscriber(bot));
+                });
             });
 
     @CommandHandler

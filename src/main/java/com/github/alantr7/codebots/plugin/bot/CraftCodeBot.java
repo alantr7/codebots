@@ -386,9 +386,6 @@ public class CraftCodeBot implements CodeBot {
 
     @Override
     public void loadProgram(ProgramSource program) throws ParseException {
-        if (CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).getActiveSessionByBot(this) != null)
-            return;
-
         _loadProgram(program);
     }
 
