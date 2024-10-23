@@ -1,4 +1,4 @@
-package com.github.alantr7.codebots.plugin.event;
+package com.github.alantr7.codebots.api.event;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import lombok.Getter;

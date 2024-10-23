@@ -1,8 +1,7 @@
 package com.github.alantr7.codebots.plugin.utils;
 
-import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
-import com.github.alantr7.codebots.plugin.event.BotLoadEvent;
+import com.github.alantr7.codebots.api.event.BotLoadEvent;
 import org.bukkit.Bukkit;
 
 public class EventDispatcher {
