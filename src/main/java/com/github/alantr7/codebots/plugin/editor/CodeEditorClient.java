@@ -22,10 +22,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Singleton
@@ -160,8 +157,8 @@ public class CodeEditorClient {
                 url.append("/api/sessions/");
                 url.append(session.id().toString());
 
-                if (session.getLastChangeId() != null) {
-                    url.append("?last_change_id=").append(session.getLastChangeId());
+                if (session.getLastModified() != 0) {
+                    url.append("?last_modified=").append(session.getLastModified());
                 }
 
                 var request = HttpRequest.newBuilder()
@@ -181,23 +178,23 @@ public class CodeEditorClient {
 
                 var responseSession = (JSONObject) new JSONParser().parse(response.body());
                 var filesArray = (JSONArray) responseSession.get("files");
+                var lastChangeTimestamp = (Long) MathHelper.any(responseSession.get("last_modified"), 0L);
 
                 filesArray.forEach(fileJsonObject -> {
                     var fileJson = (JSONObject) fileJsonObject;
                     var fileName = (String) fileJson.get("name");
                     var fileContent = (String) fileJson.get("content");
-                    var fileLastChangeId = (String) fileJson.get("last_change_id");
-                    var fileLastChangeTimestamp = (Long) MathHelper.any(responseSession.get("last_change_timestamp"), 0L);
+                    var fileLastChangeTimestamp = (Long) MathHelper.any(fileJson.get("last_modified"), 0L);
 
                     var file = session.getFiles().get(fileName);
                     if (file == null)
                         return;
 
                     file.setCode(fileContent);
-                    file.setLastChangeId(fileLastChangeId);
-                    file.setLastChangeTimestamp(fileLastChangeTimestamp);
+                    file.setLastModified(fileLastChangeTimestamp);
                 });
 
+                session.setLastModified(lastChangeTimestamp);
                 session.notifySubscribers();
             } catch (Exception e) {
                 e.printStackTrace();

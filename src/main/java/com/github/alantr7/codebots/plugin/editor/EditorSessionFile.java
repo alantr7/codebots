@@ -8,9 +8,7 @@ public class EditorSessionFile {
 
     private String code;
 
-    private String lastChangeId;
-
-    private long lastChangeTimestamp;
+    private long lastModified;
 
     public EditorSessionFile(String code) {
         this.code = code;

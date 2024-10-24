@@ -9,7 +9,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import java.io.File;
@@ -28,13 +27,8 @@ public final class EditorSession {
 
     private final long expiry;
 
-    @Getter
-    @Setter
-    private String lastChangeId;
-
-    @Getter
-    @Setter
-    private long lastChangeTimestamp;
+    @Getter @Setter
+    private long lastModified;
 
     @Getter
     @Setter
