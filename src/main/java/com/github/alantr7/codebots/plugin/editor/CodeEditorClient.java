@@ -225,11 +225,13 @@ public class CodeEditorClient {
 
         CompletableFuture.runAsync(() -> {
             try {
-                HttpRequest.newBuilder()
+                var request = HttpRequest.newBuilder()
                         .uri(new URI(Config.EDITOR_URL + "/api/sessions/" + session.id()))
                         .header("Authorization", "Bearer " + serverToken)
                         .DELETE()
                         .build();
+
+                client.send(request, HttpResponse.BodyHandlers.discarding());
             } catch (Exception e) {
                 e.printStackTrace();
             }
