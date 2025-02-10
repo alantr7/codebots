@@ -25,6 +25,8 @@ public class Config {
 
     // </editor-fold>
 
+    public static final int BOT_AUTO_SAVE_COOLDOWN = 5000;
+
     // <editor-fold desc="Scripts Configuration">
     public static int SCRIPTS_MAX_FUNCTION_CALL_STACK_SIZE = 8;
 

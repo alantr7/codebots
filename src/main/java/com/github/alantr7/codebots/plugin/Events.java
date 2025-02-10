@@ -68,6 +68,11 @@ public class Events implements Listener {
             registry.getMovingBots().remove(bot.getId());
 
             plugin.getLogger().info("Bot " + bot.getId() + " has been deactivated due to chunk unload.");
+
+            // Save bot on chunk unload
+            if (bot.isDirty()) {
+                bot.save();
+            }
         });
     }
 

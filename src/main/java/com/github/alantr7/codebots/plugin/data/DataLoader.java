@@ -276,6 +276,7 @@ public class DataLoader {
         programs.mkdirs();
 
         ((CraftCodeBot) bot).setDirty(false);
+        ((CraftCodeBot) bot).setLastSaved(System.currentTimeMillis());
     }
 
     public void saveInventory(CodeBot bot) {

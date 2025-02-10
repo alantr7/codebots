@@ -7,10 +7,10 @@ import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.language.runtime.Program;
+import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.BotMovement;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.config.Config;
-import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -123,6 +123,12 @@ public class BotRegistry {
             bot.fixTransformation();
         });
         movingBots.clear();
+
+        // Save bots
+        bots.forEach((botId, bot) -> {
+            if (bot.isDirty())
+                CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(bot);
+        });
     }
 
     @InvokePeriodically(interval = 2)
@@ -157,6 +163,10 @@ public class BotRegistry {
 
                 bot.getTextDisplay().setText(text);
             }
+
+            // Periodically save the bot
+            if (bot.isDirty() && System.currentTimeMillis() - bot.getLastSaved() > Config.BOT_AUTO_SAVE_COOLDOWN && bot.isChunkLoaded())
+                bot.save();
         });
 
         var it = movingBots.entrySet().iterator();
@@ -171,20 +181,8 @@ public class BotRegistry {
                     }
                 }
                 bot.setMovement(null);
+                bot.setDirty(true);
                 it.remove();
-            } else {
-                if (bot.getMovement().getType() != BotMovement.Type.TRANSLATION)
-                    continue;
-
-                // Teleport the text display entity
-                var textDisplay = bot.getTextDisplay();
-                if (textDisplay == null)
-                    continue;
-
-                var destination = MathHelper.toBlockLocation(bot.getLocation())
-                        .add(.5, Config.BOT_STATUS_ENTITY_OFFSET, .5)
-                        .add(bot.getMovement().getDirection().toVector().multiply(bot.getMovement().getProgress()));
-                textDisplay.teleport(destination);
             }
         }
     }

@@ -116,6 +116,9 @@ public class CraftCodeBot implements CodeBot {
     @Getter @Setter
     private boolean isDirty = false;
 
+    @Getter @Setter
+    private long lastSaved = 0;
+
     public CraftCodeBot(World world, UUID id, UUID entityId, UUID interactionId) {
         this.world = world;
         this.id = id;
@@ -247,48 +250,18 @@ public class CraftCodeBot implements CodeBot {
         var textDisplay = getTextDisplay();
 
         if (CodeBots.isBlockOccupied(getBlockLocation().add(direction.toVector()), this)) {
-            /*
-            var destination = getBlockLocation().add(direction.toVector());
-            var registry = CodeBotsPlugin.inst().getSingleton(BotRegistry.class);
-            CodeBot occupying;
-            if (!destination.getBlock().getType().isAir()) {
-                Bukkit.broadcastMessage("Destination obstructed by a block: " + destination);
-            }
-            else if ((occupying = registry.getBotAt(destination)) != null) {
-                Bukkit.broadcastMessage("Destination obstructed by a bot: " + occupying.getBlockLocation());
-            }
-            else if ((occupying = registry.getBotMovingTo(destination)) != null) {
-                Bukkit.broadcastMessage("Destination obstructed by a moving bot: " + occupying.getBlockLocation());
-            }
-            Bukkit.broadcastMessage("Bot is at " + getBlockLocation());
-            */
             return false;
         }
 
         var initialTransformation = entity.getTransformation();
-        var initialTranslation = initialTransformation.getTranslation();
-
-        var nextTranslation = direction.toVector().toVector3f().add(initialTranslation);
-
-        entity.setInterpolationDelay(0);
-        entity.setInterpolationDuration(Config.BOT_MOVEMENT_DURATION * 2);
-        entity.setTransformation(new Transformation(
-                nextTranslation,
-                initialTransformation.getLeftRotation(),
-                initialTransformation.getScale(),
-                initialTransformation.getRightRotation()
-        ));
+        var destination = getBlockLocation().add(direction.toVector());
 
         // Interpolate text display above the bot
-        /*
-        textDisplay.setInterpolationDelay(0);
-        textDisplay.setInterpolationDuration(Config.BOT_MOVEMENT_DURATION * 2);
-        textDisplay.setTransformation(new Transformation(
-                direction.toVector().toVector3f(),
-                new AxisAngle4f(0, 0, 0, 0),
-                new Vector3f(1, 1, 1),
-                new AxisAngle4f(0, 0, 0, 0)
-        ));*/
+        entity.setTeleportDuration(Config.BOT_MOVEMENT_DURATION * 2);
+        textDisplay.setTeleportDuration(Config.BOT_MOVEMENT_DURATION * 2);
+
+        entity.teleport(destination.clone().add(0.2, 0, 0.2));
+        textDisplay.teleport(destination.clone().add(0.5, Config.BOT_STATUS_ENTITY_OFFSET, 0.5));
 
         this.movement = new BotMovement(getBlockLocation(), BotMovement.Type.TRANSLATION, direction, initialTransformation);
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation(this);
@@ -303,17 +276,7 @@ public class CraftCodeBot implements CodeBot {
     }
 
     public void completeTranslation() {
-        var entity = getEntity();
-        var initialTranslation = movement.getInitialTransformation().getTranslation();
-        var direction = movement.getDirection().toVector();
-        entity.setInterpolationDuration(0);
-        entity.setTransformation(new Transformation(
-                initialTranslation,
-                entity.getTransformation().getLeftRotation(),
-                entity.getTransformation().getScale(),
-                entity.getTransformation().getRightRotation()
-        ));
-        setLocation(entity.getLocation().add(direction));
+        setLocation(getEntity().getLocation());
     }
 
     @Override
@@ -514,6 +477,10 @@ public class CraftCodeBot implements CodeBot {
                 gui.close(CloseInitiator.EXTERNAL);
             }
         }
+    }
+
+    public void save() {
+        CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
     }
 
 }
