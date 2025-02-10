@@ -32,8 +32,6 @@ public class CodeEditorClient {
 
     private final Map<UUID, EditorSession> activeSessions = new HashMap<>();
 
-    private final Map<String, EditorSession> activeSessionsByFile = new HashMap<>();
-
     private final Map<UUID, EditorSession> activeSessionsByBots = new HashMap<>();
 
     private String serverToken;
