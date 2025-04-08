@@ -1,6 +1,7 @@
 package com.github.alantr7.codebots.api.bot;
 
 import lombok.Getter;
+import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
 @Getter
@@ -55,6 +56,16 @@ public enum Direction {
                     default -> NORTH;
                 };
             };
+        };
+    }
+
+    public static Direction fromBlockFace(BlockFace face) {
+        return switch (face) {
+            case NORTH -> NORTH;
+            case EAST -> EAST;
+            case SOUTH -> SOUTH;
+            case WEST -> WEST;
+            default -> null;
         };
     }
 
