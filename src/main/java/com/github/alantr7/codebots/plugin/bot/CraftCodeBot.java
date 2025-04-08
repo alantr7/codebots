@@ -12,13 +12,14 @@ import com.github.alantr7.codebots.language.compiler.parser.error.ParserExceptio
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
 import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
 import com.github.alantr7.codebots.plugin.codeint.modules.MemoryModule;
+import com.github.alantr7.codebots.plugin.codeint.modules.MonitorModule;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
-import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.plugin.gui.BotProgramsGUI;
 import com.github.alantr7.codebots.plugin.utils.FileHelper;
@@ -118,6 +119,10 @@ public class CraftCodeBot implements CodeBot {
 
     @Getter @Setter
     private long lastSaved = 0;
+
+    @Setter
+    @Getter
+    private CraftMonitor monitor;
 
     public CraftCodeBot(World world, UUID id, UUID entityId, UUID interactionId) {
         this.world = world;
@@ -335,6 +340,7 @@ public class CraftCodeBot implements CodeBot {
 
             this.program.registerNativeModule("bot", new BotModule(this.program));
             this.program.registerNativeModule("memory", new MemoryModule(this.program));
+            this.program.registerNativeModule("monitor", new MonitorModule(this.program));
             this.programSource = program;
 
             this.program.action(Program.Mode.FULL_EXEC);

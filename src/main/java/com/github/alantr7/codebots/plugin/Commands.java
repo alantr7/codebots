@@ -4,15 +4,18 @@ import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.bukkitplugin.annotations.generative.Command;
 import com.github.alantr7.bukkitplugin.commands.annotations.CommandHandler;
+import com.github.alantr7.bukkitplugin.commands.executor.Evaluator;
 import com.github.alantr7.bukkitplugin.commands.executor.ExecutorType;
 import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
 import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.BotBuilder;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
+import com.github.alantr7.codebots.api.monitor.Monitor;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
+import com.github.alantr7.codebots.plugin.data.MonitorManager;
 import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.editor.EditorSession;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
@@ -41,7 +44,7 @@ public class Commands {
     @Inject
     DataLoader loader;
 
-    @Command(name = "codebots", description = "Create bots")
+    @Command(name = "codebots", description = "Create bots.")
     public static final String CREATE_CMD = "";
 
     @CommandHandler
@@ -282,6 +285,15 @@ public class Commands {
 
                 CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(bot);
                 ctx.respond("§eBot has been saved.");
+            });
+
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command createMonitor = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_CREATE)
+            .parameter("create_monitor")
+            .parameter("{size_index}", Integer.class, p -> p.evaluator(Evaluator.INTEGER))
+            .executes(ctx -> {
+                ((Player) ctx.getExecutor()).getInventory().addItem(ItemFactory.createMonitorItem(Monitor.Size.values()[(int) ctx.getArgument("size_index")]));
             });
 
     @CommandHandler

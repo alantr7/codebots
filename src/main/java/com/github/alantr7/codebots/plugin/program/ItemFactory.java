@@ -2,8 +2,8 @@ package com.github.alantr7.codebots.plugin.program;
 
 import com.github.alantr7.codebots.api.bot.BotBuilder;
 import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.api.monitor.Monitor;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -15,8 +15,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.UUID;
 import java.util.function.Consumer;
-
-import static com.github.alantr7.codebots.plugin.utils.MathHelper.any;
 
 public class ItemFactory {
 
@@ -80,6 +78,25 @@ public class ItemFactory {
             meta.setDisplayName("§eCodeBot");
             meta.setLore(lore);
         });
+    }
+
+    public static ItemStack createMonitorItem(String monitorId, Monitor.Size size) {
+        return createItem(Material.OBSERVER, meta -> {
+            var pdc = meta.getPersistentDataContainer();
+            pdc.set(key("MonitorSize"), PersistentDataType.SHORT, (short) size.ordinal());
+            if (monitorId != null)
+                pdc.set(key("MonitorId"), PersistentDataType.STRING, monitorId);
+
+            var lore = new LinkedList<String>();
+            lore.add("§7Right-click on ground to place");
+
+            meta.setDisplayName("§eMonitor §o(" + size.getWidth() + "x" + size.getHeight() + ")");
+            meta.setLore(lore);
+        });
+    }
+
+    public static ItemStack createMonitorItem(Monitor.Size size) {
+        return createMonitorItem(null, size);
     }
 
     public static ItemStack createItem(Material material, Consumer<ItemMeta> meta) {

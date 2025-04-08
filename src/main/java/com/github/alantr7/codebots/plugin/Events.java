@@ -9,9 +9,7 @@ import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.bot.BotFactory;
-import com.github.alantr7.codebots.plugin.data.BotRegistry;
-import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
-import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
+import com.github.alantr7.codebots.plugin.data.*;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.plugin.utils.EventDispatcher;
 import org.bukkit.Bukkit;
@@ -42,7 +40,7 @@ import static com.github.alantr7.codebots.plugin.program.ItemFactory.key;
 public class Events implements Listener {
 
     @Inject
-    BotRegistry registry;
+    BotRegistry botsRegistry;
 
     @Inject
     PlayerRegistry players;
@@ -52,9 +50,9 @@ public class Events implements Listener {
 
     @EventHandler
     void onChunkLoad(ChunkLoadEvent event) {
-        registry.getBotsInChunk(event.getChunk().getX(), event.getChunk().getZ()).forEach(bot -> {
+        botsRegistry.getBotsInChunk(event.getChunk().getX(), event.getChunk().getZ()).forEach(bot -> {
             bot.fixTransformation();
-            registry.updateBotLocation(bot);
+            botsRegistry.updateBotLocation(bot);
 
             EventDispatcher.callBotLoadEvent(bot);
         });
@@ -62,10 +60,10 @@ public class Events implements Listener {
 
     @EventHandler
     void onChunkUnload(ChunkUnloadEvent event) {
-        registry.getBotsInChunk(event.getChunk().getX(), event.getChunk().getZ()).forEach(bot -> {
+        botsRegistry.getBotsInChunk(event.getChunk().getX(), event.getChunk().getZ()).forEach(bot -> {
             bot.setActive(false);
             bot.setProgram(null);
-            registry.getMovingBots().remove(bot.getId());
+            botsRegistry.getMovingBots().remove(bot.getId());
 
             plugin.getLogger().info("Bot " + bot.getId() + " has been deactivated due to chunk unload.");
 
@@ -161,7 +159,7 @@ public class Events implements Listener {
             return;
         }
 
-        var bot = registry.getBots().get(UUID.fromString(botId));
+        var bot = botsRegistry.getBots().get(UUID.fromString(botId));
         if (bot == null) {
             return;
         }

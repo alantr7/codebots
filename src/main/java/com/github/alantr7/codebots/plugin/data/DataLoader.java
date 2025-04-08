@@ -1,5 +1,7 @@
 package com.github.alantr7.codebots.plugin.data;
 
+import com.alant7_.dborm.Database;
+import com.alant7_.dborm.repository.RepositoryImpl;
 import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
@@ -12,6 +14,7 @@ import com.github.alantr7.codebots.language.compiler.Compiler;
 import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.bot.CraftMemory;
 import com.github.alantr7.codebots.plugin.config.Config;
@@ -39,13 +42,18 @@ public class DataLoader {
     CodeBotsPlugin plugin;
 
     @Inject
-    BotRegistry registry;
+    BotRegistry botsRegistry;
+
+    @Inject
+    MonitorManager monitorsRegistry;
 
     @Inject
     PlayerRegistry players;
 
     @Inject
     ProgramRegistry programs;
+
+    private RepositoryImpl<String, CraftMonitor> monitorsDb;
 
     @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
     public void load() {
@@ -63,7 +71,9 @@ public class DataLoader {
             }
         }
 
-        plugin.getLogger().info("Loaded " + registry.getBots().size() + " bots.");
+        loadMonitors();
+
+        plugin.getLogger().info("Loaded " + botsRegistry.getBots().size() + " bots.");
 
         // Load players
         for (var player : Bukkit.getOnlinePlayers()) {
@@ -75,7 +85,7 @@ public class DataLoader {
         loadConfig();
         loadPrograms();
 
-        registry.getBots().forEach((id, bot) -> {
+        botsRegistry.getBots().forEach((id, bot) -> {
             bot.setProgram(null);
 
             var source = bot.getProgramSource();
@@ -111,6 +121,22 @@ public class DataLoader {
             } catch (Exception e) {
             }
         }
+    }
+
+    private void loadMonitors() {
+        // Setup monitors database
+        File monitorsDbFile = new File(plugin.getDataFolder(), "monitors.db");
+        if (!monitorsDbFile.exists()) try { monitorsDbFile.createNewFile(); } catch (Exception e) { e.printStackTrace();}
+        monitorsDb = Database.builder().config(config -> {
+            config.setJdbcUrl("jdbc:sqlite:" + monitorsDbFile.getPath());
+            config.setDriverClassName("org.sqlite.JDBC");
+            config.setConnectionTestQuery("SELECT 1");
+            config.setPoolName("MonitorsPool");
+            config.setMaximumPoolSize(1);
+        }).entity(CraftMonitor.class).build().getRepository(CraftMonitor.class);
+
+        monitorsDb.selectAll("select * from monitors").forEach(monitor -> monitorsRegistry.registerMonitor(monitor));
+        plugin.getLogger().info("Loaded " + monitorsRegistry.monitors.size() + " monitor(s).");
     }
 
     private void loadConfig() {
@@ -211,7 +237,7 @@ public class DataLoader {
             }
         }
 
-        this.registry.registerBot(bot);
+        this.botsRegistry.registerBot(bot);
 
         if (bot.isDirty()) {
             save(bot);
@@ -231,7 +257,7 @@ public class DataLoader {
     }
 
     public void save() {
-        registry.getBots().forEach((id, bot) -> save(bot));
+        botsRegistry.getBots().forEach((id, bot) -> save(bot));
     }
 
     public void save(CodeBot bot) {
@@ -294,6 +320,14 @@ public class DataLoader {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void save(CraftMonitor monitor) {
+        monitorsDb.save(monitor);
+    }
+
+    public void delete(CraftMonitor monitor) {
+        monitorsDb.delete(monitor.getId());
     }
 
 }
