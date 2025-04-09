@@ -36,7 +36,7 @@ public class MonitorManager {
         for (int i = 0; i < monitor.getWidth(); i++) {
             Location backgroundBlockHorizontalOrigin = monitorBlockLocation.clone();
             for (int j = 0; j < monitor.getHeight(); j++) {
-                monitorBlocks.put(monitorBlockLocation.clone(), monitor.getId());
+                monitorBlocks.put(backgroundBlockHorizontalOrigin.clone(), monitor.getId());
                 backgroundBlockHorizontalOrigin.add(0, 1, 0);
             }
 

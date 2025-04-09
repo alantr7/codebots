@@ -87,6 +87,20 @@ public class CraftMonitor implements Monitor {
             " ".repeat(50),
     };
 
+    public static final float[] TEXT_DISPLAY_HORIZONTAL_OFFSETS = {
+            0f,
+            0f,
+            -0.05f,
+            -0.08f,
+    };
+
+    public static final float[] TEXT_DISPLAY_VERTICAL_OFFSETS = {
+            0.05f,
+            0.1f,
+            -0.05f,
+            0
+    };
+
     public CraftMonitor(String id, Location location, Direction direction, BlockDisplay blockDisplay, BlockDisplay screenDisplay, TextDisplay textDisplay, Size size) {
         this.id = id;
         this.location = location;

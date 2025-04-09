@@ -8,10 +8,8 @@ import com.github.alantr7.codebots.plugin.data.MonitorManager;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.util.Transformation;
 
@@ -20,7 +18,7 @@ import java.security.SecureRandom;
 public class MonitorFactory {
 
     public static Monitor createMonitor(Location blockLocation, Direction facingDirection, Monitor.Size size) {
-        return createMonitor(blockLocation, facingDirection, size);
+        return createMonitor(null, blockLocation, facingDirection, size);
     }
 
     public static Monitor createMonitor(String id, Location blockLocation, Direction facingDirection, Monitor.Size size) {
@@ -55,7 +53,8 @@ public class MonitorFactory {
         textEntity.setLineWidth(monitor.getMaxLineWidth());
         Transformation transformation = textEntity.getTransformation();
         transformation.getTranslation().z = -0.98f;
-        transformation.getTranslation().y = -0.1f;
+        transformation.getTranslation().x = CraftMonitor.TEXT_DISPLAY_HORIZONTAL_OFFSETS[monitor.getWidth() - 1];
+        transformation.getTranslation().y = -0.1f + CraftMonitor.TEXT_DISPLAY_VERTICAL_OFFSETS[monitor.getHeight() - 1];
         transformation.getScale().set(0.75);
         textEntity.setTransformation(transformation);
         textEntity.setAlignment(TextDisplay.TextAlignment.LEFT);
