@@ -8,6 +8,7 @@ import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.data.MonitorManager;
+import org.bukkit.entity.TextDisplay;
 
 public class MonitorModule extends NativeModule {
 
@@ -53,6 +54,28 @@ public class MonitorModule extends NativeModule {
                 throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
 
             monitor.write(args[0] + "\\n");
+            return null;
+        });
+
+        registerFunction("setTextAlignment", args -> {
+            Assertions.expectArguments(args, String.class);
+            String alignmentRaw = (String) args[0];
+            TextDisplay.TextAlignment alignment = switch (alignmentRaw) {
+                case "left" -> TextDisplay.TextAlignment.LEFT;
+                case "center" -> TextDisplay.TextAlignment.CENTER;
+                case "right" -> TextDisplay.TextAlignment.RIGHT;
+                default -> null;
+            };
+
+            if (alignment == null) throw new ExecutionException("Invalid alignment option. Expected values were \"left\", \"center\" and \"right\".");
+
+            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
+            CraftMonitor monitor = bot.getMonitor();
+
+            if (monitor == null)
+                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+            monitor.setTextAlignment(alignment);
             return null;
         });
     }

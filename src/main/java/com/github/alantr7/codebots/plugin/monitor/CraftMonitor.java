@@ -17,6 +17,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.TextDisplay;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -47,6 +48,9 @@ public class CraftMonitor implements Monitor {
 
     @Data @Getter @Setter
     private Direction direction;
+
+    @Data @Getter
+    private TextDisplay.TextAlignment textAlignment = TextDisplay.TextAlignment.LEFT;
 
     @Data
     private int width;
@@ -179,6 +183,13 @@ public class CraftMonitor implements Monitor {
     @Override
     public void writeln(String text) {
         write(text + "\\n");
+    }
+
+    @Override
+    public void setTextAlignment(TextDisplay.@NotNull TextAlignment textAlignment) {
+        this.textAlignment = textAlignment;
+        if (textDisplay() != null)
+            textDisplay.setAlignment(textAlignment);
     }
 
     @Override

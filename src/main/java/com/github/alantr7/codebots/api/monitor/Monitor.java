@@ -6,6 +6,8 @@ import lombok.Getter;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.entity.TextDisplay;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface Monitor {
@@ -27,6 +29,10 @@ public interface Monitor {
     void write(String text);
 
     void writeln(String text);
+
+    @NotNull TextDisplay.TextAlignment getTextAlignment();
+
+    void setTextAlignment(@NotNull TextDisplay.TextAlignment textAlignment);
 
     @Nullable CodeBot getConnectedBot();
 
