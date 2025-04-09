@@ -15,7 +15,6 @@ import com.github.alantr7.codebots.api.monitor.Monitor;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
-import com.github.alantr7.codebots.plugin.data.MonitorManager;
 import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.editor.EditorSession;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
@@ -49,8 +48,8 @@ public class Commands {
 
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command create = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_CREATE)
-            .parameter("create")
+            .permission(Permissions.COMMAND_CREATE_BOT)
+            .parameter("create_bot")
             .requireMatches(1)
             .executes(ctx -> {
                 var player = ((Player) ctx.getExecutor());
@@ -63,7 +62,7 @@ public class Commands {
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command delete = CommandBuilder.using("codebots")
             .permission(Permissions.COMMAND_DELETE)
-            .parameter("delete")
+            .parameter("delete_bot")
             .executes(ctx -> {
                 var bot = CodeBots.getSelectedBot((Player) ctx.getExecutor());
                 if (bot == null) {
@@ -169,7 +168,7 @@ public class Commands {
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command closeEditor = CommandBuilder.using("codebots")
             .permission(Permissions.COMMAND_EDITOR)
-            .parameter("close-editor")
+            .parameter("close_editor")
             .executes(ctx -> {
                 var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
                 if (bot == null) {
@@ -185,36 +184,6 @@ public class Commands {
 
                 editorClient.deleteSession(session);
                 ctx.respond("§eEditor session deleted!");
-            });
-
-    @CommandHandler
-    public com.github.alantr7.bukkitplugin.commands.registry.Command start = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_START)
-            .parameter("start")
-            .executes(ctx -> {
-                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
-                if (bot == null) {
-                    ctx.respond("§cPlease select a bot first.");
-                    return;
-                }
-
-                bot.setActive(true);
-                ctx.respond("§eBot started!");
-            });
-
-    @CommandHandler
-    public com.github.alantr7.bukkitplugin.commands.registry.Command stop = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_STOP)
-            .parameter("stop")
-            .executes(ctx -> {
-                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
-                if (bot == null) {
-                    ctx.respond("§cPlease select a bot first.");
-                    return;
-                }
-
-                bot.setActive(false);
-                ctx.respond("§eBot stopped.");
             });
 
     @CommandHandler
@@ -289,11 +258,25 @@ public class Commands {
 
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command createMonitor = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_CREATE)
+            .permission(Permissions.COMMAND_CREATE_MONITOR)
             .parameter("create_monitor")
-            .parameter("{size_index}", Integer.class, p -> p.evaluator(Evaluator.INTEGER))
+            .parameter("{size}", Monitor.Size.class, p -> p
+                    .tabComplete("1x1", "2x1", "3x2", "4x3")
+                    .evaluator(input -> {
+                try {
+                    return Monitor.Size.valueOf("SIZE_" + input);
+                } catch (Exception ignored) {
+                    return null;
+                }
+            }).ifNotProvided(ctx -> ctx.respond("§cMonitor size not provided.")))
             .executes(ctx -> {
-                ((Player) ctx.getExecutor()).getInventory().addItem(ItemFactory.createMonitorItem(Monitor.Size.values()[(int) ctx.getArgument("size_index")]));
+                Monitor.Size size = (Monitor.Size) ctx.getArgument("size");
+                if (size == null) {
+                    ctx.respond("§cInvalid monitor size. Valid sizes are: §41x1, 2x1, 3x2, 4x3§c.");
+                    return;
+                }
+
+                ((Player) ctx.getExecutor()).getInventory().addItem(ItemFactory.createMonitorItem(size));
             });
 
     @CommandHandler
