@@ -9,10 +9,7 @@ import com.github.alantr7.codebots.language.runtime.modules.NativeModule;
 import com.github.alantr7.codebots.plugin.codeint.functions.MineFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.MoveFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
-import com.github.alantr7.codebots.plugin.config.Config;
-import org.bukkit.ChatColor;
 import org.bukkit.block.Container;
-import org.bukkit.entity.EntityType;
 
 public class BotModule extends NativeModule {
 
