@@ -241,6 +241,12 @@ public class CraftMonitor implements Monitor {
     }
 
     @Override
+    public void setText(@NotNull String text) {
+        clear();
+        write(text);
+    }
+
+    @Override
     public void clear() {
         currentLineIndex = 0;
         lines = null;

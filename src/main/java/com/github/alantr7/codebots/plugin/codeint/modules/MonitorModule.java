@@ -59,6 +59,18 @@ public class MonitorModule extends NativeModule {
             return null;
         });
 
+        registerFunction("setText", args -> {
+            Assertions.expectArguments(args, String.class);
+            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
+            CraftMonitor monitor = bot.getMonitor();
+
+            if (monitor == null)
+                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+            monitor.setText((String) args[0]);
+            return null;
+        });
+
         registerFunction("clear", args -> {
             CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
             CraftMonitor monitor = bot.getMonitor();

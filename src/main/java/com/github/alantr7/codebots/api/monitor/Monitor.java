@@ -30,6 +30,8 @@ public interface Monitor {
 
     void writeln(String text);
 
+    void setText(@NotNull String text);
+
     void clear();
 
     void setTextColor(@NotNull TextColor color);
