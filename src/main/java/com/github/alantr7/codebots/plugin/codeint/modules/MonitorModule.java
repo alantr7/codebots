@@ -86,6 +86,27 @@ public class MonitorModule extends NativeModule {
             return null;
         });
 
+        registerFunction("setTextColorRGB", args -> {
+            Assertions.expectArguments(args, Integer.class, Integer.class, Integer.class);
+            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
+            CraftMonitor monitor = bot.getMonitor();
+
+            if (monitor == null)
+                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+            int red = (int) args[0];
+            Assertions.assertBool(red <= 255 && red >= 0, "Colors must be in range [0-255]!");
+
+            int green = (int) args[1];
+            Assertions.assertBool(green <= 255 && green >= 0, "Colors must be in range [0-255]!");
+
+            int blue = (int) args[2];
+            Assertions.assertBool(blue <= 255 && blue >= 0, "Colors must be in range [0-255]!");
+
+            monitor.setTextColor(TextColor.color(red, green, blue));
+            return null;
+        });
+
         registerFunction("setTextAlignment", args -> {
             Assertions.expectArguments(args, String.class);
             String alignmentRaw = (String) args[0];
