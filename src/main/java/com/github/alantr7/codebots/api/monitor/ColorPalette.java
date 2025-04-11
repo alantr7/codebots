@@ -28,6 +28,13 @@ public class ColorPalette {
     }
 
     public static TextColor getColor(String name) {
+        // Get color by hex value
+        if (name.startsWith("#")) {
+            if (name.length() != 4 && name.length() != 7)
+                return null;
+
+            return TextColor.fromCSSHexString(name);
+        }
         return colorsMap.get(name);
     }
 
