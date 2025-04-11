@@ -36,7 +36,6 @@ https://github.com/alantr7/codebots/wiki/Scripting-Language
 #### Future plans
 - Rework bots memory
 - Resume programs when bots are loaded
-- Web editor for writing scripts
 - Bot networks using routers
 - Ton of optimization
 - Bot statistics (blocks moved, blocks mined)
