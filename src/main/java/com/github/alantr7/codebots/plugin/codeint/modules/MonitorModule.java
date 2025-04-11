@@ -1,5 +1,6 @@
 package com.github.alantr7.codebots.plugin.codeint.modules;
 
+import com.github.alantr7.codebots.api.monitor.ColorPalette;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
@@ -8,6 +9,7 @@ import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.data.MonitorManager;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.TextDisplay;
 
 public class MonitorModule extends NativeModule {
@@ -54,6 +56,33 @@ public class MonitorModule extends NativeModule {
                 throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
 
             monitor.write(args[0] + "\\n");
+            return null;
+        });
+
+        registerFunction("clear", args -> {
+            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
+            CraftMonitor monitor = bot.getMonitor();
+
+            if (monitor == null)
+                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+            monitor.clear();
+            return null;
+        });
+
+        registerFunction("setTextColor", args -> {
+            Assertions.expectArguments(args, String.class);
+            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
+            CraftMonitor monitor = bot.getMonitor();
+
+            if (monitor == null)
+                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+            TextColor color = ColorPalette.getColor((String) args[0]);
+            if (color == null)
+                throw new ExecutionException("Unknown color: " + args[0]);
+
+            monitor.setTextColor(color);
             return null;
         });
 

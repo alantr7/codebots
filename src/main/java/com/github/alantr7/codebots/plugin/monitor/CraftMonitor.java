@@ -6,14 +6,16 @@ import com.alant7_.dborm.annotation.Id;
 import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
+import com.github.alantr7.codebots.api.monitor.ColorPalette;
 import com.github.alantr7.codebots.api.monitor.Monitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.utils.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.TextDisplay;
@@ -25,7 +27,9 @@ import java.util.UUID;
 @Entity("monitors")
 public class CraftMonitor implements Monitor {
 
-    @Getter @Id @Data
+    @Getter
+    @Id
+    @Data
     private String id;
 
     @Data("text_display_id")
@@ -46,11 +50,25 @@ public class CraftMonitor implements Monitor {
     @Data
     private Location location;
 
-    @Data @Getter @Setter
+    @Data
+    @Getter
+    @Setter
     private Direction direction;
 
-    @Data @Getter
+    @Data
+    @Getter
     private TextDisplay.TextAlignment textAlignment = TextDisplay.TextAlignment.LEFT;
+
+    @Data
+    private byte[] display = {(byte) 0};
+
+    private int currentLineIndex;
+
+    private TextComponent[] lines;
+
+    private String[] linesContents;
+
+    private TextColor textColor = TextColor.color(255, 255, 255);
 
     @Data
     private int width;
@@ -158,21 +176,58 @@ public class CraftMonitor implements Monitor {
     }
 
     @Override
-    public void write(String text) {
+    public void write(String textA) {
         if (textDisplay() == null)
             return;
 
-        String[] lines = StringUtils.wrapText(text, MAX_LINES[height - 1], MAX_CHARS_PER_LINES[width - 1]);
-        for (int i = lines.length - 1; i >= 0; i--) {
-            if (lines[i] == null) {
-                lines[i] = "";
+        // Create lines array
+        if (this.lines == null) {
+            this.lines = new TextComponent[MAX_LINES[this.height - 1]];
+            this.linesContents = new String[lines.length];
+            for (int i = 0; i < this.lines.length; i++) {
+                lines[i] = Component.empty();
+                linesContents[i] = "";
             }
         }
 
-        // Build component from text lines
-        Component component = Component.text("");
-        for (String line : lines) {
-            component = component.append(Component.text(ChatColor.translateAlternateColorCodes('&', line))).appendNewline();
+
+        // Append text from input text
+        String[] tokens = StringUtils.tokenizeForMonitorText(textA);
+        for (String text : tokens) {
+            if (currentLineIndex >= MAX_LINES[height - 1])
+                break;
+
+            if (text.equals("\\n")) {
+                currentLineIndex++;
+                continue;
+            }
+
+            while (!text.isEmpty() && currentLineIndex < MAX_LINES[height - 1]) {
+                TextComponent line = this.lines[currentLineIndex];
+                String content = this.linesContents[currentLineIndex];
+
+                if (content.length() + text.length() <= MAX_CHARS_PER_LINES[width - 1]) {
+                    this.lines[currentLineIndex] = line.append(Component.text(text).color(textColor));
+                    this.linesContents[currentLineIndex] += text;
+                    break;
+                }
+
+                int fittingCharsCount = MAX_CHARS_PER_LINES[width - 1] - (content.length() + text.length());
+                String fittingPart = text.substring(0, fittingCharsCount);
+
+                this.lines[currentLineIndex] = line.append(Component.text(fittingPart).color(textColor));
+                this.linesContents[currentLineIndex] += fittingPart;
+                text = text.substring(fittingCharsCount);
+
+                currentLineIndex++;
+            }
+        }
+
+
+        // Resulting component
+        Component component = Component.empty();
+        for (TextComponent line : lines) {
+            component = component.append(line).appendNewline();
         }
 
         // Fills the bottom line to allow proper text alignment
@@ -183,6 +238,20 @@ public class CraftMonitor implements Monitor {
     @Override
     public void writeln(String text) {
         write(text + "\\n");
+    }
+
+    @Override
+    public void clear() {
+        currentLineIndex = 0;
+        lines = null;
+        textColor = ColorPalette.WHITE;
+
+        write("");
+    }
+
+    @Override
+    public void setTextColor(@NotNull TextColor color) {
+        this.textColor = color;
     }
 
     @Override

@@ -30,6 +30,10 @@ public interface Monitor {
 
     void writeln(String text);
 
+    void clear();
+
+    void setTextColor(@NotNull TextColor color);
+
     @NotNull TextDisplay.TextAlignment getTextAlignment();
 
     void setTextAlignment(@NotNull TextDisplay.TextAlignment textAlignment);
