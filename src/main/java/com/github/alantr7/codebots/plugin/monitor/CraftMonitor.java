@@ -275,6 +275,19 @@ public class CraftMonitor implements Monitor {
 
         if (bot != null) ((CraftCodeBot) bot).setMonitor(this);
         botId = bot == null ? null : bot.getId();
+
+        if (bot != null) {
+            clear();
+        } else {
+            showDefaultText();
+        }
+    }
+
+    public void showDefaultText() {
+        clear();
+        write("Monitor ID: ");
+        setTextColor(ColorPalette.GREEN);
+        write(id);
     }
 
     public BlockDisplay screenDisplay() {

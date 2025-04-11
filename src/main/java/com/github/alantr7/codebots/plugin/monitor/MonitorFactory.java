@@ -64,7 +64,6 @@ public class MonitorFactory {
 
         // Get right direction
         float modX = 0; float modZ = 0;
-        System.out.println();
 
         if (facingDirection.getModZ() == -1) {
             modX = 0.5f - 0.08f + -monitor.getWidth() / 2f;
@@ -152,7 +151,7 @@ public class MonitorFactory {
         screenLocation.setDirection(facingDirection.toVector());
         screenEntity.teleport(screenLocation);
 
-        monitor.write("Connect with:\\n" + monitor.getId());
+        monitor.showDefaultText();
         return monitor;
     }
 
