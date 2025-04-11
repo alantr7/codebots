@@ -212,7 +212,7 @@ public class CraftMonitor implements Monitor {
                     break;
                 }
 
-                int fittingCharsCount = MAX_CHARS_PER_LINES[width - 1] - (content.length() + text.length());
+                int fittingCharsCount = MAX_CHARS_PER_LINES[width - 1] - content.length();
                 String fittingPart = text.substring(0, fittingCharsCount);
 
                 this.lines[currentLineIndex] = line.append(Component.text(fittingPart).color(textColor));
