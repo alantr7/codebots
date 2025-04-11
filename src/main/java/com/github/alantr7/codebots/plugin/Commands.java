@@ -261,7 +261,7 @@ public class Commands {
             .permission(Permissions.COMMAND_CREATE_MONITOR)
             .parameter("create_monitor")
             .parameter("{size}", Monitor.Size.class, p -> p
-                    .tabComplete("1x1", "2x1", "3x2", "4x3")
+                    .tabComplete("2x1", "3x2", "4x3")
                     .evaluator(input -> {
                 try {
                     return Monitor.Size.valueOf("SIZE_" + input);

@@ -167,7 +167,7 @@ public class CraftMonitor implements Monitor {
             e.printStackTrace();
         }
 
-        return Size.SIZE_1x1;
+        return Size.SIZE_2x1;
     }
 
     @Override

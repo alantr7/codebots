@@ -46,7 +46,6 @@ public interface Monitor {
 
     @Getter
     enum Size {
-        SIZE_1x1(1, 1),
         SIZE_2x1(2, 1),
         SIZE_3x2(3, 2),
         SIZE_4x3(4, 3);
