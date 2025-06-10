@@ -460,6 +460,10 @@ public class CraftCodeBot implements CodeBot {
             interaction.remove();
         }
 
+        var textDisplay = getTextDisplay();
+        if (textDisplay != null) {
+            textDisplay.remove();
+        }
         FileHelper.deleteDirectory(getDirectory());
 
         if (!isChunkLoaded) {
