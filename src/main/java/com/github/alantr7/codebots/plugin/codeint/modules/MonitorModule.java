@@ -11,6 +11,7 @@ import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.data.MonitorManager;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.TextDisplay;
 
 public class MonitorModule extends NativeModule {
@@ -44,7 +45,7 @@ public class MonitorModule extends NativeModule {
             if (monitor == null)
                 throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
 
-            monitor.write((String) args[0]);
+            monitor.write(ChatColor.translateAlternateColorCodes('&', (String) args[0]));
             return null;
         });
 
@@ -56,7 +57,7 @@ public class MonitorModule extends NativeModule {
             if (monitor == null)
                 throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
 
-            monitor.write(args[0] + "\\n");
+            monitor.write(ChatColor.translateAlternateColorCodes('&', (String) args[0]) + "\\n");
             return null;
         });
 
@@ -68,7 +69,7 @@ public class MonitorModule extends NativeModule {
             if (monitor == null)
                 throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
 
-            monitor.setText((String) args[0]);
+            monitor.setText(ChatColor.translateAlternateColorCodes('&', (String) args[0]));
             return null;
         });
 
