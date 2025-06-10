@@ -4,7 +4,6 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import lombok.Getter;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.TextDisplay;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +32,8 @@ public interface Monitor {
     void setText(@NotNull String text);
 
     void clear();
+
+    void setBackgroundColor(@NotNull PresetColor color);
 
     void setTextColor(@NotNull TextColor color);
 

@@ -1,6 +1,7 @@
 package com.github.alantr7.codebots.plugin.codeint.modules;
 
 import com.github.alantr7.codebots.api.monitor.ColorPalette;
+import com.github.alantr7.codebots.api.monitor.PresetColor;
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.Assertions;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
@@ -82,6 +83,22 @@ public class MonitorModule extends NativeModule {
             return null;
         });
 
+        registerFunction("setBackgroundColor", args -> {
+            Assertions.expectArguments(args, String.class);
+            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
+            CraftMonitor monitor = bot.getMonitor();
+
+            if (monitor == null)
+                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+            PresetColor color = ColorPalette.getColor((String) args[0]);
+            if (color == null)
+                throw new ExecutionException("Unknown color: " + args[0]);
+
+            monitor.setBackgroundColor(color);
+            return null;
+        });
+
         registerFunction("setTextColor", args -> {
             Assertions.expectArguments(args, String.class);
             CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
@@ -90,7 +107,7 @@ public class MonitorModule extends NativeModule {
             if (monitor == null)
                 throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
 
-            TextColor color = ColorPalette.getColor((String) args[0]);
+            TextColor color = ColorPalette.getTextColor((String) args[0]);
             if (color == null)
                 throw new ExecutionException("Unknown color: " + args[0]);
 

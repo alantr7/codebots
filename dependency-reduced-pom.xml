@@ -11,7 +11,7 @@
         <directory>src/main/resources</directory>
       </resource>
     </resources>
-    <directory>D:\Workspace\java\.out\${project.artifactId}</directory>
+    <directory>/home/alan/Workspace/java/.out/${project.artifactId}</directory>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

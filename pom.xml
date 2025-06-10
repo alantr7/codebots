@@ -88,7 +88,7 @@
     </dependencies>
 
     <build>
-        <directory>D:\Workspace\java\.out\${project.artifactId}</directory>
+        <directory>/home/alan/Workspace/java/.out/${project.artifactId}</directory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

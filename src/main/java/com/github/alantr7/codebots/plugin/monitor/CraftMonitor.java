@@ -8,6 +8,7 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.monitor.ColorPalette;
 import com.github.alantr7.codebots.api.monitor.Monitor;
+import com.github.alantr7.codebots.api.monitor.PresetColor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.utils.StringUtils;
 import lombok.Getter;
@@ -250,9 +251,17 @@ public class CraftMonitor implements Monitor {
     public void clear() {
         currentLineIndex = 0;
         lines = null;
-        textColor = ColorPalette.WHITE;
+        textColor = ColorPalette.WHITE.text();
 
         write("");
+    }
+
+    @Override
+    public void setBackgroundColor(@NotNull PresetColor color) {
+        if (screenDisplay() == null)
+            return;
+
+        screenDisplay.setBlock(color.background().createBlockData());
     }
 
     @Override
@@ -292,7 +301,7 @@ public class CraftMonitor implements Monitor {
     public void showDefaultText() {
         clear();
         write("Monitor ID: ");
-        setTextColor(ColorPalette.GREEN);
+        setTextColor(ColorPalette.GREEN.text());
         write(id);
     }
 
