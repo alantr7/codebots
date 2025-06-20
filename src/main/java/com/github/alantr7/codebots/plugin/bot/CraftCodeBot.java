@@ -12,6 +12,7 @@ import com.github.alantr7.codebots.language.compiler.parser.error.ParserExceptio
 import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.codeint.modules.RedstoneModule;
 import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
 import com.github.alantr7.codebots.plugin.codeint.modules.BotModule;
@@ -341,6 +342,7 @@ public class CraftCodeBot implements CodeBot {
             this.program.registerNativeModule("bot", new BotModule(this.program));
             this.program.registerNativeModule("memory", new MemoryModule(this.program));
             this.program.registerNativeModule("monitor", new MonitorModule(this.program));
+            this.program.registerNativeModule("redstone", new RedstoneModule(this.program));
             this.programSource = program;
 
             this.program.action(Program.Mode.FULL_EXEC);
