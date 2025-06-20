@@ -6,7 +6,7 @@
 
     <groupId>com.github.alantr7</groupId>
     <artifactId>CodeBots</artifactId>
-    <version>0.7.2</version>
+    <version>0.8.0</version>
 
     <properties>
         <java.version>21</java.version>

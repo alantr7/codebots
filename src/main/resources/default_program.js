@@ -1,5 +1,6 @@
 import bot
+import monitor
 
 function main() {
-    bot.chat("Hello World!")
+  bot.chat("Hello World!")
 }
