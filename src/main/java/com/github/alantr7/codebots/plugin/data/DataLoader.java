@@ -18,6 +18,7 @@ import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.bot.CraftMemory;
 import com.github.alantr7.codebots.plugin.config.Config;
+import com.github.alantr7.codebots.plugin.redstone.CraftRedstoneTransmitter;
 import com.github.alantr7.codebots.plugin.utils.BotLoader;
 import com.github.alantr7.codebots.plugin.utils.Compatibility;
 import com.github.alantr7.codebots.plugin.utils.EventDispatcher;
@@ -48,12 +49,17 @@ public class DataLoader {
     MonitorManager monitorsRegistry;
 
     @Inject
+    TransmitterManager transmitterRegistry;
+
+    @Inject
     PlayerRegistry players;
 
     @Inject
     ProgramRegistry programs;
 
     private RepositoryImpl<String, CraftMonitor> monitorsDb;
+
+    private RepositoryImpl<String, CraftRedstoneTransmitter> transmittersDb;
 
     @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
     public void load() {
@@ -72,6 +78,7 @@ public class DataLoader {
         }
 
         loadMonitors();
+        loadTransmitters();
 
         plugin.getLogger().info("Loaded " + botsRegistry.getBots().size() + " bots.");
 
@@ -136,6 +143,22 @@ public class DataLoader {
         }).entity(CraftMonitor.class).build().getRepository(CraftMonitor.class);
 
         monitorsDb.selectAll("select * from monitors").forEach(monitor -> monitorsRegistry.registerMonitor(monitor));
+        plugin.getLogger().info("Loaded " + monitorsRegistry.monitors.size() + " monitor(s).");
+    }
+
+    private void loadTransmitters() {
+        // Setup transmitters database
+        File transmittersDbFile = new File(plugin.getDataFolder(), "transmitters.db");
+        if (!transmittersDbFile.exists()) try { transmittersDbFile.createNewFile(); } catch (Exception e) { e.printStackTrace();}
+        transmittersDb = Database.builder().config(config -> {
+            config.setJdbcUrl("jdbc:sqlite:" + transmittersDbFile.getPath());
+            config.setDriverClassName("org.sqlite.JDBC");
+            config.setConnectionTestQuery("SELECT 1");
+            config.setPoolName("TransmittersPool");
+            config.setMaximumPoolSize(1);
+        }).entity(CraftRedstoneTransmitter.class).build().getRepository(CraftRedstoneTransmitter.class);
+
+        transmittersDb.selectAll("select * from transmitters").forEach(transmitter -> transmitterRegistry.registerTransmitter(transmitter));
         plugin.getLogger().info("Loaded " + monitorsRegistry.monitors.size() + " monitor(s).");
     }
 
@@ -328,6 +351,14 @@ public class DataLoader {
 
     public void delete(CraftMonitor monitor) {
         monitorsDb.delete(monitor.getId());
+    }
+
+    public void save(CraftRedstoneTransmitter transmitter) {
+        transmittersDb.save(transmitter);
+    }
+
+    public void delete(CraftRedstoneTransmitter transmitter) {
+        transmittersDb.delete(transmitter.getId());
     }
 
 }
