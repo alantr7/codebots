@@ -8,20 +8,55 @@ import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.data.TransmitterManager;
 import com.github.alantr7.codebots.plugin.redstone.CraftRedstoneTransmitter;
+import com.github.alantr7.codebots.plugin.redstone.TransmitterFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+
+import static com.github.alantr7.codebots.plugin.program.ItemFactory.key;
 
 @Singleton
 public class RedstoneEventListener implements Listener {
 
     @Inject
     TransmitterManager transmitterRegistry;
+
+    @EventHandler
+    void onTransmitterPlace(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
+            return;
+
+        var item = event.getItem();
+        if (item == null)
+            return;
+
+        if (!item.getType().isBlock())
+            return;
+
+        var pdc = item.getItemMeta().getPersistentDataContainer();
+        if (!pdc.has(key("Transmitter")))
+            return;
+
+        event.setCancelled(true);
+
+        var block = event.getClickedBlock();
+        var location = block.getType().isSolid() ? block.getRelative(event.getBlockFace()).getLocation() : block.getLocation();
+
+        // Check if obstructed
+        if (location.getBlock().getType().isSolid()) {
+            event.getPlayer().sendMessage("§cCould not place a transmitter here.");
+            return;
+        }
+
+        CraftRedstoneTransmitter transmitter = (CraftRedstoneTransmitter) TransmitterFactory.createTransmitter(location);
+        transmitterRegistry.registerTransmitter(transmitter);
+        CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(transmitter);
+
+        item.setAmount(item.getAmount() - 1);
+    }
 
     @EventHandler
     void onTransmitterBreak(PlayerInteractEvent event) {

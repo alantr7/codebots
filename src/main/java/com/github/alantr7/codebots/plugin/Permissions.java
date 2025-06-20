@@ -31,6 +31,10 @@ public class Permissions {
 
 
     @Permission(allowed = Permission.Allowed.OP)
+    public static final String COMMAND_CREATE_TRANSMITTER = "codebots.command.transmitter.create";
+
+
+    @Permission(allowed = Permission.Allowed.OP)
     public static final String COMMAND_RELOAD = "codebots.command.reload";
 
     @Permission(allowed = Permission.Allowed.OP)

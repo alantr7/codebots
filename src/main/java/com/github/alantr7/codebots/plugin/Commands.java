@@ -4,7 +4,6 @@ import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.bukkitplugin.annotations.generative.Command;
 import com.github.alantr7.bukkitplugin.commands.annotations.CommandHandler;
-import com.github.alantr7.bukkitplugin.commands.executor.Evaluator;
 import com.github.alantr7.bukkitplugin.commands.executor.ExecutorType;
 import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
 import com.github.alantr7.codebots.api.CodeBots;
@@ -277,6 +276,15 @@ public class Commands {
                 }
 
                 ((Player) ctx.getExecutor()).getInventory().addItem(ItemFactory.createMonitorItem(size));
+            });
+
+    @CommandHandler
+    public com.github.alantr7.bukkitplugin.commands.registry.Command createTransmitter = CommandBuilder.using("codebots")
+            .permission(Permissions.COMMAND_CREATE_TRANSMITTER)
+            .forExecutors(ExecutorType.PLAYER)
+            .parameter("create_transmitter")
+            .executes(ctx -> {
+                ((Player) ctx.getExecutor()).getInventory().addItem(ItemFactory.createTransmitterItem());
             });
 
     @CommandHandler

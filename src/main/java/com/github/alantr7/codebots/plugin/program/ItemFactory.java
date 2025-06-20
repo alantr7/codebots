@@ -99,6 +99,15 @@ public class ItemFactory {
         return createMonitorItem(null, size);
     }
 
+    public static ItemStack createTransmitterItem() {
+        return createItem(Material.COMPARATOR, meta -> {
+            var pdc = meta.getPersistentDataContainer();
+            pdc.set(key("Transmitter"), PersistentDataType.BOOLEAN, true);
+
+            meta.setDisplayName("Redstone Transmitter");
+        });
+    }
+
     public static ItemStack createItem(Material material, Consumer<ItemMeta> meta) {
         var stack = new ItemStack(material);
         var itemMeta = stack.getItemMeta();
