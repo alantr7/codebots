@@ -87,6 +87,10 @@ public class CodeEditorClient {
     }
 
     public CompletableFuture<EditorSession> createSession(File[] files) {
+        return this.createSession(files, (String)null);
+    }
+
+    public CompletableFuture<EditorSession> createSession(File[] files, String author) {
         if (serverToken == null || files == null)
             return CompletableFuture.completedFuture(null);
 
@@ -94,6 +98,10 @@ public class CodeEditorClient {
             try {
                 var json = new JSONObject();
                 var jsonFiles = new JSONArray();
+                if (author != null) {
+                    json.put("author", author);
+                }
+
                 json.put("files", jsonFiles);
 
                 var sessionFiles = new LinkedHashMap<String, EditorSessionFile>();
