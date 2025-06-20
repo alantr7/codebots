@@ -66,8 +66,20 @@ public class Tokenizer {
                     token = line.substring(start, i);
                 }
 
-                if (!token.isBlank())
+                if (!token.isBlank()) {
+                    // Check if it's a negative number
+                    if (token.matches("\\d+")) {
+                        String previous = tokens.get(tokens.size() - 1);
+                        String previous2 = tokens.get(tokens.size() - 2);
+
+                        if (previous.equals("-") && previous2.length() == 1 && isSymbol(previous2.charAt(0))) {
+                            tokens.removeLast();
+                            tokens.add("0");
+                            tokens.add("-");
+                        }
+                    }
                     tokens.add(token);
+                }
 
                 start = i + 1;
 
