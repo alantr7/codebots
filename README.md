@@ -1,14 +1,18 @@
 # Overview
 CodeBots is a Minecraft plugin that allows you to create and program bots inspired by ComputerCraft's turtles. It uses a custom-made scripting language with specifications below.
 
-**Plugin is still work in progress and many things will change before release!**
+**I am currently working on [Torus](https://github.com/alantr7/torus). Once it's published I'll get back to CodeBots.**
 
 ## Scripting Language
 
-### Disclaimer:
-Script language is still very experimental, and many features are missing! Please read the to-do list below to see what's implemented and what's still missing.
+### Rework in progress!
+I am remaking the scripting language from scratch. It will be similar to C and that for multiple reasons.
+One is that it's easier to keep track of variables and better utilize the garbage collection. Second is:
+I've noticed people getting code from AI prompts and AI tends to generate it in JavaScript which can not be used here,
+and if it's not JavaScript then it usually has invalid syntax. After the rework is done, people who use
+AI should be able to generate correct code.
 
-For details about the scripting language, please read the wiki:<br />
+For details about the current scripting language, please read the wiki:<br />
 https://github.com/alantr7/codebots/wiki/Scripting-Language
 
 ## Todo List
