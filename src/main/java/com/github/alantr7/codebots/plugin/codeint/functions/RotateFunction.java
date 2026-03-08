@@ -1,12 +1,16 @@
 package com.github.alantr7.codebots.plugin.codeint.functions;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
-import com.github.alantr7.codebots.language.runtime.BlockContext;
-import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
+import com.github.alantr7.codebots.cbslang.low.runtime.memory.Data;
+import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.Context;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.ExternalFunction;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.Module;
 import com.github.alantr7.codebots.plugin.config.Config;
 
-public class RotateFunction extends RuntimeNativeFunction {
+public class RotateFunction extends ExternalFunction {
+
+    private static final byte MEMORY_ROTATION_PROGRESS = 0;
 
     private static final float a45 = (float) Math.PI / 4;
 
@@ -18,33 +22,34 @@ public class RotateFunction extends RuntimeNativeFunction {
 
     public static final float ANGLE_WEST = a45 + a45;
 
-    public RotateFunction(Program program, String label) {
-        super(program, label, null);
+    public RotateFunction(Module module, String label) {
+        super(module, label, DataType.INT);
     }
 
     @Override
-    public boolean hasNext(BlockContext context) {
-        return !context.getFlag(BlockContext.FLAG_COMPLETED);
+    public void prepareContext(Context context) {
+        context.getMemory()[MEMORY_ROTATION_PROGRESS] = new Data(DataType.INT, 0);
     }
 
     @Override
-    public void next(BlockContext context) {
-        int ticks = context.getLineIndex();
+    public Data handle(Context context) {
+        int ticks = context.getMemory()[MEMORY_ROTATION_PROGRESS].getValueAs(DataType.INT);
         if (ticks == 0) {
-            handleRotation();
+            handleRotation(context);
         }
 
         else if (ticks == Config.BOT_ROTATION_DURATION) {
-            context.setFlag(BlockContext.FLAG_COMPLETED, true);
+            context.setRecall(false);
+            return new Data(DataType.INT, 1);
         }
 
-        environment.setHalted(true);
-        context.advance();
+        context.setRecall(true);
+        return null;
     }
 
-    void handleRotation() {
-        var bot = (CodeBot) environment.getProgram().getExtra("bot");
-        var direction = this.getLabel().equals("rotateRight") ? bot.getDirection().getRight() : bot.getDirection().getLeft();
+    void handleRotation(Context context) {
+        var bot = (CodeBot) context.getProgram().getExtra("bot");
+        var direction = this.getName().equals("rotateRight") ? bot.getDirection().getRight() : bot.getDirection().getLeft();
 
         bot.setDirection(direction, true);
     }

@@ -19,9 +19,9 @@ public class ProgramSource {
 
     private final File source;
 
-    private final String[] code;
+    private final String code;
 
-    public ProgramSource(Directory category, String name, File source, String[] code) {
+    public ProgramSource(Directory category, String name, File source, String code) {
         this.directory = category;
         this.name = name;
         this.source = source;

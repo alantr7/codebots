@@ -2,10 +2,11 @@ package com.github.alantr7.codebots.plugin.codeint.functions;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
-import com.github.alantr7.codebots.language.runtime.BlockContext;
-import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
-import com.github.alantr7.codebots.language.runtime.functions.RuntimeNativeFunction;
+import com.github.alantr7.codebots.cbslang.low.runtime.memory.Data;
+import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.Context;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.ExternalFunction;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.Module;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
@@ -14,19 +15,15 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.inventory.ItemStack;
 
-public class MineFunction extends RuntimeNativeFunction {
+public class MineFunction extends ExternalFunction {
 
-    public MineFunction(Program program) {
-        super(program, "mine", null);
+    public MineFunction(Module module) {
+        super(module, "mine", DataType.INT, DataType.STRING);
     }
 
     @Override
-    public boolean hasNext(BlockContext context) {
-        return !context.getFlag(BlockContext.FLAG_COMPLETED);
-    }
-
-    @Override
-    public void next(BlockContext context) {
+    public Data handle(Context context) {
+        /*
         if (!Config.BOT_ALLOW_BLOCK_BREAKING) {
             environment.interrupt(new ExecutionException("Block breaking is disabled"));
             return;
@@ -46,10 +43,10 @@ public class MineFunction extends RuntimeNativeFunction {
         var bot = (CodeBot) environment.getProgram().getExtra("bot");
         var arg = call.getArguments()[0];
         var direction = (arg.equals("forward")
-                ? bot.getDirection()
-                : arg.equals("back")
-                ? bot.getDirection().getRight().getRight()
-                : Direction.toDirection((String) call.getArguments()[0]));
+          ? bot.getDirection()
+          : arg.equals("back")
+          ? bot.getDirection().getRight().getRight()
+          : Direction.toDirection((String) call.getArguments()[0]));
 
         if (direction == null) {
             environment.interrupt(new ExecutionException(arg + " is not a valid direction"));
@@ -80,10 +77,10 @@ public class MineFunction extends RuntimeNativeFunction {
 
             var blockData = bot.getLocation().add(direction.toVector()).getBlock().getBlockData();
             bot.getLocation().getWorld().spawnParticle(
-                    Particle.BLOCK_CRACK,
-                    blockLocation.add(.5, .5, .5),
-                    12,  0, 0, 0,
-                    blockData
+              Particle.BLOCK_CRACK,
+              blockLocation.add(.5, .5, .5),
+              12,  0, 0, 0,
+              blockData
             );
             bot.getLocation().getWorld().playSound(blockLocation, blockData.getSoundGroup().getBreakSound(), 1, 1);
             bot.getInventory().addItem(blockLocation.getBlock().getDrops().toArray(new ItemStack[0]));
@@ -108,7 +105,8 @@ public class MineFunction extends RuntimeNativeFunction {
         }
 
         context.advance();
-        environment.setHalted(true);
+        environment.setHalted(true);*/
+        return null;
     }
 
 }
