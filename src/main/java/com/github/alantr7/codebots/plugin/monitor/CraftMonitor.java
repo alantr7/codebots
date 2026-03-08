@@ -1,8 +1,5 @@
 package com.github.alantr7.codebots.plugin.monitor;
 
-import com.alant7_.dborm.annotation.Data;
-import com.alant7_.dborm.annotation.Entity;
-import com.alant7_.dborm.annotation.Id;
 import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
@@ -25,21 +22,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-@Entity("monitors")
 public class CraftMonitor implements Monitor {
 
     @Getter
-    @Id
-    @Data
     private String id;
 
-    @Data("text_display_id")
     private UUID textDisplayId;
 
-    @Data("block_display_id")
     private UUID blockDisplayId;
 
-    @Data("screen_display_id")
     private UUID screenDisplayId;
 
     private BlockDisplay blockDisplay;
@@ -48,19 +39,15 @@ public class CraftMonitor implements Monitor {
 
     private TextDisplay textDisplay;
 
-    @Data
     private Location location;
 
-    @Data
     @Getter
     @Setter
     private Direction direction;
 
-    @Data
     @Getter
     private TextDisplay.TextAlignment textAlignment = TextDisplay.TextAlignment.LEFT;
 
-    @Data
     private byte[] display = {(byte) 0};
 
     private int currentLineIndex;
@@ -71,15 +58,12 @@ public class CraftMonitor implements Monitor {
 
     private TextColor textColor = TextColor.color(255, 255, 255);
 
-    @Data
     private int width;
 
-    @Data
     private int height;
 
     private Size size;
 
-    @Data
     private UUID botId;
 
     public static final int[] MAX_CHARS_PER_LINES = {

@@ -1,8 +1,5 @@
 package com.github.alantr7.codebots.plugin.redstone;
 
-import com.alant7_.dborm.annotation.Data;
-import com.alant7_.dborm.annotation.Entity;
-import com.alant7_.dborm.annotation.Id;
 import com.github.alantr7.codebots.api.redstone.RedstoneTransmitter;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,24 +11,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-@Entity("transmitters")
 public class CraftRedstoneTransmitter  implements RedstoneTransmitter {
 
-    @Id
-    @Data
     @Getter
     String id;
 
     @Getter
-    @Data
     private Location location;
 
     @Getter @Setter
-    @Data("foundation_entity_id")
     private UUID foundationId;
 
     @Getter @Setter
-    @Data("torch_entity_id")
     private UUID torchId;
 
     private BlockDisplay foundationDisplay;

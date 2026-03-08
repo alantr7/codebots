@@ -1,11 +1,10 @@
 package com.github.alantr7.codebots.api.bot;
 
-import com.github.alantr7.codebots.language.runtime.DataType;
-import com.github.alantr7.codebots.language.runtime.errors.exceptions.ExecutionException;
+import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
 
 public interface Memory {
 
-    <T> void save(String key, DataType<T> type, T value) throws ExecutionException;
+    <T> void save(String key, DataType<T> type, T value) throws Exception;
 
 
     /**
@@ -17,7 +16,7 @@ public interface Memory {
     /**
      *
      * @param key key of the stored value
-     * @param type type of the stored value. It can be of any except {@link DataType#ANY} and {@link DataType#NULL}
+     * @param type type of the stored value. It can be of any except {@link DataType#VOID} and {@link DataType#PRIMITIVE}
      * @param def value that will be returned if the specified key is not present in the memory
      * @return stored value if it exists, or the specified default value if it does not
      */

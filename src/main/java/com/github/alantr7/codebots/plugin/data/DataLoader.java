@@ -1,7 +1,5 @@
 package com.github.alantr7.codebots.plugin.data;
 
-import com.alant7_.dborm.Database;
-import com.alant7_.dborm.repository.RepositoryImpl;
 import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
@@ -10,9 +8,7 @@ import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
-import com.github.alantr7.codebots.language.compiler.Compiler;
-import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
-import com.github.alantr7.codebots.language.runtime.Program;
+import com.github.alantr7.codebots.cbslang.low.runtime.Program;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
@@ -57,9 +53,9 @@ public class DataLoader {
     @Inject
     ProgramRegistry programs;
 
-    private RepositoryImpl<String, CraftMonitor> monitorsDb;
+//    private RepositoryImpl<String, CraftMonitor> monitorsDb;
 
-    private RepositoryImpl<String, CraftRedstoneTransmitter> transmittersDb;
+//    private RepositoryImpl<String, CraftRedstoneTransmitter> transmittersDb;
 
     @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
     public void load() {
@@ -131,35 +127,35 @@ public class DataLoader {
     }
 
     private void loadMonitors() {
-        // Setup monitors database
-        File monitorsDbFile = new File(plugin.getDataFolder(), "monitors.db");
-        if (!monitorsDbFile.exists()) try { monitorsDbFile.createNewFile(); } catch (Exception e) { e.printStackTrace();}
-        monitorsDb = Database.builder().config(config -> {
-            config.setJdbcUrl("jdbc:sqlite:" + monitorsDbFile.getPath());
-            config.setDriverClassName("org.sqlite.JDBC");
-            config.setConnectionTestQuery("SELECT 1");
-            config.setPoolName("MonitorsPool");
-            config.setMaximumPoolSize(1);
-        }).entity(CraftMonitor.class).build().getRepository(CraftMonitor.class);
-
-        monitorsDb.selectAll("select * from monitors").forEach(monitor -> monitorsRegistry.registerMonitor(monitor));
-        plugin.getLogger().info("Loaded " + monitorsRegistry.monitors.size() + " monitor(s).");
+//        // Setup monitors database
+//        File monitorsDbFile = new File(plugin.getDataFolder(), "monitors.db");
+//        if (!monitorsDbFile.exists()) try { monitorsDbFile.createNewFile(); } catch (Exception e) { e.printStackTrace();}
+//        monitorsDb = Database.builder().config(config -> {
+//            config.setJdbcUrl("jdbc:sqlite:" + monitorsDbFile.getPath());
+//            config.setDriverClassName("org.sqlite.JDBC");
+//            config.setConnectionTestQuery("SELECT 1");
+//            config.setPoolName("MonitorsPool");
+//            config.setMaximumPoolSize(1);
+//        }).entity(CraftMonitor.class).build().getRepository(CraftMonitor.class);
+//
+//        monitorsDb.selectAll("select * from monitors").forEach(monitor -> monitorsRegistry.registerMonitor(monitor));
+//        plugin.getLogger().info("Loaded " + monitorsRegistry.monitors.size() + " monitor(s).");
     }
 
     private void loadTransmitters() {
-        // Setup transmitters database
-        File transmittersDbFile = new File(plugin.getDataFolder(), "transmitters.db");
-        if (!transmittersDbFile.exists()) try { transmittersDbFile.createNewFile(); } catch (Exception e) { e.printStackTrace();}
-        transmittersDb = Database.builder().config(config -> {
-            config.setJdbcUrl("jdbc:sqlite:" + transmittersDbFile.getPath());
-            config.setDriverClassName("org.sqlite.JDBC");
-            config.setConnectionTestQuery("SELECT 1");
-            config.setPoolName("TransmittersPool");
-            config.setMaximumPoolSize(1);
-        }).entity(CraftRedstoneTransmitter.class).build().getRepository(CraftRedstoneTransmitter.class);
-
-        transmittersDb.selectAll("select * from transmitters").forEach(transmitter -> transmitterRegistry.registerTransmitter(transmitter));
-        plugin.getLogger().info("Loaded " + monitorsRegistry.monitors.size() + " monitor(s).");
+//        // Setup transmitters database
+//        File transmittersDbFile = new File(plugin.getDataFolder(), "transmitters.db");
+//        if (!transmittersDbFile.exists()) try { transmittersDbFile.createNewFile(); } catch (Exception e) { e.printStackTrace();}
+//        transmittersDb = Database.builder().config(config -> {
+//            config.setJdbcUrl("jdbc:sqlite:" + transmittersDbFile.getPath());
+//            config.setDriverClassName("org.sqlite.JDBC");
+//            config.setConnectionTestQuery("SELECT 1");
+//            config.setPoolName("TransmittersPool");
+//            config.setMaximumPoolSize(1);
+//        }).entity(CraftRedstoneTransmitter.class).build().getRepository(CraftRedstoneTransmitter.class);
+//
+//        transmittersDb.selectAll("select * from transmitters").forEach(transmitter -> transmitterRegistry.registerTransmitter(transmitter));
+//        plugin.getLogger().info("Loaded " + monitorsRegistry.monitors.size() + " monitor(s).");
     }
 
     private void loadConfig() {
@@ -228,7 +224,7 @@ public class DataLoader {
                     var programDirectoryEnum = Directory.valueOfOrDefault(programDirectory.toUpperCase(), Directory.LOCAL_PROGRAMS);
                     var programDirectoryFile = programDirectoryEnum == Directory.SHARED_PROGRAMS ? new File(plugin.getDataFolder(), "programs") : bot.getProgramsDirectory();
 
-                    var program = Program.createFromSourceFile(new File(programDirectoryFile, programPath));
+                    ProgramSource program = loadProgram(programDirectoryEnum, new File(programDirectoryFile, programPath));
                     var program1 = programDirectoryEnum == Directory.SHARED_PROGRAMS ? programs.getProgram(programPath) : new ProgramSource(Directory.LOCAL_PROGRAMS, programPath, new File(programDirectoryFile, programPath), program.getCode());
 
                     bot.setProgramSource(program1);
@@ -271,12 +267,9 @@ public class DataLoader {
         }
     }
 
-    public ProgramSource loadProgram(Directory directory, File file) throws ParserException, IOException {
-        var source = Files.readAllLines(file.toPath()).toArray(String[]::new);
-        var inline = Compiler.compileModule(String.join("\n", source));
-
-        var code = inline.split("\n");
-        return new ProgramSource(directory, file.getName(), file, code);
+    public ProgramSource loadProgram(Directory directory, File file) throws IOException {
+        String source = String.join("\n", Files.readAllLines(file.toPath()).toArray(String[]::new));
+        return new ProgramSource(directory, file.getName(), file, source);
     }
 
     public void save() {
@@ -346,19 +339,19 @@ public class DataLoader {
     }
 
     public void save(CraftMonitor monitor) {
-        monitorsDb.save(monitor);
+//        monitorsDb.save(monitor);
     }
 
     public void delete(CraftMonitor monitor) {
-        monitorsDb.delete(monitor.getId());
+//        monitorsDb.delete(monitor.getId());
     }
 
     public void save(CraftRedstoneTransmitter transmitter) {
-        transmittersDb.save(transmitter);
+//        transmittersDb.save(transmitter);
     }
 
     public void delete(CraftRedstoneTransmitter transmitter) {
-        transmittersDb.delete(transmitter.getId());
+//        transmittersDb.delete(transmitter.getId());
     }
 
 }

@@ -4,8 +4,6 @@ import com.github.alantr7.bukkitplugin.gui.ClickType;
 import com.github.alantr7.bukkitplugin.gui.CloseInitiator;
 import com.github.alantr7.bukkitplugin.gui.GUI;
 import com.github.alantr7.codebots.api.bot.CodeBot;
-import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
-import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftBotInventory;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
@@ -18,9 +16,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 
 public class BotGUI extends GUI {
 

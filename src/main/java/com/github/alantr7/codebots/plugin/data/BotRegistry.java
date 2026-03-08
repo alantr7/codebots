@@ -6,7 +6,6 @@ import com.github.alantr7.bukkitplugin.annotations.core.InvokePeriodically;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.error.ProgramError;
-import com.github.alantr7.codebots.language.runtime.Program;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.BotMovement;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
@@ -137,17 +136,17 @@ public class BotRegistry {
         bots.forEach((id, bot) -> {
             var program = bot.getProgram();
             if (program != null && bot.isActive()) {
-                if (program.getMainModule().hasNext() && !program.getEnvironment().isInterrupted()) {
-                    program.action(Program.Mode.AUTO_HALT);
+                if (program.hasNext()) {
+                    program.next();
                 } else {
                     bot.setActive(false);
 
                     // If there was an exception, save it to the bot instance
-                    if (program.getEnvironment().isInterrupted()) {
+                    if (program.isInterrupted()) {
                         bot.setError(new ProgramError(
                                 ProgramError.ErrorLocation.EXECUTION,
-                                program.getEnvironment().getException().getMessage(),
-                                program.getEnvironment().getStackTrace()
+                                program.getError().getMessage(),
+                                new String[0] // todo: stack traces
                         ));
                     }
                 }
