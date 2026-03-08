@@ -18,10 +18,10 @@ import java.util.function.Consumer;
 
 public class ItemFactory {
 
-    public static ItemStack createProgramItem(String name, String[] code) {
+    public static ItemStack createProgramItem(String name, String code) {
         return createItem(Material.PAPER, meta -> {
             meta.setDisplayName("§eProgram: §f" + name);
-            meta.getPersistentDataContainer().set(new NamespacedKey(CodeBotsPlugin.inst(), "code"), PersistentDataType.LIST.strings(), Arrays.asList(code));
+            meta.getPersistentDataContainer().set(new NamespacedKey(CodeBotsPlugin.inst(), "code"), PersistentDataType.STRING, code);
         });
     }
 
