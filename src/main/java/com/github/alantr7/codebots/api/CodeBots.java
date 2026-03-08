@@ -4,7 +4,7 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
-import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
+import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.BotFactory;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;

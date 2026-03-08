@@ -1,9 +1,8 @@
 package com.github.alantr7.codebots.api.bot;
 
 import com.github.alantr7.codebots.api.error.ProgramError;
-import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
-import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
+import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
+import com.github.alantr7.codebots.cbslang.low.runtime.Program;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Interaction;
@@ -103,9 +102,9 @@ public interface CodeBot {
 
     ProgramSource getProgramSource();
 
-    void loadProgram(ProgramSource program) throws ParseException;
+    void loadProgram(ProgramSource program) throws ParserException;
 
-    void reloadProgram() throws ParserException, ParseException, IOException;
+    void reloadProgram() throws ParserException, IOException;
 
     @Nullable
     ProgramError getError();

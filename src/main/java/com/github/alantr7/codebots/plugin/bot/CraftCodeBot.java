@@ -8,9 +8,12 @@ import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Memory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.error.ProgramError;
-import com.github.alantr7.codebots.language.compiler.parser.error.ParserException;
-import com.github.alantr7.codebots.language.runtime.Program;
-import com.github.alantr7.codebots.language.runtime.errors.exceptions.ParseException;
+import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
+import com.github.alantr7.codebots.cbslang.high.compiler.Compiler;
+import com.github.alantr7.codebots.cbslang.high.parser.Parser;
+import com.github.alantr7.codebots.cbslang.low.runtime.Program;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.ModuleRepository;
+import com.github.alantr7.codebots.cbslang.low.tokenizer.Tokenizer;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.codeint.modules.RedstoneModule;
 import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
@@ -81,6 +84,7 @@ public class CraftCodeBot implements CodeBot {
     @Getter(onMethod_ = @Nullable)
     private ProgramError error;
 
+    @Getter
     private boolean isActive = false;
 
     @Getter
@@ -334,48 +338,40 @@ public class CraftCodeBot implements CodeBot {
 
     // This method handles program loading logic. It is separated from the method below to
     // allow reloading without checking whether the editor is active
-    private void _loadProgram(ProgramSource program) throws ParseException {
+    private void _loadProgram(ProgramSource program) throws ParserException {
         try {
-            this.program = Program.createFromCompiledCode(program.getSource().getParentFile(), program.getSource(), program.getCode());
-            this.program.setExtra("bot", this);
+            ModuleRepository moduleRepository = new ModuleRepository();
+            Compiler compiler = new Compiler(Parser.parse(moduleRepository, program.getCode()));
+            compiler.experimentalCompile();
 
-            this.program.registerNativeModule("bot", new BotModule(this.program));
-            this.program.registerNativeModule("memory", new MemoryModule(this.program));
-            this.program.registerNativeModule("monitor", new MonitorModule(this.program));
-            this.program.registerNativeModule("redstone", new RedstoneModule(this.program));
+            this.program = new Program(Tokenizer.tokenize(compiler.getOutput()), moduleRepository);
             this.programSource = program;
 
-            this.program.action(Program.Mode.FULL_EXEC);
             inventory.updateProgramButton();
-
             CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
-        } catch (ParseException e) {
+        } catch (ParserException e) {
             setError(new ProgramError(ProgramError.ErrorLocation.PARSER, e.getMessage()));
             throw e;
         }
     }
 
     @Override
-    public void loadProgram(ProgramSource program) throws ParseException {
+    public void loadProgram(ProgramSource program) throws ParserException {
         _loadProgram(program);
     }
 
     @Override
-    public void reloadProgram() throws ParserException, ParseException, IOException {
+    public void reloadProgram() throws ParserException, IOException {
         if (this.programSource == null)
             return;
 
         try {
             var programSource = CodeBots.loadProgram(this.programSource.getDirectory(), this.programSource.getSource());
             _loadProgram(programSource);
-        } catch (ParserException | ParseException e) {
+        } catch (ParserException e) {
             setError(new ProgramError(ProgramError.ErrorLocation.PARSER, e.getMessage(), new String[] { e.getMessage() }));
             throw e;
         }
-    }
-
-    public boolean isActive() {
-        return isActive;
     }
 
     public void setProgramSource(ProgramSource source) {
@@ -403,19 +399,13 @@ public class CraftCodeBot implements CodeBot {
         fixTransformation();
 
         if (active) {
-            if (program == null && this.programSource != null) {
+            if (this.programSource != null) {
                 try {
                     loadProgram(this.programSource);
-                    program.prepareMainFunction();
                 } catch (Exception e) {
                     e.printStackTrace();
                     isActive = false;
                 }
-            } else if (this.programSource != null) {
-                program.reset();
-                program.prepareMainFunction();
-
-                setError(null);
             }
         }
 
