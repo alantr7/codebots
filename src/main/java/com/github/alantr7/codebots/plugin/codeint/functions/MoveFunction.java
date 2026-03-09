@@ -36,8 +36,10 @@ public class MoveFunction extends ExternalFunction {
 
     @Override
     public Data handle(Context context) {
+        Data mineProgress = context.getMemory()[MEMORY_MINE_PROGRESS];
+
         // If this is the first tick, then begin movement
-        if (context.getMemory()[MEMORY_MINE_PROGRESS].getValueAs(DataType.INT) == 0) {
+        if (mineProgress.getValueAs(DataType.INT) == 0) {
             try {
                 if (!beginMovement(context)) {
                     context.setRecall(true);
@@ -47,11 +49,12 @@ public class MoveFunction extends ExternalFunction {
                 context.getProgram().interrupt(e);
                 return null;
             }
-        } else if (context.getMemory()[MEMORY_MINE_PROGRESS].getValueAs(DataType.INT) == Config.BOT_MOVEMENT_DURATION) {
+        } else if (mineProgress.getValueAs(DataType.INT) == Config.BOT_MOVEMENT_DURATION) {
             context.setRecall(false);
             return new Data(DataType.INT, 1);
         }
 
+        mineProgress.setValue(DataType.INT, mineProgress.getValueAs(DataType.INT) + 1);
         context.setRecall(true);
         return null;
     }
