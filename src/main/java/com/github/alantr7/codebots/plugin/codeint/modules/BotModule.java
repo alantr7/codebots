@@ -83,7 +83,7 @@ public class BotModule extends Module {
                 return new Data(DataType.INT, 1);
             }
         });
-        registerFunction("get_item", new ExternalFunction(this, "get_item", DataType.INT, DataType.INT) {
+        registerFunction("get_item", new ExternalFunction(this, "get_item", DataType.INT) {
             @Override
             public Data handle(Context context) {
                 var bot = (CodeBot) context.getProgram().getExtra("bot");
