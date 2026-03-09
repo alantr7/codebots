@@ -340,11 +340,10 @@ public class CraftCodeBot implements CodeBot {
     // allow reloading without checking whether the editor is active
     private void _loadProgram(ProgramSource program) throws ParserException {
         try {
-            ModuleRepository moduleRepository = new ModuleRepository();
-            Compiler compiler = new Compiler(Parser.parse(moduleRepository, program.getCode()));
+            Compiler compiler = new Compiler(Parser.parse(CodeBotsPlugin.inst().getModuleRepository(), program.getCode()));
             compiler.experimentalCompile();
 
-            this.program = new Program(Tokenizer.tokenize(compiler.getOutput()), moduleRepository);
+            this.program = new Program(Tokenizer.tokenize(compiler.getOutput()), CodeBotsPlugin.inst().getModuleRepository());
             this.programSource = program;
 
             inventory.updateProgramButton();

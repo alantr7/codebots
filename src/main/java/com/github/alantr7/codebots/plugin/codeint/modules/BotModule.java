@@ -30,7 +30,7 @@ public class BotModule extends Module {
                 return new Data(DataType.INT, 0);
             }
         });
-        registerFunction("setStatus", new ExternalFunction(this, "setStatus", DataType.INT, DataType.STRING, DataType.INT) {
+        registerFunction("set_status", new ExternalFunction(this, "set_status", DataType.INT, DataType.STRING, DataType.INT) {
             @Override
             public Data handle(Context context) {
                 int statusDuration = context.getArguments()[1].getValueAs(DataType.INT);
@@ -41,17 +41,17 @@ public class BotModule extends Module {
             }
         });
         registerFunction("move", new MoveFunction(this));
-        registerFunction("rotateLeft", new RotateFunction(this, "rotateLeft"));
-        registerFunction("rotateRight", new RotateFunction(this, "rotateRight"));
+        registerFunction("rotate_left", new RotateFunction(this, "rotate_left"));
+        registerFunction("rotate_right", new RotateFunction(this, "rotate_right"));
 
-        registerFunction("getDirection", new ExternalFunction(this, "getDirection", DataType.STRING) {
+        registerFunction("get_direction", new ExternalFunction(this, "get_direction", DataType.STRING) {
             @Override
             public Data handle(Context context) {
                 return new Data(DataType.STRING, ((CodeBot) context.getProgram().getExtra("bot")).getDirection().name().toLowerCase());
             }
         });
 
-        registerFunction("getBlock", new ExternalFunction(this, "getBlock", DataType.STRING, DataType.STRING) {
+        registerFunction("get_block", new ExternalFunction(this, "get_block", DataType.STRING, DataType.STRING) {
             @Override
             public Data handle(Context context) {
                 var bot = (CodeBot) context.getProgram().getExtra("bot");
@@ -67,13 +67,13 @@ public class BotModule extends Module {
 
 
         // Inventory functions
-        registerFunction("getSelectedSlot", new ExternalFunction(this, "getSelectedSlot", DataType.INT) {
+        registerFunction("get_selected_slot", new ExternalFunction(this, "get_selected_slot", DataType.INT) {
             @Override
             public Data handle(Context context) {
                 return new Data(DataType.INT, ((CodeBot) context.getProgram().getExtra("bot")).getSelectedSlot());
             }
         });
-        registerFunction("selectSlot", new ExternalFunction(this, "selectSlot", DataType.INT, DataType.INT) {
+        registerFunction("select_slot", new ExternalFunction(this, "select_slot", DataType.INT, DataType.INT) {
             @Override
             public Data handle(Context context) {
                 var bot = (CodeBot) context.getProgram().getExtra("bot");
@@ -83,7 +83,7 @@ public class BotModule extends Module {
                 return new Data(DataType.INT, 1);
             }
         });
-        registerFunction("getItem", new ExternalFunction(this, "getItem", DataType.INT, DataType.INT) {
+        registerFunction("get_item", new ExternalFunction(this, "get_item", DataType.INT, DataType.INT) {
             @Override
             public Data handle(Context context) {
                 var bot = (CodeBot) context.getProgram().getExtra("bot");
@@ -97,7 +97,7 @@ public class BotModule extends Module {
 
 
         // Dispense items
-        registerFunction("depositItem", new ExternalFunction(this, "depositItem", DataType.INT, DataType.STRING) {
+        registerFunction("deposit_item", new ExternalFunction(this, "deposit_item", DataType.INT, DataType.STRING) {
             @Override
             public Data handle(Context context) {
                 var bot = (CodeBot) context.getProgram().getExtra("bot");

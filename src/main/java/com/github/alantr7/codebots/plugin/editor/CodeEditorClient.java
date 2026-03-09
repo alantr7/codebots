@@ -5,6 +5,9 @@ import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.InvokePeriodically;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.ExternalFunction;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.Module;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
@@ -89,6 +92,7 @@ public class CodeEditorClient {
         return this.createSession(files, (String)null);
     }
 
+    @SuppressWarnings("unchecked")
     public CompletableFuture<EditorSession> createSession(File[] files, String author) {
         if (serverToken == null || files == null)
             return CompletableFuture.completedFuture(null);
@@ -102,6 +106,26 @@ public class CodeEditorClient {
 
                 var jsonModules = new JSONObject();
                 json.put("modules", jsonModules);
+
+                for (Module module : CodeBotsPlugin.inst().getModuleRepository().getModules()) {
+                    JSONObject moduleObject = new JSONObject();
+                    moduleObject.put("name", module.getName());
+
+                    JSONArray jsonFunctions = new JSONArray();
+                    moduleObject.put("functions", jsonFunctions);
+                    for (ExternalFunction fun : module.getFunctions()) {
+                        JSONObject functionObject = new JSONObject();
+                        functionObject.put("module", module.getName());
+                        functionObject.put("name", fun.getName());
+                        functionObject.put("return_type", fun.getReturnType().getTypeName());
+                        functionObject.put("parameter_types", Arrays.stream(fun.getParameterTypes()).map(DataType::getTypeName).toList());
+                        functionObject.put("completion", fun.getName() + "($1)$0");
+
+                        jsonFunctions.add(functionObject);
+                    }
+
+                    jsonModules.put(module.getName(), moduleObject);
+                }
 
                 var jsonFiles = new JSONArray();
                 json.put("files", jsonFiles);
