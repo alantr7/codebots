@@ -1,0 +1,7 @@
+import bot;
+import monitor;
+
+int main() {
+  bot.chat("Hello World!");
+  return 0;
+}

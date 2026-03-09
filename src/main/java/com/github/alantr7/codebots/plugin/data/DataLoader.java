@@ -8,7 +8,6 @@ import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
-import com.github.alantr7.codebots.cbslang.low.runtime.Program;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
@@ -108,10 +107,10 @@ public class DataLoader {
         var programsDirectory = new File(plugin.getDataFolder(), "programs");
         if (!programsDirectory.exists()) {
             programsDirectory.mkdirs();
-            var resource = plugin.getResource("example.js");
+            var resource = plugin.getResource("example.cbs");
             if (resource != null) {
                 try {
-                    Files.write(new File(programsDirectory, "example.js").toPath(), resource.readAllBytes());
+                    Files.write(new File(programsDirectory, "example.cbs").toPath(), resource.readAllBytes());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

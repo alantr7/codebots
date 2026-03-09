@@ -1,0 +1,16 @@
+import bot;
+
+int main() {
+    bot.chat("Watch these moves!");
+    bot.move("forward");
+
+    bot.rotate_left();
+    bot.rotate_left();
+
+    bot.move("forward");
+    bot.rotate_left();
+    bot.rotate_left();
+
+    bot.chat("Yeah.. I can't dance.");
+    return 0;
+}

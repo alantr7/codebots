@@ -206,12 +206,12 @@ public class BotProgramsGUI extends GUI {
                     setItem(slot, BTN_CREATE_PROGRAM);
 
                     int fileNameId = 0;
-                    while (new File(bot.getProgramsDirectory(), "program_" + fileNameId + ".js").exists())
+                    while (new File(bot.getProgramsDirectory(), "program_" + fileNameId + ".cbs").exists())
                         fileNameId++;
 
-                    var fileName = "program_" + fileNameId + ".js";
+                    var fileName = "program_" + fileNameId + ".cbs";
                     registerInteractionCallback(slot, ClickType.LEFT, () -> {
-                        FileHelper.saveResource("default_program.js", new File(bot.getProgramsDirectory(), fileName));
+                        FileHelper.saveResource("default_program.cbs", new File(bot.getProgramsDirectory(), fileName));
                         refill();
                     });
                 }
