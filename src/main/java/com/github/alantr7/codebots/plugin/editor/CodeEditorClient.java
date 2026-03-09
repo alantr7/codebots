@@ -61,10 +61,9 @@ public class CodeEditorClient {
                 json.put("version", CodeBotsPlugin.inst().getDescription().getVersion());
 
                 var request = HttpRequest.newBuilder()
-                        .uri(new URI(Config.EDITOR_URL + "/api/create-server-token"))
+                        .uri(new URI(Config.EDITOR_URL + "/api/servers"))
                         .POST(HttpRequest.BodyPublishers.ofString(json.toJSONString()))
                         .header("Content-Type", "application/json")
-                        .header("X-Not-Secret", "xtfQbY9g5n56jsi9KEvocB2p")
                         .build();
 
                 var response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -97,11 +96,14 @@ public class CodeEditorClient {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var json = new JSONObject();
-                var jsonFiles = new JSONArray();
                 if (author != null) {
                     json.put("author", author);
                 }
 
+                var jsonModules = new JSONObject();
+                json.put("modules", jsonModules);
+
+                var jsonFiles = new JSONArray();
                 json.put("files", jsonFiles);
 
                 var sessionFiles = new LinkedHashMap<String, EditorSessionFile>();
@@ -119,7 +121,7 @@ public class CodeEditorClient {
                 }
 
                 var request = HttpRequest.newBuilder()
-                        .uri(new URI(Config.EDITOR_URL + "/api/create-session"))
+                        .uri(new URI(Config.EDITOR_URL + "/api/sessions"))
                         .POST(HttpRequest.BodyPublishers.ofString(json.toJSONString()))
                         .header("Content-Type", "application/json")
                         .header("Authorization", "Bearer " + serverToken)
@@ -169,8 +171,7 @@ public class CodeEditorClient {
 
                 var request = HttpRequest.newBuilder()
                         .uri(new URI(url.toString()))
-                        .header("Authorization", "Bearer " + serverToken)
-                        .header("Cookie", "access_token=" + session.accessToken())
+                        .header("Authorization", "Bearer " + session.accessToken())
                         .GET()
                         .build();
 
