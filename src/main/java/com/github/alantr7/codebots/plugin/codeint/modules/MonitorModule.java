@@ -2,8 +2,14 @@ package com.github.alantr7.codebots.plugin.codeint.modules;
 
 import com.github.alantr7.codebots.api.monitor.ColorPalette;
 import com.github.alantr7.codebots.api.monitor.PresetColor;
+import com.github.alantr7.codebots.cbslang.exceptions.ExecutionException;
+import com.github.alantr7.codebots.cbslang.low.runtime.memory.Data;
+import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.Context;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.ExternalFunction;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.Module;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.codeint.Assertions;
 import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.data.MonitorManager;
@@ -20,142 +26,166 @@ public class MonitorModule extends Module {
 
     @Override
     public void setup() {
-//        registerFunction("connect", args -> {
-//            Assertions.expectArguments(args, String.class);
-//            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
-//            CraftMonitor monitor = (CraftMonitor) CodeBotsPlugin.inst().getSingleton(MonitorManager.class).getMonitor((String) args[0]);
-//
-//            if (monitor == null)
-//                throw new ExecutionException("Could not connect to monitor. Make sure the ID is correct.");
-//
-//            if (monitor.getConnectedBot() != bot && monitor.getConnectedBot() != null && ((CraftCodeBot) monitor.getConnectedBot()).getMonitor().getId().equals(monitor.getId()))
-//                throw new ExecutionException("Could not connect to monitor. It is connect to another bot.");
-//
-//            monitor.setConnectedBot(bot);
-//            return null;
-//        });
-//
-//        registerFunction("print", args -> {
-//            Assertions.expectArguments(args, String.class);
-//            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
-//            CraftMonitor monitor = bot.getMonitor();
-//
-//            if (monitor == null)
-//                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
-//
-//            monitor.write(ChatColor.translateAlternateColorCodes('&', (String) args[0]));
-//            return null;
-//        });
-//
-//        registerFunction("println", args -> {
-//            Assertions.expectArguments(args, String.class);
-//            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
-//            CraftMonitor monitor = bot.getMonitor();
-//
-//            if (monitor == null)
-//                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
-//
-//            monitor.write(ChatColor.translateAlternateColorCodes('&', (String) args[0]) + "\\n");
-//            return null;
-//        });
-//
-//        registerFunction("setText", args -> {
-//            Assertions.expectArguments(args, String.class);
-//            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
-//            CraftMonitor monitor = bot.getMonitor();
-//
-//            if (monitor == null)
-//                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
-//
-//            monitor.setText(ChatColor.translateAlternateColorCodes('&', (String) args[0]));
-//            return null;
-//        });
-//
-//        registerFunction("clear", args -> {
-//            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
-//            CraftMonitor monitor = bot.getMonitor();
-//
-//            if (monitor == null)
-//                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
-//
-//            monitor.clear();
-//            return null;
-//        });
-//
-//        registerFunction("setBackgroundColor", args -> {
-//            Assertions.expectArguments(args, String.class);
-//            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
-//            CraftMonitor monitor = bot.getMonitor();
-//
-//            if (monitor == null)
-//                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
-//
-//            PresetColor color = ColorPalette.getColor((String) args[0]);
-//            if (color == null)
-//                throw new ExecutionException("Unknown color: " + args[0]);
-//
-//            monitor.setBackgroundColor(color);
-//            return null;
-//        });
-//
-//        registerFunction("setTextColor", args -> {
-//            Assertions.expectArguments(args, String.class);
-//            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
-//            CraftMonitor monitor = bot.getMonitor();
-//
-//            if (monitor == null)
-//                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
-//
-//            TextColor color = ColorPalette.getTextColor((String) args[0]);
-//            if (color == null)
-//                throw new ExecutionException("Unknown color: " + args[0]);
-//
-//            monitor.setTextColor(color);
-//            return null;
-//        });
-//
-//        registerFunction("setTextColorRGB", args -> {
-//            Assertions.expectArguments(args, Integer.class, Integer.class, Integer.class);
-//            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
-//            CraftMonitor monitor = bot.getMonitor();
-//
-//            if (monitor == null)
-//                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
-//
-//            int red = (int) args[0];
-//            Assertions.assertBool(red <= 255 && red >= 0, "Colors must be in range [0-255]!");
-//
-//            int green = (int) args[1];
-//            Assertions.assertBool(green <= 255 && green >= 0, "Colors must be in range [0-255]!");
-//
-//            int blue = (int) args[2];
-//            Assertions.assertBool(blue <= 255 && blue >= 0, "Colors must be in range [0-255]!");
-//
-//            monitor.setTextColor(TextColor.color(red, green, blue));
-//            return null;
-//        });
-//
-//        registerFunction("setTextAlignment", args -> {
-//            Assertions.expectArguments(args, String.class);
-//            String alignmentRaw = (String) args[0];
-//            TextDisplay.TextAlignment alignment = switch (alignmentRaw) {
-//                case "left" -> TextDisplay.TextAlignment.LEFT;
-//                case "center" -> TextDisplay.TextAlignment.CENTER;
-//                case "right" -> TextDisplay.TextAlignment.RIGHT;
-//                default -> null;
-//            };
-//
-//            if (alignment == null) throw new ExecutionException("Invalid alignment option. Expected values were \"left\", \"center\" and \"right\".");
-//
-//            CraftCodeBot bot = (CraftCodeBot) program.getExtra("bot");
-//            CraftMonitor monitor = bot.getMonitor();
-//
-//            if (monitor == null)
-//                throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
-//
-//            monitor.setTextAlignment(alignment);
-//            return null;
-//        });
+        registerFunction("connect", new ExternalFunction(this, "connect", DataType.INT, DataType.STRING) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                CraftCodeBot bot = (CraftCodeBot) context.getProgram().getExtra("bot");
+                CraftMonitor monitor = (CraftMonitor) CodeBotsPlugin.inst().getSingleton(MonitorManager.class).getMonitor(context.getArguments()[0].getValueAs(DataType.STRING));
+
+                if (monitor == null)
+                    throw new ExecutionException("Could not connect to monitor. Make sure the ID is correct.");
+
+                if (monitor.getConnectedBot() != bot && monitor.getConnectedBot() != null && ((CraftCodeBot) monitor.getConnectedBot()).getMonitor().getId().equals(monitor.getId()))
+                    throw new ExecutionException("Could not connect to monitor. It is connect to another bot.");
+
+                monitor.setConnectedBot(bot);
+                return new Data(DataType.INT, 1);
+            }
+        });
+
+        registerFunction("print", new ExternalFunction(this, "print", DataType.INT, DataType.STRING) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                CraftCodeBot bot = (CraftCodeBot) context.getProgram().getExtra("bot");
+                CraftMonitor monitor = bot.getMonitor();
+
+                if (monitor == null)
+                    throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+                monitor.write(ChatColor.translateAlternateColorCodes('&', context.getArguments()[0].getValueAs(DataType.STRING)));
+                return new Data(DataType.INT, 1);
+            }
+        });
+
+        registerFunction("print_line", new ExternalFunction(this, "print_line", DataType.INT, DataType.STRING) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                CraftCodeBot bot = (CraftCodeBot) context.getProgram().getExtra("bot");
+                CraftMonitor monitor = bot.getMonitor();
+
+                if (monitor == null)
+                    throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+                monitor.write(ChatColor.translateAlternateColorCodes('&', context.getArguments()[0].getValueAs(DataType.STRING) + "\n"));
+                return new Data(DataType.INT, 1);
+            }
+        });
+
+        registerFunction("set_text", new ExternalFunction(this, "set_text", DataType.INT, DataType.STRING) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                CraftCodeBot bot = (CraftCodeBot) context.getProgram().getExtra("bot");
+                CraftMonitor monitor = bot.getMonitor();
+
+                if (monitor == null)
+                    throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+                monitor.setText(ChatColor.translateAlternateColorCodes('&', context.getArguments()[0].getValueAs(DataType.STRING)));
+                return new Data(DataType.INT, 1);
+            }
+        });
+
+        registerFunction("clear", new ExternalFunction(this, "clear", DataType.INT) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                CraftCodeBot bot = (CraftCodeBot) context.getProgram().getExtra("bot");
+                CraftMonitor monitor = bot.getMonitor();
+
+                if (monitor == null)
+                    throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+                monitor.clear();
+                return new Data(DataType.INT, 1);
+            }
+        });
+
+        registerFunction("set_background_color", new ExternalFunction(this, "set_background_color", DataType.INT, DataType.STRING) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                CraftCodeBot bot = (CraftCodeBot) context.getProgram().getExtra("bot");
+                CraftMonitor monitor = bot.getMonitor();
+
+                if (monitor == null)
+                    throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+                PresetColor color = ColorPalette.getColor(context.getArguments()[0].getValueAs(DataType.STRING));
+                if (color == null)
+                    throw new ExecutionException("Unknown color: " + context.getArguments()[0].getValueAs(DataType.STRING));
+
+                monitor.setBackgroundColor(color);
+                return new Data(DataType.INT, 1);
+            }
+        });
+
+        registerFunction("set_text_color", new ExternalFunction(this, "set_text_color", DataType.INT, DataType.STRING) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                CraftCodeBot bot = (CraftCodeBot) context.getProgram().getExtra("bot");
+                CraftMonitor monitor = bot.getMonitor();
+
+                if (monitor == null)
+                    throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+                TextColor color = ColorPalette.getTextColor(context.getArguments()[0].getValueAs(DataType.STRING));
+                if (color == null)
+                    throw new ExecutionException("Unknown color: " + context.getArguments()[0].getValueAs(DataType.STRING));
+
+                monitor.setTextColor(color);
+                return new Data(DataType.INT, 1);
+            }
+        });
+
+        registerFunction("set_text_color_rgb", new ExternalFunction(this, "set_text_color_rgb", DataType.INT, DataType.INT, DataType.INT, DataType.INT) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                CraftCodeBot bot = (CraftCodeBot) context.getProgram().getExtra("bot");
+                CraftMonitor monitor = bot.getMonitor();
+
+                if (monitor == null)
+                    throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+                TextColor color = ColorPalette.getTextColor(context.getArguments()[0].getValueAs(DataType.STRING));
+                if (color == null)
+                    throw new ExecutionException("Unknown color: " + context.getArguments()[0].getValueAs(DataType.STRING));
+
+                int red = context.getArguments()[0].getValueAs(DataType.INT);
+                Assertions.assertBool(red <= 255 && red >= 0, "Colors must be in range [0-255]!");
+
+                int green = context.getArguments()[1].getValueAs(DataType.INT);
+                Assertions.assertBool(green <= 255 && green >= 0, "Colors must be in range [0-255]!");
+
+                int blue = context.getArguments()[2].getValueAs(DataType.INT);
+                Assertions.assertBool(blue <= 255 && blue >= 0, "Colors must be in range [0-255]!");
+
+                monitor.setTextColor(TextColor.color(red, green, blue));
+                return new Data(DataType.INT, 1);
+            }
+        });
+
+        registerFunction("set_text_alignment", new ExternalFunction(this, "set_text_alignment", DataType.INT, DataType.STRING) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                String alignmentRaw = context.getArguments()[0].getValueAs(DataType.STRING);
+                TextDisplay.TextAlignment alignment = switch (alignmentRaw) {
+                    case "left" -> TextDisplay.TextAlignment.LEFT;
+                    case "center" -> TextDisplay.TextAlignment.CENTER;
+                    case "right" -> TextDisplay.TextAlignment.RIGHT;
+                    default -> null;
+                };
+
+                if (alignment == null) throw new ExecutionException("Invalid alignment option. Expected values were \"left\", \"center\" and \"right\".");
+
+                CraftCodeBot bot = (CraftCodeBot) context.getProgram().getExtra("bot");
+                CraftMonitor monitor = bot.getMonitor();
+
+                if (monitor == null)
+                    throw new ExecutionException("Monitor is not connected. Make sure you connected this bot to a monitor by using `connect` command.");
+
+                monitor.setTextAlignment(alignment);
+                return new Data(DataType.INT, 1);
+            }
+        });
+
     }
 
 }
