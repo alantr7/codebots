@@ -344,6 +344,7 @@ public class CraftCodeBot implements CodeBot {
             compiler.experimentalCompile();
 
             this.program = new Program(Tokenizer.tokenize(compiler.getOutput()), CodeBotsPlugin.inst().getModuleRepository());
+            this.program.setMode(Program.RUN_UNTIL_HALT);
             this.program.setExtra("bot", this);
             this.programSource = program;
 

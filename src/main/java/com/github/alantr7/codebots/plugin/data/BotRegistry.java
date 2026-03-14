@@ -137,7 +137,7 @@ public class BotRegistry {
             var program = bot.getProgram();
             if (program != null && bot.isActive()) {
                 if (program.hasNext()) {
-                    program.next();
+                    program.run();
                 } else {
                     bot.setActive(false);
 
