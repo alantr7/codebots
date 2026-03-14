@@ -11,6 +11,7 @@ public class LangModule extends Module {
 
     public LangModule() {
         super("lang");
+        setAutoImport(true);
     }
 
     @Override
