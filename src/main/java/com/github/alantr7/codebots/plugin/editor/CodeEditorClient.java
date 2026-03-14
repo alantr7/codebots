@@ -115,10 +115,10 @@ public class CodeEditorClient {
                     moduleObject.put("functions", jsonFunctions);
                     for (ExternalFunction fun : module.getFunctions()) {
                         JSONObject functionObject = new JSONObject();
-                        functionObject.put("module", module.getName());
+                        functionObject.put("module", module.getName().equals("lang") ? null : module.getName());
                         functionObject.put("name", fun.getName());
-                        functionObject.put("return_type", fun.getReturnType().getTypeName());
-                        functionObject.put("parameter_types", Arrays.stream(fun.getParameterTypes()).map(DataType::getTypeName).toList());
+                        functionObject.put("return_type", fun.getReturnType().getTypeName().toLowerCase());
+                        functionObject.put("parameter_types", Arrays.stream(fun.getParameterTypes()).map(DataType::getTypeName).map(String::toLowerCase).toList());
                         functionObject.put("completion", fun.getName() + "($1)$0");
 
                         jsonFunctions.add(functionObject);
