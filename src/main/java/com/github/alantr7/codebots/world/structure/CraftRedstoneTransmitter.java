@@ -4,6 +4,7 @@ import com.github.alantr7.bytils.buffer.ByteArrayReader;
 import com.github.alantr7.bytils.buffer.ByteArrayWriter;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.redstone.RedstoneTransmitter;
+import com.github.alantr7.codebots.item.BotsItem;
 import com.github.alantr7.codebots.utils.StringPool;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.BotsChunk;
@@ -15,6 +16,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,11 +39,17 @@ public class CraftRedstoneTransmitter extends StructureInstance implements Redst
 
     public CraftRedstoneTransmitter(BlockLocation location) {
         super(location, Direction.NORTH);
+        setOccupiedChunks();
     }
 
     @Override
     public Location getLocation() {
         return location.toBukkit();
+    }
+
+    @Override
+    public byte[] getOriginalCollisionVectors() {
+        return new byte[] { 0, 0, 0 };
     }
 
     @Override
@@ -106,6 +114,11 @@ public class CraftRedstoneTransmitter extends StructureInstance implements Redst
 
     @Override
     public void tick() {
+    }
+
+    @Override
+    public ItemStack getItemDrop() {
+        return BotsItem.REDSTONE_TRANSMITTER.toItemStack();
     }
 
     public static CraftRedstoneTransmitter fromBytes(BotsRegion region, BotsChunk chunk, ByteArrayReader reader) {

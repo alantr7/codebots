@@ -3,10 +3,13 @@ package com.github.alantr7.codebots.world.structure;
 import com.github.alantr7.bytils.buffer.ByteArrayReader;
 import com.github.alantr7.bytils.buffer.ByteArrayWriter;
 import com.github.alantr7.codebots.api.bot.Direction;
+import com.github.alantr7.codebots.item.BotsItem;
+import com.github.alantr7.codebots.utils.MathUtils;
 import com.github.alantr7.codebots.utils.StringPool;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.BotsChunk;
 import com.github.alantr7.codebots.world.BotsRegion;
+import org.bukkit.inventory.ItemStack;
 import org.joml.Vector2i;
 
 import java.util.HashSet;
@@ -29,18 +32,18 @@ public abstract class StructureInstance {
     public StructureInstance(BlockLocation location, Direction direction) {
         this.location = location;
         this.direction = direction;
-        setOccupiedChunks();
     }
+
+    public abstract byte[] getOriginalCollisionVectors();
 
     public byte[] getCollisionVectors() {
         if (this.collisionVectors != null)
             return this.collisionVectors;
 
-//        return this.collisionVectors = MathUtils.rotateVectors(new byte[]{0, 0, 0}, direction); todo
-        return this.collisionVectors = new byte[]{0, 0, 0};
+        return this.collisionVectors = MathUtils.rotateVectors(getOriginalCollisionVectors(), direction);
     }
 
-    private void setOccupiedChunks() {
+    void setOccupiedChunks() {
         byte[] bounds = getCollisionVectors();
         Set<Vector2i> positions = new HashSet<>();
 
@@ -89,6 +92,8 @@ public abstract class StructureInstance {
     public void onModelDestroy() {}
 
     public void onRemove() {}
+
+    public abstract ItemStack getItemDrop();
 
     public static void place(StructureInstance instance) {
         try {

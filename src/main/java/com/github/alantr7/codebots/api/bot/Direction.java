@@ -7,17 +7,17 @@ import org.bukkit.util.Vector;
 @Getter
 public enum Direction {
 
-    NORTH(0, 0, -1),
+    NORTH(0, 0, -1, 0),
 
-    EAST(1, 0, 0),
+    EAST(1, 0, 0, 90),
 
-    SOUTH(0, 0, 1),
+    SOUTH(0, 0, 1, 180),
 
-    WEST(-1, 0, 0),
+    WEST(-1, 0, 0, 270),
 
-    UP(0, 1, 0),
+    UP(0, 1, 0, 0),
 
-    DOWN(0, -1, 0);
+    DOWN(0, -1, 0, 0);
 
     public final int modX;
 
@@ -25,10 +25,13 @@ public enum Direction {
 
     public final int modZ;
 
-    Direction(int modX, int modY, int modZ) {
+    public final int rotH;
+
+    Direction(int modX, int modY, int modZ, int rotH) {
         this.modX = modX;
         this.modY = modY;
         this.modZ = modZ;
+        this.rotH = rotH;
     }
 
     public Direction getLeft() {

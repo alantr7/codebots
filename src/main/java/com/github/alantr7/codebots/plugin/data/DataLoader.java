@@ -41,20 +41,10 @@ public class DataLoader {
     BotRegistry botsRegistry;
 
     @Inject
-    MonitorManager monitorsRegistry;
-
-    @Inject
-    TransmitterManager transmitterRegistry;
-
-    @Inject
     PlayerRegistry players;
 
     @Inject
     ProgramRegistry programs;
-
-//    private RepositoryImpl<String, CraftMonitor> monitorsDb;
-
-//    private RepositoryImpl<String, CraftRedstoneTransmitter> transmittersDb;
 
     @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
     public void load() {
@@ -71,9 +61,6 @@ public class DataLoader {
                 e.printStackTrace();
             }
         }
-
-        loadMonitors();
-        loadTransmitters();
 
         plugin.getLogger().info("Loaded " + botsRegistry.getBots().size() + " bots.");
 
@@ -123,38 +110,6 @@ public class DataLoader {
             } catch (Exception e) {
             }
         }
-    }
-
-    private void loadMonitors() {
-//        // Setup monitors database
-//        File monitorsDbFile = new File(plugin.getDataFolder(), "monitors.db");
-//        if (!monitorsDbFile.exists()) try { monitorsDbFile.createNewFile(); } catch (Exception e) { e.printStackTrace();}
-//        monitorsDb = Database.builder().config(config -> {
-//            config.setJdbcUrl("jdbc:sqlite:" + monitorsDbFile.getPath());
-//            config.setDriverClassName("org.sqlite.JDBC");
-//            config.setConnectionTestQuery("SELECT 1");
-//            config.setPoolName("MonitorsPool");
-//            config.setMaximumPoolSize(1);
-//        }).entity(CraftMonitor.class).build().getRepository(CraftMonitor.class);
-//
-//        monitorsDb.selectAll("select * from monitors").forEach(monitor -> monitorsRegistry.registerMonitor(monitor));
-//        plugin.getLogger().info("Loaded " + monitorsRegistry.monitors.size() + " monitor(s).");
-    }
-
-    private void loadTransmitters() {
-//        // Setup transmitters database
-//        File transmittersDbFile = new File(plugin.getDataFolder(), "transmitters.db");
-//        if (!transmittersDbFile.exists()) try { transmittersDbFile.createNewFile(); } catch (Exception e) { e.printStackTrace();}
-//        transmittersDb = Database.builder().config(config -> {
-//            config.setJdbcUrl("jdbc:sqlite:" + transmittersDbFile.getPath());
-//            config.setDriverClassName("org.sqlite.JDBC");
-//            config.setConnectionTestQuery("SELECT 1");
-//            config.setPoolName("TransmittersPool");
-//            config.setMaximumPoolSize(1);
-//        }).entity(CraftRedstoneTransmitter.class).build().getRepository(CraftRedstoneTransmitter.class);
-//
-//        transmittersDb.selectAll("select * from transmitters").forEach(transmitter -> transmitterRegistry.registerTransmitter(transmitter));
-//        plugin.getLogger().info("Loaded " + monitorsRegistry.monitors.size() + " monitor(s).");
     }
 
     private void loadConfig() {

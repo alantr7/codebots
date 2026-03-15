@@ -80,34 +80,6 @@ public class ItemFactory {
         });
     }
 
-    public static ItemStack createMonitorItem(String monitorId, Monitor.Size size) {
-        return createItem(Material.OBSERVER, meta -> {
-            var pdc = meta.getPersistentDataContainer();
-            pdc.set(key("MonitorSize"), PersistentDataType.SHORT, (short) size.ordinal());
-            if (monitorId != null)
-                pdc.set(key("MonitorId"), PersistentDataType.STRING, monitorId);
-
-            var lore = new LinkedList<String>();
-            lore.add("§7Right-click on ground to place");
-
-            meta.setDisplayName("§eMonitor §o(" + size.getWidth() + "x" + size.getHeight() + ")");
-            meta.setLore(lore);
-        });
-    }
-
-    public static ItemStack createMonitorItem(Monitor.Size size) {
-        return createMonitorItem(null, size);
-    }
-
-    public static ItemStack createTransmitterItem() {
-        return createItem(Material.COMPARATOR, meta -> {
-            var pdc = meta.getPersistentDataContainer();
-            pdc.set(key("Transmitter"), PersistentDataType.BOOLEAN, true);
-
-            meta.setDisplayName("Redstone Transmitter");
-        });
-    }
-
     public static ItemStack createItem(Material material, Consumer<ItemMeta> meta) {
         var stack = new ItemStack(material);
         var itemMeta = stack.getItemMeta();

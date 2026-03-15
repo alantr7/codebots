@@ -10,14 +10,15 @@ import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.BotBuilder;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
-import com.github.alantr7.codebots.api.monitor.Monitor;
 import com.github.alantr7.codebots.api.player.PlayerData;
+import com.github.alantr7.codebots.item.BotsItem;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.editor.EditorSession;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
@@ -257,34 +258,20 @@ public class Commands {
 
     @CommandHandler
     public com.github.alantr7.bukkitplugin.commands.registry.Command createMonitor = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_CREATE_MONITOR)
-            .parameter("create_monitor")
-            .parameter("{size}", Monitor.Size.class, p -> p
-                    .tabComplete("2x1", "3x2", "4x3")
-                    .evaluator(input -> {
-                try {
-                    return Monitor.Size.valueOf("SIZE_" + input);
-                } catch (Exception ignored) {
-                    return null;
-                }
-            }).ifNotProvided(ctx -> ctx.respond("§cMonitor size not provided.")))
+            .permission(Permissions.COMMAND_GIVE)
+            .parameter("give")
+            .parameter("{player}", p -> p.tabComplete(args -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toList()))
+            .parameter("{item}", p -> p
+                    .tabComplete("redstone_transmitter", "monitor_2x1", "monitor_3x2", "monitor_4x3")
+                    .ifNotProvided(ctx -> ctx.respond("§cItem is not provided.")))
             .executes(ctx -> {
-                Monitor.Size size = (Monitor.Size) ctx.getArgument("size");
-                if (size == null) {
-                    ctx.respond("§cInvalid monitor size. Valid sizes are: §41x1, 2x1, 3x2, 4x3§c.");
+                BotsItem item = BotsItem.getById((String) ctx.getArgument("item"));
+                if (item == null) {
+                    ctx.respond("§cSpecified item does not exist.");
                     return;
                 }
 
-                ((Player) ctx.getExecutor()).getInventory().addItem(ItemFactory.createMonitorItem(size));
-            });
-
-    @CommandHandler
-    public com.github.alantr7.bukkitplugin.commands.registry.Command createTransmitter = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_CREATE_TRANSMITTER)
-            .forExecutors(ExecutorType.PLAYER)
-            .parameter("create_transmitter")
-            .executes(ctx -> {
-                ((Player) ctx.getExecutor()).getInventory().addItem(ItemFactory.createTransmitterItem());
+                ((Player) ctx.getExecutor()).getInventory().addItem(item.toItemStack());
             });
 
     @CommandHandler

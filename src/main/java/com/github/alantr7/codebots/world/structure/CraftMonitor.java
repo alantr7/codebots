@@ -8,6 +8,8 @@ import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.monitor.ColorPalette;
 import com.github.alantr7.codebots.api.monitor.Monitor;
 import com.github.alantr7.codebots.api.monitor.PresetColor;
+import com.github.alantr7.codebots.item.BotsItem;
+import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.utils.StringUtils;
 import com.github.alantr7.codebots.utils.StringPool;
@@ -19,13 +21,13 @@ import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +36,7 @@ import java.util.UUID;
 
 public class CraftMonitor extends StructureInstance implements Monitor {
 
-    @Getter
+    @Getter @Setter
     private String id;
 
     private BlockDisplay blockDisplay;
@@ -110,6 +112,21 @@ public class CraftMonitor extends StructureInstance implements Monitor {
             0
     };
 
+    public static final byte[] COLLISION_2x1 = {
+      0, 0, 0, -1, 0, 0
+    };
+
+    public static final byte[] COLLISION_3x2 = {
+      0, 1, 0, -1, 1, 0, -2, 1, 0,
+      0, 0, 0, -1, 0, 0, -2, 0, 0,
+    };
+
+    public static final byte[] COLLISION_4x3 = {
+      0, 2, 0, -1, 2, 0, -2, 2, 0, -3, 2, 0,
+      0, 1, 0, -1, 1, 0, -2, 1, 0, -3, 1, 0,
+      0, 0, 0, -1, 0, 0, -2, 0, 0, -3, 0, 0,
+    };
+
     public CraftMonitor(String id, BlockLocation location, Direction direction, Size size) {
         super(location, direction);
         this.id = id;
@@ -117,12 +134,22 @@ public class CraftMonitor extends StructureInstance implements Monitor {
         this.size = size;
         this.width = size.getWidth();
         this.height = size.getHeight();
+        setOccupiedChunks();
         write("");
     }
 
     @Override
     public Location getLocation() {
         return location.toBukkit();
+    }
+
+    @Override
+    public byte[] getOriginalCollisionVectors() {
+        return switch (size) {
+            case SIZE_4x3 -> COLLISION_4x3;
+            case SIZE_3x2 -> COLLISION_3x2;
+            case SIZE_2x1 -> COLLISION_2x1;
+        };
     }
 
     @Override
@@ -284,20 +311,10 @@ public class CraftMonitor extends StructureInstance implements Monitor {
 
     @Override
     public void onModelSpawn() {
+        location.world.registerMonitor(this);
         blockDisplay = (BlockDisplay) location.world.getBukkit().spawnEntity(location.toBukkit(), EntityType.BLOCK_DISPLAY);
         screenDisplay = (BlockDisplay) location.world.getBukkit().spawnEntity(location.toBukkit(), EntityType.BLOCK_DISPLAY);
         textDisplay = (TextDisplay) location.world.getBukkit().spawnEntity(location.toBukkitCentered(), EntityType.TEXT_DISPLAY);
-
-        Location backgroundBlock = location.toBukkit().clone();
-        for (int i = 0; i < size.getWidth(); i++) {
-            Location backgroundBlockHorizontalOrigin = backgroundBlock.clone();
-            for (int j = 0; j < size.getHeight(); j++) {
-                backgroundBlockHorizontalOrigin.getBlock().setType(Material.BARRIER);
-                backgroundBlockHorizontalOrigin.add(0, 1, 0);
-            }
-
-            backgroundBlock.add(direction.getLeft().toVector());
-        }
 
         Location textLocation = location.toBukkit().add(direction.toVector());
         textLocation.setDirection(direction.toVector());
@@ -408,6 +425,7 @@ public class CraftMonitor extends StructureInstance implements Monitor {
 
     @Override
     public void onModelDestroy() {
+        location.world.unregisterMonitor(this);
         blockDisplay.remove();
         screenDisplay.remove();
         textDisplay.remove();
@@ -423,6 +441,21 @@ public class CraftMonitor extends StructureInstance implements Monitor {
 
     @Override
     public void tick() {}
+
+    @Override
+    public ItemStack getItemDrop() {
+        BotsItem drop = switch (size) {
+            case SIZE_2x1 -> BotsItem.MONITOR_2x1;
+            case SIZE_3x2 -> BotsItem.MONITOR_3x2;
+            case SIZE_4x3 -> BotsItem.MONITOR_4x3;
+        };
+        ItemStack stack = drop.toItemStack();
+        ItemMeta meta = stack.getItemMeta();
+        meta.getPersistentDataContainer().set(new NamespacedKey(CodeBotsPlugin.inst(), "monitor_id"), PersistentDataType.STRING, id);
+        stack.setItemMeta(meta);
+
+        return stack;
+    }
 
     public static CraftMonitor fromBytes(BotsRegion region, BotsChunk chunk, ByteArrayReader reader) {
         int x = ByteArrayReader.toInt(reader.readBytes(1));

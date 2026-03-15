@@ -199,9 +199,4 @@ public class Events implements Listener {
         players.unregisterPlayer(event.getPlayer().getUniqueId());
     }
 
-    @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
-    void registerEvents(@Inject BukkitPlugin plugin) {
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-    }
-
 }

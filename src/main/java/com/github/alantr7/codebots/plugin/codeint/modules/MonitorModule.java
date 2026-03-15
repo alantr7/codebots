@@ -10,9 +10,9 @@ import com.github.alantr7.codebots.cbslang.low.runtime.modules.ExternalFunction;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.Module;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.codeint.Assertions;
+import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
-import com.github.alantr7.codebots.plugin.data.MonitorManager;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.TextDisplay;
@@ -30,7 +30,7 @@ public class MonitorModule extends Module {
             @Override
             public Data handle(Context context) throws ExecutionException {
                 CraftCodeBot bot = (CraftCodeBot) context.getProgram().getExtra("bot");
-                CraftMonitor monitor = (CraftMonitor) CodeBotsPlugin.inst().getSingleton(MonitorManager.class).getMonitor(context.getArguments()[0].getValueAs(DataType.STRING));
+                CraftMonitor monitor = new BlockLocation(bot.getLocation()).world.getMonitorById(context.getArguments()[0].getValueAs(DataType.STRING));
 
                 if (monitor == null)
                     throw new ExecutionException("Could not connect to monitor. Make sure the ID is correct.");

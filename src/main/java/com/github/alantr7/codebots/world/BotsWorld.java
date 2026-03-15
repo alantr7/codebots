@@ -1,5 +1,7 @@
 package com.github.alantr7.codebots.world;
 
+import com.github.alantr7.codebots.api.monitor.Monitor;
+import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.world.structure.StructureInstance;
 import lombok.Getter;
 import org.bukkit.Chunk;
@@ -25,6 +27,8 @@ public class BotsWorld {
     public final File botsRegionsDirectory;
 
     protected final Map<Vector2i, BotsRegion> regions = new HashMap<>();
+
+    protected final Map<String, CraftMonitor> monitors = new HashMap<>();
 
     @Getter
     private int ticks;
@@ -164,6 +168,19 @@ public class BotsWorld {
             }
         }
         ticks++;
+    }
+
+    public void registerMonitor(CraftMonitor monitor) {
+        monitors.put(monitor.getId(), monitor);
+    }
+
+    public void unregisterMonitor(CraftMonitor monitor) {
+        monitors.remove(monitor.getId());
+    }
+
+    @Nullable
+    public CraftMonitor getMonitorById(String id) {
+        return monitors.get(id);
     }
 
     public void placeStructure(@NotNull StructureInstance instance) {

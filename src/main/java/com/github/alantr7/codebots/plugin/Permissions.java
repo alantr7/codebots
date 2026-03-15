@@ -25,14 +25,8 @@ public class Permissions {
     @Permission(allowed = Permission.Allowed.OP)
     public static final String COMMAND_INVENTORY = "codebots.command.bot.inventory";
 
-
     @Permission(allowed = Permission.Allowed.OP)
-    public static final String COMMAND_CREATE_MONITOR = "codebots.command.monitor.create";
-
-
-    @Permission(allowed = Permission.Allowed.OP)
-    public static final String COMMAND_CREATE_TRANSMITTER = "codebots.command.transmitter.create";
-
+    public static final String COMMAND_GIVE = "codebots.command.give";
 
     @Permission(allowed = Permission.Allowed.OP)
     public static final String COMMAND_RELOAD = "codebots.command.reload";

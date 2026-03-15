@@ -9,7 +9,7 @@ import com.github.alantr7.codebots.cbslang.low.runtime.modules.Context;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.ExternalFunction;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.Module;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.data.TransmitterManager;
+import com.github.alantr7.codebots.world.BlockLocation;
 import org.bukkit.Location;
 
 public class RedstoneModule extends Module {
@@ -29,10 +29,12 @@ public class RedstoneModule extends Module {
 
                 CodeBot bot = (CodeBot) context.getProgram().getExtra("bot");
                 Location location = new Location(bot.getLocation().getWorld(), x, y, z);
-                RedstoneTransmitter transmitter = CodeBotsPlugin.inst().getSingleton(TransmitterManager.class)
-                  .getTransmitter(location);
 
-                return new Data(DataType.INT, transmitter == null ? 0 : transmitter.getPowerAt(bot.getLocation()));
+                if (new BlockLocation(location).getStructure() instanceof RedstoneTransmitter transmitter) {
+                    return Data.of((int) transmitter.getPowerAt(bot.getLocation()));
+                }
+
+                return Data.of(0);
             }
         });
 
