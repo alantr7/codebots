@@ -36,6 +36,10 @@
                   <pattern>com.github.alantr7.bukkitplugin</pattern>
                   <shadedPattern>com.github.alantr7.codebots.bpf</shadedPattern>
                 </relocation>
+                <relocation>
+                  <pattern>com.github.alantr7.bytils</pattern>
+                  <shadedPattern>com.github.alantr7.codebots.bytils</shadedPattern>
+                </relocation>
               </relocations>
             </configuration>
           </execution>

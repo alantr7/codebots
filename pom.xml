@@ -85,6 +85,11 @@
             <artifactId>cbs-lang</artifactId>
             <version>0.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.alantr7</groupId>
+            <artifactId>bytils</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -114,6 +119,10 @@
                                 <relocation>
                                     <pattern>com.github.alantr7.bukkitplugin</pattern>
                                     <shadedPattern>com.github.alantr7.codebots.bpf</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.github.alantr7.bytils</pattern>
+                                    <shadedPattern>com.github.alantr7.codebots.bytils</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
