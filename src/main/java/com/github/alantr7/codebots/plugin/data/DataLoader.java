@@ -9,11 +9,11 @@ import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
+import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.bot.CraftMemory;
 import com.github.alantr7.codebots.plugin.config.Config;
-import com.github.alantr7.codebots.plugin.redstone.CraftRedstoneTransmitter;
+import com.github.alantr7.codebots.world.structure.CraftRedstoneTransmitter;
 import com.github.alantr7.codebots.plugin.utils.BotLoader;
 import com.github.alantr7.codebots.plugin.utils.Compatibility;
 import com.github.alantr7.codebots.plugin.utils.EventDispatcher;
@@ -202,15 +202,18 @@ public class DataLoader {
         if (bot.isChunkLoaded()) {
             var entity = bot.getEntity();
 
-            // Upgrade the bot if needed
-            if (entity instanceof BlockDisplay)
-                Compatibility.upgradeBotTo0_4_0(bot);
+            // todo: create new entity
+            if (entity != null) {
+                // Upgrade the bot if needed
+                if (entity instanceof BlockDisplay)
+                    Compatibility.upgradeBotTo0_4_0(bot);
 
-            var radians = new AxisAngle4f(entity.getTransformation().getLeftRotation()).angle;
-            var entityDirection = MathHelper.getDirectionFromAngle(radians);
+                var radians = new AxisAngle4f(entity.getTransformation().getLeftRotation()).angle;
+                var entityDirection = MathHelper.getDirectionFromAngle(radians);
 
-            if (entityDirection != null)
-                bot.setCachedDirection(entityDirection);
+                if (entityDirection != null)
+                    bot.setCachedDirection(entityDirection);
+            }
         }
 
         var programTag = data.getCompoundTag("Program");

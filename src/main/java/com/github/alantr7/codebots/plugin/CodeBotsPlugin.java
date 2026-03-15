@@ -6,6 +6,7 @@ import com.github.alantr7.bukkitplugin.annotations.relocate.Relocate;
 import com.github.alantr7.bukkitplugin.annotations.relocate.Relocations;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.ModuleRepository;
 import com.github.alantr7.codebots.plugin.codeint.modules.*;
+import com.github.alantr7.codebots.world.BotsWorldManager;
 
 @JavaPlugin(name = "CodeBots", version = "0.8.0")
 @Relocations(@Relocate(from = "com.github.alantr7.bukkitplugin", to = "com.github.alantr7.codebots.bpf"))
@@ -37,6 +38,10 @@ public class CodeBotsPlugin extends BukkitPlugin {
 
     public static CodeBotsPlugin inst() {
         return instance;
+    }
+
+    public BotsWorldManager getWorldManager() {
+        return getSingleton(BotsWorldManager.class);
     }
 
 }

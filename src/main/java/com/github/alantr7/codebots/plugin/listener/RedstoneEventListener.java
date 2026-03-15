@@ -8,8 +8,9 @@ import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.data.TransmitterManager;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
-import com.github.alantr7.codebots.plugin.redstone.CraftRedstoneTransmitter;
-import com.github.alantr7.codebots.plugin.redstone.TransmitterFactory;
+import com.github.alantr7.codebots.world.structure.CraftRedstoneTransmitter;
+import com.github.alantr7.codebots.world.structure.StructureFactory;
+import com.github.alantr7.codebots.world.structure.StructureInstance;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
@@ -54,9 +55,11 @@ public class RedstoneEventListener implements Listener {
             return;
         }
 
-        CraftRedstoneTransmitter transmitter = (CraftRedstoneTransmitter) TransmitterFactory.createTransmitter(location);
+        CraftRedstoneTransmitter transmitter = (CraftRedstoneTransmitter) StructureFactory.createTransmitter(location);
         transmitterRegistry.registerTransmitter(transmitter);
-        CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(transmitter);
+
+        StructureInstance.place(transmitter);
+        CodeBotsPlugin.inst().getWorldManager().getWorld(event.getClickedBlock().getWorld()).placeStructure(transmitter);
 
         item.setAmount(item.getAmount() - 1);
     }

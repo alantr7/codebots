@@ -19,11 +19,11 @@ public enum Direction {
 
     DOWN(0, -1, 0);
 
-    final int modX;
+    public final int modX;
 
-    final int modY;
+    public final int modY;
 
-    final int modZ;
+    public final int modZ;
 
     Direction(int modX, int modY, int modZ) {
         this.modX = modX;

@@ -8,9 +8,10 @@ import com.github.alantr7.codebots.api.monitor.Monitor;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.data.MonitorManager;
-import com.github.alantr7.codebots.plugin.monitor.CraftMonitor;
-import com.github.alantr7.codebots.plugin.monitor.MonitorFactory;
+import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
+import com.github.alantr7.codebots.world.structure.StructureFactory;
+import com.github.alantr7.codebots.world.structure.StructureInstance;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -66,8 +67,11 @@ public class MonitorEventListener implements Listener {
             neighbouringBlock.add(lookupDirection.toVector());
         }
 
-        CraftMonitor monitor = (CraftMonitor) MonitorFactory.createMonitor(pdc.get(key("MonitorId"), PersistentDataType.STRING), location, Direction.fromBlockFace(event.getPlayer().getFacing().getOppositeFace()), size);
+        CraftMonitor monitor = (CraftMonitor) StructureFactory.createMonitor(pdc.get(key("MonitorId"), PersistentDataType.STRING), location, Direction.fromBlockFace(event.getPlayer().getFacing().getOppositeFace()), size);
         CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(monitor);
+
+        StructureInstance.place(monitor);
+        CodeBotsPlugin.inst().getWorldManager().getWorld(event.getClickedBlock().getWorld()).placeStructure(monitor);
 
         item.setAmount(item.getAmount() - 1);
     }
