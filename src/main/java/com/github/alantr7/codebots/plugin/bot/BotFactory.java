@@ -11,6 +11,7 @@ import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.utils.FileHelper;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import com.github.alantr7.codebots.plugin.utils.SkullFactory;
+import com.github.alantr7.codebots.world.BlockLocation;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.*;
@@ -27,25 +28,20 @@ public class BotFactory {
 
     private static final ItemStack ROBOT_HEAD = SkullFactory.createSkull("http://textures.minecraft.net/texture/60d4fed78f246fbed9a2d9fe3887b9b3e08e42ffcfb842819cd171b3f5d319");
 
-    public static CodeBot createBot(@NotNull UUID ownerId, @NotNull Location location) {
+    public static CodeBot createBot(@NotNull UUID ownerId, @NotNull BlockLocation location) {
         return createBot(UUID.randomUUID(), ownerId, location);
     }
 
-    public static CodeBot createBot(@NotNull UUID botId, @NotNull UUID ownerId, @NotNull Location location) {
-        var blockDisplay = createBotEntity(location);
-        var interaction = (Interaction) location.getWorld().spawnEntity(location.getBlock().getLocation().add(.5, 0, .5), EntityType.INTERACTION);
-        interaction.setInteractionWidth(0.8f);
-        var textDisplay = createBotTextEntity(location.getBlock().getLocation().add(.5, Config.BOT_STATUS_ENTITY_OFFSET, .5));
-
-        var bot = new CraftCodeBot(location.getWorld(), botId, blockDisplay.getUniqueId(), interaction.getUniqueId());
-        bot.setCachedLocation(MathHelper.toBlockLocation(blockDisplay.getLocation()));
+    public static CodeBot createBot(@NotNull UUID botId, @NotNull UUID ownerId, @NotNull BlockLocation location) {
+        var bot = new CraftCodeBot(location, botId);
+        bot.setCachedLocation(location.toBukkit());
         bot.setCachedDirection(Direction.WEST);
         bot.setOwnerId(ownerId);
-        bot.setTextEntityId(textDisplay.getUniqueId());
-        interaction.getPersistentDataContainer().set(new NamespacedKey(CodeBotsPlugin.inst(), "bot_id"), PersistentDataType.STRING, bot.getId().toString());
 
-        bot.setLocation(location);
+        bot.onModelSpawn();
+        bot.setLocation(location.toBukkitCentered());
         bot.fixTransformation();
+
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).registerBot(bot);
         CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(bot);
 
@@ -64,8 +60,9 @@ public class BotFactory {
 
     public static ItemDisplay createBotEntity(@NotNull Location location) {
         var entity = (ItemDisplay) location.getWorld().spawnEntity(location, EntityType.ITEM_DISPLAY);
-        var skin = ROBOT_HEAD.clone();
+        entity.setPersistent(false);
 
+        var skin = ROBOT_HEAD.clone();
         entity.setItemStack(skin);
         entity.setRotation(0, 0);
         var transformation = entity.getTransformation();
@@ -83,6 +80,7 @@ public class BotFactory {
     public static TextDisplay createBotTextEntity(@NotNull Location location) {
         var entity = (TextDisplay) location.getWorld().spawnEntity(location, EntityType.TEXT_DISPLAY);
         entity.setBillboard(Display.Billboard.VERTICAL);
+        entity.setPersistent(false);
 
         return entity;
     }

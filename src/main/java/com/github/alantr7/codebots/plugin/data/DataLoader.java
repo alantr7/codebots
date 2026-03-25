@@ -9,6 +9,7 @@ import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.bot.CraftMemory;
@@ -138,37 +139,16 @@ public class DataLoader {
     private void loadBot(File directory) throws IOException {
         var data = (CompoundTag) NBTUtil.read(new File(directory, "bot.dat"), false).getTag();
         var botId = UUID.fromString(directory.getName());
-
-        var entityId = UUID.fromString(data.getString("EntityId"));
-        var interactionId = UUID.fromString(data.getString("InteractionId"));
-        var textDisplayId = data.getString("TextDisplayId");
-
         var world = Bukkit.getWorld(data.getString("World"));
         var position = data.getIntArray("Location");
         var direction = Direction.toDirection((char) data.getByte("Direction"));
 
-        var bot = new CraftCodeBot(world, botId, entityId, interactionId);
+        var bot = new CraftCodeBot(new BlockLocation(CodeBotsPlugin.inst().getWorldManager().getWorld(world), position[0], position[1], position[2]), botId);
         bot.setCachedLocation(new Location(world, position[0], position[1], position[2]));
         bot.setCachedDirection(direction);
 
-        if (textDisplayId != null && !textDisplayId.isEmpty())
-            bot.setTextEntityId(UUID.fromString(textDisplayId));
-
         if (bot.isChunkLoaded()) {
-            var entity = bot.getEntity();
-
-            // todo: create new entity
-            if (entity != null) {
-                // Upgrade the bot if needed
-                if (entity instanceof BlockDisplay)
-                    Compatibility.upgradeBotTo0_4_0(bot);
-
-                var radians = new AxisAngle4f(entity.getTransformation().getLeftRotation()).angle;
-                var entityDirection = MathHelper.getDirectionFromAngle(radians);
-
-                if (entityDirection != null)
-                    bot.setCachedDirection(entityDirection);
-            }
+            bot.onModelSpawn();
         }
 
         var programTag = data.getCompoundTag("Program");
@@ -245,10 +225,6 @@ public class DataLoader {
                 bot.getLocation().getBlockZ()
         });
         data.putByte("Direction", (byte) bot.getDirection().name().charAt(0));
-
-        data.putString("EntityId", bot.getEntityId().toString());
-        data.putString("InteractionId", bot.getInteractionId().toString());
-        data.putString("TextDisplayId", ((CraftCodeBot) bot).getTextEntityId().toString());
 
         if (bot.getOwnerId() != null) {
             data.putString("OwnerID", bot.getOwnerId().toString());

@@ -7,7 +7,7 @@ import org.bukkit.Bukkit;
 public class EventDispatcher {
 
     public static void callBotLoadEvent(CraftCodeBot bot) {
-        bot.onChunkLoad();
+        bot.onModelSpawn();
         var event = new BotLoadEvent(bot, bot.getLocation().getChunk());
         Bukkit.getPluginManager().callEvent(event);
     }

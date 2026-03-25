@@ -12,6 +12,7 @@ import com.github.alantr7.codebots.plugin.bot.BotFactory;
 import com.github.alantr7.codebots.plugin.data.*;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.plugin.utils.EventDispatcher;
+import com.github.alantr7.codebots.world.BlockLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -104,7 +105,7 @@ public class Events implements Listener {
         var block = event.getClickedBlock();
         var location = block.getType().isSolid() ? block.getRelative(event.getBlockFace()).getLocation() : block.getLocation();
 
-        var bot = BotFactory.createBot(id, event.getPlayer().getUniqueId(), location);
+        var bot = BotFactory.createBot(id, event.getPlayer().getUniqueId(), new BlockLocation(location));
         bot.setDirection(Direction.fromVector(event.getPlayer().getFacing().getOppositeFace().getDirection()), false);
 
         item.setAmount(item.getAmount() - 1);

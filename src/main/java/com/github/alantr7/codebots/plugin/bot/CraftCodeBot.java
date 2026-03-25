@@ -2,11 +2,9 @@ package com.github.alantr7.codebots.plugin.bot;
 
 import com.github.alantr7.bukkitplugin.gui.CloseInitiator;
 import com.github.alantr7.bukkitplugin.gui.GuiModule;
+import com.github.alantr7.bytils.buffer.ByteArrayWriter;
 import com.github.alantr7.codebots.api.CodeBots;
-import com.github.alantr7.codebots.api.bot.CodeBot;
-import com.github.alantr7.codebots.api.bot.Direction;
-import com.github.alantr7.codebots.api.bot.Memory;
-import com.github.alantr7.codebots.api.bot.ProgramSource;
+import com.github.alantr7.codebots.api.bot.*;
 import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.cbslang.high.compiler.Compiler;
@@ -14,6 +12,8 @@ import com.github.alantr7.codebots.cbslang.high.parser.Parser;
 import com.github.alantr7.codebots.cbslang.low.runtime.Program;
 import com.github.alantr7.codebots.cbslang.low.tokenizer.Tokenizer;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.utils.StringPool;
+import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
 import com.github.alantr7.codebots.plugin.config.Config;
@@ -23,16 +23,16 @@ import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.plugin.gui.BotProgramsGUI;
 import com.github.alantr7.codebots.plugin.utils.FileHelper;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
+import com.github.alantr7.codebots.world.structure.StructureInstance;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-public class CraftCodeBot implements CodeBot {
+public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     @Getter
     private World world;
@@ -51,23 +51,11 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private final UUID id;
 
-    @Getter @Setter
-    private UUID entityId;
-
-    @Getter
-    private final UUID interactionId;
-
-    @Getter @Setter
-    private UUID nameEntityId;
-
-    @Getter @Setter
-    private UUID textEntityId;
-
     @Getter
     @Setter
     private UUID ownerId;
 
-    private final File directory;
+    private File directory;
 
     @Getter
     @Setter
@@ -93,6 +81,12 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     @Setter
     private Direction cachedDirection;
+
+    private Display entity;
+
+    private TextDisplay textDisplayEntity;
+
+    private Interaction interactionEntity;
 
     @Getter
     @Setter
@@ -124,19 +118,18 @@ public class CraftCodeBot implements CodeBot {
     @Getter
     private CraftMonitor monitor;
 
-    public CraftCodeBot(World world, UUID id, UUID entityId, UUID interactionId) {
-        this.world = world;
+    public CraftCodeBot(BlockLocation location, UUID id) {
+        super(location, Direction.NORTH);
         this.id = id;
-        this.entityId = entityId;
-        this.interactionId = interactionId;
-        this.directory = new File(CodeBotsPlugin.inst().getDataFolder(), "bots/" + id.toString());
+        this.world = location.world.getBukkit();
+//        this.directory = new File(CodeBotsPlugin.inst().getDataFolder(), "bots/" + id.toString());
         this.inventory = new CraftBotInventory(this);
         this.memory = new CraftMemory();
     }
 
     @Override
     public Display getEntity() {
-        return (Display) Bukkit.getEntity(entityId);
+        return entity;
     }
 
     @Override
@@ -152,17 +145,13 @@ public class CraftCodeBot implements CodeBot {
         return world.isChunkLoaded(chunkX, chunkZ);
     }
 
-    public TextDisplay getNameDisplay() {
-        return (TextDisplay) Bukkit.getEntity(nameEntityId);
-    }
-
     public TextDisplay getTextDisplay() {
-        return (TextDisplay) Bukkit.getEntity(textEntityId);
+        return textDisplayEntity;
     }
 
     @Override
     public Interaction getInteraction() {
-        return (Interaction) Bukkit.getEntity(interactionId);
+        return interactionEntity;
     }
 
     @Override
@@ -309,17 +298,6 @@ public class CraftCodeBot implements CodeBot {
         }
         lastStatus = "§7" + status;
         lastStatusExpiry = expiry;
-    }
-
-    public void onChunkLoad() {
-        // Check if all entities exist
-        if (getTextDisplay() == null) {
-            this.textEntityId = BotFactory.createBotTextEntity(getLocation().clone().add(0.5, Config.BOT_STATUS_ENTITY_OFFSET, 0.5)).getUniqueId();
-            isDirty = true;
-        }
-
-        if (isDirty)
-            CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
     }
 
     private static float[] getTranslation(Direction direction) {
@@ -479,6 +457,43 @@ public class CraftCodeBot implements CodeBot {
 
     public void save() {
         CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
+    }
+
+    @Override
+    public byte[] getOriginalCollisionVectors() {
+        return new byte[] { 0, 0, 0 };
+    }
+
+    @Override
+    public void onModelSpawn() {
+        this.entity = BotFactory.createBotEntity(getLocation());
+        this.textDisplayEntity = BotFactory.createBotTextEntity(getLocation().clone().add(0.5, Config.BOT_STATUS_ENTITY_OFFSET, 0.5));
+        this.interactionEntity = (Interaction) location.world.getBukkit().spawnEntity(location.getBlock().getLocation().add(.5, 0, .5), EntityType.INTERACTION);
+        this.interactionEntity.setPersistent(false);
+        this.interactionEntity.setInteractionWidth(0.8f);
+        this.interactionEntity.getPersistentDataContainer().set(new NamespacedKey(CodeBotsPlugin.inst(), "bot_id"), PersistentDataType.STRING, id.toString());
+    }
+
+    @Override
+    public void onModelDestroy() {
+        this.entity.remove();
+        this.textDisplayEntity.remove();
+        this.interactionEntity.remove();
+    }
+
+    @Override
+    public void tick() {
+
+    }
+
+    @Override
+    public void save(ByteArrayWriter writer, StringPool constants) {
+
+    }
+
+    @Override
+    public ItemStack getItemDrop() {
+        return null;
     }
 
 }

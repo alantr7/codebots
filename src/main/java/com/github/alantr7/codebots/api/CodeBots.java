@@ -10,6 +10,7 @@ import com.github.alantr7.codebots.plugin.bot.BotFactory;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
+import com.github.alantr7.codebots.world.BlockLocation;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +22,7 @@ import java.util.UUID;
 
 public interface CodeBots {
 
-    static CodeBot createBot(@NotNull UUID ownerId, @NotNull Location location) {
+    static CodeBot createBot(@NotNull UUID ownerId, @NotNull BlockLocation location) {
         return BotFactory.createBot(ownerId, location);
     }
 

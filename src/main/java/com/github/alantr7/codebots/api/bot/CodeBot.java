@@ -17,15 +17,11 @@ public interface CodeBot {
 
     UUID getId();
 
-    UUID getEntityId();
-
     Display getEntity();
 
     boolean isEntityLoaded();
 
     boolean isChunkLoaded();
-
-    UUID getInteractionId();
 
     Interaction getInteraction();
 
