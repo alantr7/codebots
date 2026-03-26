@@ -119,7 +119,7 @@ public class Events implements Listener {
             try {
                 var program = directory == Directory.SHARED_PROGRAMS ?
                         CodeBotsPlugin.inst().getSingleton(ProgramRegistry.class).getProgram(path) :
-                        CodeBots.loadProgram(Directory.LOCAL_PROGRAMS, new File(bot.getProgramsDirectory(), path));
+                        CodeBots.loadProgram(Directory.LOCAL_PROGRAMS, bot.getFileSystem().getFile(path));
 
                 bot.loadProgram(program);
             } catch (Exception e) {

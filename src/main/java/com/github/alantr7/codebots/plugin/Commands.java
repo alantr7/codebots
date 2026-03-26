@@ -158,7 +158,7 @@ public class Commands {
                 }
 
                 ctx.getExecutor().sendMessage("§oCreating an editor session. Please wait...");
-                editorClient.createSession(bot.getProgramsDirectory().listFiles()).whenComplete((sess, err) -> {
+                editorClient.createSession(bot.getFileSystem().getFiles()).whenComplete((sess, err) -> {
                     editorClient.registerActiveSessionByBot(sess, bot);
                     sess.sendLink(ctx.getExecutor());
                     sess.subscribe(EditorSession.createBotSubscriber(bot));

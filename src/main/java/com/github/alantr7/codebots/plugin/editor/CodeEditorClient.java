@@ -9,6 +9,7 @@ import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.ExternalFunction;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.Module;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.bot.BotFile;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.SneakyThrows;
@@ -88,12 +89,12 @@ public class CodeEditorClient {
         activeSessionsByBots.put(bot.getId(), session);
     }
 
-    public CompletableFuture<EditorSession> createSession(File[] files) {
+    public CompletableFuture<EditorSession> createSession(Collection<BotFile> files) {
         return this.createSession(files, (String)null);
     }
 
     @SuppressWarnings("unchecked")
-    public CompletableFuture<EditorSession> createSession(File[] files, String author) {
+    public CompletableFuture<EditorSession> createSession(Collection<BotFile> files, String author) {
         if (serverToken == null || files == null)
             return CompletableFuture.completedFuture(null);
 
@@ -134,14 +135,12 @@ public class CodeEditorClient {
 
                 for (var file : files) {
                     var name = file.getName();
-                    var content = new String(Files.readAllBytes(file.toPath()));
-
                     var fileObject = new JSONObject();
                     fileObject.put("name", name);
-                    fileObject.put("content", content);
+                    fileObject.put("content", new String(file.getContent()));
                     jsonFiles.add(fileObject);
 
-                    sessionFiles.put(name, new EditorSessionFile(content));
+                    sessionFiles.put(name, new EditorSessionFile(new String(file.getContent())));
                 }
 
                 var request = HttpRequest.newBuilder()

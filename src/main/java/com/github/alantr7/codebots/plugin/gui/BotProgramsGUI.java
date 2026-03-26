@@ -9,6 +9,7 @@ import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.bot.BotFile;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
@@ -126,7 +127,7 @@ public class BotProgramsGUI extends GUI {
                 var player = getPlayer();
 
                 player.sendMessage("§oCreating an editor session. Please wait...");
-                CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).createSession(bot.getProgramsDirectory().listFiles(), player.getName())
+                CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).createSession(bot.getFileSystem().getFiles(), player.getName())
                         .whenComplete((sess, err) -> {
                             CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).registerActiveSessionByBot(sess, bot);
                             sess.subscribe(EditorSession.createBotSubscriber(bot));
@@ -151,7 +152,7 @@ public class BotProgramsGUI extends GUI {
 
 
         if (selectedCategory == CATEGORY_LOCAL) {
-            var files = bot.getProgramsDirectory().listFiles();
+            var files = bot.getFileSystem().getFiles();
             int index = 0;
             if (files != null) {
                 for (var file : files) {
@@ -187,7 +188,7 @@ public class BotProgramsGUI extends GUI {
                         if (!hasClickEvent() || !getClickEvent().isShiftClick())
                             return;
 
-                        if (bot.hasProgram() && bot.getProgramSource().getSource().getPath().equals(file.getPath())) {
+                        if (bot.hasProgram() && bot.getProgramSource().getSource().getName().equals(file.getName())) {
                             getPlayer().sendMessage("§cYou can not delete a program that's being used.");
                             return;
                         }
@@ -206,12 +207,13 @@ public class BotProgramsGUI extends GUI {
                     setItem(slot, BTN_CREATE_PROGRAM);
 
                     int fileNameId = 0;
-                    while (new File(bot.getProgramsDirectory(), "program_" + fileNameId + ".cbs").exists())
+                    while (bot.getFileSystem().getFile("program_" + fileNameId + ".cbs") != null)
                         fileNameId++;
 
                     var fileName = "program_" + fileNameId + ".cbs";
                     registerInteractionCallback(slot, ClickType.LEFT, () -> {
-                        FileHelper.saveResource("default_program.cbs", new File(bot.getProgramsDirectory(), fileName));
+                        BotFile file = bot.getFileSystem().createFile(fileName);
+                        file.setContent(FileHelper.loadResource("default_program.cbs"));
                         refill();
                     });
                 }

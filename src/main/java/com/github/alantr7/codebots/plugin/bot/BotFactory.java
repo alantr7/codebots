@@ -1,27 +1,22 @@
 package com.github.alantr7.codebots.plugin.bot;
 
-import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
+import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.utils.FileHelper;
-import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import com.github.alantr7.codebots.plugin.utils.SkullFactory;
 import com.github.alantr7.codebots.world.BlockLocation;
 import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
-import java.io.File;
 import java.util.UUID;
 
 public class BotFactory {
@@ -46,11 +41,16 @@ public class BotFactory {
         CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(bot);
 
         // Create a default program file, and load it into the bot
-        var defaultProgramFile = new File(bot.getProgramsDirectory(), "program_0.cbs");
-        FileHelper.saveResource("default_program.cbs", defaultProgramFile);
+        BotFile defaultProgramFile = bot.getFileSystem().createFile("program_0.cbs");
+        defaultProgramFile.setContent(FileHelper.loadResource("default_program.cbs"));
 
         try {
-            bot.loadProgram(CodeBots.loadProgram(Directory.LOCAL_PROGRAMS, defaultProgramFile));
+            bot.loadProgram(new ProgramSource(
+              Directory.LOCAL_PROGRAMS,
+              "program_0.cbs",
+              defaultProgramFile,
+              new String(defaultProgramFile.getContent())
+            ));
         } catch (Exception e) {
             e.printStackTrace();
         }

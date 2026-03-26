@@ -3,6 +3,7 @@ package com.github.alantr7.codebots.api.bot;
 import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.cbslang.low.runtime.Program;
+import com.github.alantr7.codebots.plugin.bot.BotFileSystem;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Interaction;
@@ -111,9 +112,7 @@ public interface CodeBot {
 
     void setActive(boolean flag);
 
-    File getDirectory();
-
-    File getProgramsDirectory();
+    BotFileSystem getFileSystem();
 
     BotInventory getInventory();
 

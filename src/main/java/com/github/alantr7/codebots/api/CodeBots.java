@@ -7,6 +7,7 @@ import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.bot.BotFactory;
+import com.github.alantr7.codebots.plugin.bot.BotFile;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
@@ -47,7 +48,7 @@ public interface CodeBots {
         return getPlayer(player).getSelectedBot();
     }
 
-    static @NotNull ProgramSource loadProgram(@NotNull Directory directory, @NotNull File file) throws ParserException, IOException {
+    static @NotNull ProgramSource loadProgram(@NotNull Directory directory, @NotNull BotFile file) throws ParserException {
         return CodeBotsPlugin.inst().getSingleton(DataLoader.class).loadProgram(directory, file);
     }
 

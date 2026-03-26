@@ -55,7 +55,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
     @Setter
     private UUID ownerId;
 
-    private File directory;
+    private final BotFileSystem fileSystem = new BotFileSystem();
 
     @Getter
     @Setter
@@ -122,7 +122,6 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         super(location, Direction.NORTH);
         this.id = id;
         this.world = location.world.getBukkit();
-//        this.directory = new File(CodeBotsPlugin.inst().getDataFolder(), "bots/" + id.toString());
         this.inventory = new CraftBotInventory(this);
         this.memory = new CraftMemory();
     }
@@ -387,13 +386,8 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
     }
 
     @Override
-    public File getDirectory() {
-        return directory;
-    }
-
-    @Override
-    public File getProgramsDirectory() {
-        return new File(directory, "programs");
+    public BotFileSystem getFileSystem() {
+        return fileSystem;
     }
 
     @Override
@@ -430,7 +424,6 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         if (textDisplay != null) {
             textDisplay.remove();
         }
-        FileHelper.deleteDirectory(getDirectory());
 
         if (!isChunkLoaded) {
             cachedLocation.getChunk().unload();

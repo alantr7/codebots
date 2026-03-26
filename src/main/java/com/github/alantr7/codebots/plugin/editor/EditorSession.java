@@ -2,6 +2,7 @@ package com.github.alantr7.codebots.plugin.editor;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.bot.BotFile;
 import com.github.alantr7.codebots.plugin.config.Config;
 import lombok.Getter;
 import lombok.Setter;
@@ -100,15 +101,11 @@ public final class EditorSession {
         return session -> {
             try {
                 session.getFiles().forEach((name, fileInfo) -> {
-                    var file = new File(bot.getProgramsDirectory(), name);
-                    if (!file.exists())
+                    BotFile file = bot.getFileSystem().getFile(name);
+                    if (file == null)
                         return;
 
-                    try {
-                        Files.write(file.toPath(), fileInfo.getCode().getBytes(StandardCharsets.UTF_8));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    file.setContent(fileInfo.getCode().getBytes(StandardCharsets.UTF_8));
                 });
                 bot.reloadProgram();
             } catch (Exception e) {

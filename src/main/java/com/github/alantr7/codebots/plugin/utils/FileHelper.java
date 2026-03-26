@@ -19,6 +19,18 @@ public class FileHelper {
         directory.delete();
     }
 
+    public static byte[] loadResource(String resourcePath) {
+        try (InputStream is = CodeBotsPlugin.inst().getResource(resourcePath)) {
+            if (is == null)
+                return new byte[0];
+
+            return is.readAllBytes();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new byte[0];
+        }
+    }
+
     public static void saveResource(String resourcePath, String destination) {
         saveResource(resourcePath, new File(destination));
     }

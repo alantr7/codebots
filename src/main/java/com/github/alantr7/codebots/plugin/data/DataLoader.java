@@ -9,6 +9,7 @@ import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.bot.BotFile;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
@@ -159,10 +160,11 @@ public class DataLoader {
             if (programPath != null && programDirectory != null) {
                 try {
                     var programDirectoryEnum = Directory.valueOfOrDefault(programDirectory.toUpperCase(), Directory.LOCAL_PROGRAMS);
-                    var programDirectoryFile = programDirectoryEnum == Directory.SHARED_PROGRAMS ? new File(plugin.getDataFolder(), "programs") : bot.getProgramsDirectory();
+                    var programFile = programDirectoryEnum == Directory.SHARED_PROGRAMS ? new BotFile(new File(plugin.getDataFolder(), "programs/" + programPath)) : bot.getFileSystem().getFile(programPath);
+                    // todo: fix shared files!
 
-                    ProgramSource program = loadProgram(programDirectoryEnum, new File(programDirectoryFile, programPath));
-                    var program1 = programDirectoryEnum == Directory.SHARED_PROGRAMS ? programs.getProgram(programPath) : new ProgramSource(Directory.LOCAL_PROGRAMS, programPath, new File(programDirectoryFile, programPath), program.getCode());
+                    ProgramSource program = loadProgram(programDirectoryEnum, programFile);
+                    var program1 = programDirectoryEnum == Directory.SHARED_PROGRAMS ? programs.getProgram(programPath) : new ProgramSource(Directory.LOCAL_PROGRAMS, programPath, programFile, program.getCode());
 
                     bot.setProgramSource(program1);
                 } catch (Exception e) {
@@ -206,7 +208,11 @@ public class DataLoader {
 
     public ProgramSource loadProgram(Directory directory, File file) throws IOException {
         String source = String.join("\n", Files.readAllLines(file.toPath()).toArray(String[]::new));
-        return new ProgramSource(directory, file.getName(), file, source);
+        return new ProgramSource(directory, file.getName(), new BotFile(file), source);
+    }
+
+    public ProgramSource loadProgram(Directory directory, BotFile file) {
+        return new ProgramSource(directory, file.getName(), file, new String(file.getContent()));
     }
 
     public void save() {
@@ -255,20 +261,20 @@ public class DataLoader {
     }
 
     public void saveInventory(CodeBot bot) {
-        var file = new File(bot.getDirectory(), "inventory.yml");
-        var data = new YamlConfiguration();
-
-        var inventory = bot.getInventory();
-        for (int i = 0; i < 7; i++) {
-            var item = inventory.getItem(i);
-            data.set("Slot" + i, item);
-        }
-
-        try {
-            data.save(file);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        var file = new File(bot.getDirectory(), "inventory.yml");
+//        var data = new YamlConfiguration();
+//
+//        var inventory = bot.getInventory();
+//        for (int i = 0; i < 7; i++) {
+//            var item = inventory.getItem(i);
+//            data.set("Slot" + i, item);
+//        }
+//
+//        try {
+//            data.save(file);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void save(CraftMonitor monitor) {
