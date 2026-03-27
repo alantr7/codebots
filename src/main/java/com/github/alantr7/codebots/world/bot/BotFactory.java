@@ -33,7 +33,6 @@ public class BotFactory {
         bot.setOwnerId(ownerId);
 
         bot.onModelSpawn();
-        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).registerBot(bot);
         CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(bot);
 
         // Create a default program file, and load it into the bot

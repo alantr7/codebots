@@ -29,29 +29,6 @@ public class BotRegistry {
 
     private final Map<Vector2i, Map<UUID, CraftCodeBot>> botsPerChunk = new LinkedHashMap<>();
 
-    @Inject
-    public static BotRegistry instance;
-
-    public void registerBot(CraftCodeBot bot) {
-        bots.put(bot.getId(), bot);
-        botsPerChunk.computeIfAbsent(new Vector2i(bot.getLocation().getBlockX() >> 4, bot.getLocation().getBlockZ() >> 4), k -> new HashMap<>()).put(bot.getId(), bot);
-    }
-
-    public void unregisterBot(UUID id) {
-        var bot = bots.remove(id);
-        if (bot != null) {
-            var lastLocation = bot.getLastSavedLocation();
-            if (lastLocation != null) {
-                var bots = botsPerChunk.get(new Vector2i(lastLocation.getBlockX() >> 4, lastLocation.getBlockZ() >> 4));
-                if (bots != null) {
-                    bots.remove(id);
-                }
-            }
-        }
-
-        movingBots.remove(id);
-    }
-
     public CodeBot getBotAt(@NotNull Location location) {
         var bots = botsPerChunk.get(new Vector2i(location.getBlockX() >> 4, location.getBlockZ() >> 4));
         if (bots == null)
@@ -102,31 +79,6 @@ public class BotRegistry {
         var map = botsPerChunk.computeIfAbsent(chunk, k -> new HashMap<>());
         map.put(bot.getId(), bot);
         bot.setLastSavedLocation(location);
-    }
-
-    public Collection<CraftCodeBot> getBotsInChunk(Location location) {
-        return getBotsInChunk(location.getBlockX() >> 4, location.getBlockZ() >> 4);
-    }
-
-    public Collection<CraftCodeBot> getBotsInChunk(int x, int z) {
-        return botsPerChunk.getOrDefault(new Vector2i(x, z), Collections.emptyMap()).values();
-    }
-
-    @Invoke(Invoke.Schedule.AFTER_PLUGIN_DISABLE)
-    public void unloadBots() {
-        // Stop all moving bots
-        movingBots.values().forEach(bot -> {
-            bot.setProgram(null);
-            bot.setMovement(null);
-            bot.fixTransformation();
-        });
-        movingBots.clear();
-
-        // Save bots
-        bots.forEach((botId, bot) -> {
-            if (bot.isDirty())
-                CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(bot);
-        });
     }
 
     @InvokePeriodically(interval = 2)

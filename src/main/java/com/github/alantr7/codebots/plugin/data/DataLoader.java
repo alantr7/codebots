@@ -4,30 +4,24 @@ import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.bot.CodeBot;
-import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.fs.BotFile;
-import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import com.github.alantr7.codebots.world.bot.CraftMemory;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.world.structure.CraftRedstoneTransmitter;
 import com.github.alantr7.codebots.plugin.utils.BotLoader;
-import com.github.alantr7.codebots.plugin.utils.EventDispatcher;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.UUID;
 
 @Singleton
 public class DataLoader {
@@ -39,7 +33,7 @@ public class DataLoader {
     BotRegistry botsRegistry;
 
     @Inject
-    PlayerRegistry players;
+    PlayerManager players;
 
     @Inject
     ProgramRegistry programs;
@@ -48,19 +42,6 @@ public class DataLoader {
     public void load() {
         loadConfig();
         loadPrograms();
-
-        var botsDirectory = new File(plugin.getDataFolder(), "bots");
-        botsDirectory.mkdirs();
-
-        for (var directory : botsDirectory.listFiles()) {
-            try {
-                loadBot(directory);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        plugin.getLogger().info("Loaded " + botsRegistry.getBots().size() + " bots.");
 
         // Load players
         for (var player : Bukkit.getOnlinePlayers()) {
@@ -72,6 +53,7 @@ public class DataLoader {
         loadConfig();
         loadPrograms();
 
+        // todo: reload programs for loaded bots
         botsRegistry.getBots().forEach((id, bot) -> {
             bot.setProgram(null);
 
@@ -145,49 +127,7 @@ public class DataLoader {
         return new ProgramSource(directory, file.getName(), file, new String(file.getContent()));
     }
 
-    public void save() {
-        botsRegistry.getBots().forEach((id, bot) -> save(bot));
-    }
-
     public void save(CodeBot bot) {
-        var directory = new File(new File(plugin.getDataFolder(), "bots"), bot.getId().toString());
-        directory.mkdirs();
-
-        var data = new CompoundTag();
-        data.putString("World", bot.getLocation().getWorld().getName());
-        data.putIntArray("Location", new int[]{
-                bot.getLocation().getBlockX(),
-                bot.getLocation().getBlockY(),
-                bot.getLocation().getBlockZ()
-        });
-        data.putByte("Direction", (byte) bot.getDirection().name().charAt(0));
-
-        if (bot.getOwnerId() != null) {
-            data.putString("OwnerID", bot.getOwnerId().toString());
-        }
-
-        if (bot.getProgramSource() != null) {
-            var programCategory = new CompoundTag();
-            programCategory.putString("Directory", bot.getProgramSource().getDirectory().name());
-            programCategory.putString("Name", bot.getProgramSource().getSource().getName());
-
-            data.put("Program", programCategory);
-        }
-
-        data.putInt("Slot", bot.getSelectedSlot());
-        data.put("Memory", BotLoader.saveMemory((CraftMemory) bot.getMemory()));
-
-        try {
-            NBTUtil.write(data, new File(directory, "bot.dat"), false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        var programs = new File(directory, "programs");
-        programs.mkdirs();
-
-        ((CraftCodeBot) bot).setDirty(false);
-        ((CraftCodeBot) bot).setLastSaved(System.currentTimeMillis());
     }
 
     public void saveInventory(CodeBot bot) {
@@ -205,22 +145,6 @@ public class DataLoader {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-    }
-
-    public void save(CraftMonitor monitor) {
-//        monitorsDb.save(monitor);
-    }
-
-    public void delete(CraftMonitor monitor) {
-//        monitorsDb.delete(monitor.getId());
-    }
-
-    public void save(CraftRedstoneTransmitter transmitter) {
-//        transmittersDb.save(transmitter);
-    }
-
-    public void delete(CraftRedstoneTransmitter transmitter) {
-//        transmittersDb.delete(transmitter.getId());
     }
 
 }

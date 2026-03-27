@@ -377,9 +377,6 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     @Override
     public void remove() {
-        // Remove this bot from the registry
-        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).unregisterBot(id);
-
         // Close all GUIs related to this bot
         inventory.getInternal().clear();
         for (var player : Bukkit.getOnlinePlayers()) {

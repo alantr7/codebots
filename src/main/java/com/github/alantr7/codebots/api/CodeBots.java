@@ -10,7 +10,7 @@ import com.github.alantr7.codebots.world.bot.BotFactory;
 import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
-import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
+import com.github.alantr7.codebots.plugin.data.PlayerManager;
 import com.github.alantr7.codebots.world.BlockLocation;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -34,7 +34,7 @@ public interface CodeBots {
     }
 
     static @Nullable PlayerData getPlayer(UUID id) {
-        return CodeBotsPlugin.inst().getSingleton(PlayerRegistry.class).getPlayer(id);
+        return CodeBotsPlugin.inst().getSingleton(PlayerManager.class).getPlayer(id);
     }
 
     @SuppressWarnings("all")
