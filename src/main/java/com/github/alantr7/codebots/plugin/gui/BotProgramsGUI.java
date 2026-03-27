@@ -9,8 +9,8 @@ import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.bot.BotFile;
-import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import com.github.alantr7.codebots.fs.BotFile;
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
 import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
@@ -27,7 +27,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.util.List;
 
 public class BotProgramsGUI extends GUI {

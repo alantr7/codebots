@@ -16,6 +16,7 @@ public class BotsItem {
 
     private final ItemStack internal;
 
+    public static final BotsItem BOT = new BotsItem("bot", Material.DISPENSER, "Programmable Bot", List.of("Right-click on ground to place"));
     public static final BotsItem REDSTONE_TRANSMITTER = new BotsItem("redstone_transmitter", Material.COMPARATOR, "Redstone Transmitter", List.of("Right-click on ground to place"));
     public static final BotsItem MONITOR_2x1 = new BotsItem("monitor_2x1", Material.OBSERVER, "Monitor (2x1)", List.of("Right-click on ground to place"));
     public static final BotsItem MONITOR_3x2 = new BotsItem("monitor_3x2", Material.OBSERVER, "Monitor (3x2)", List.of("Right-click on ground to place"));
@@ -38,6 +39,7 @@ public class BotsItem {
 
     public static BotsItem getById(String id) {
         return switch (id) {
+            case "bot" -> BOT;
             case "redstone_transmitter" -> REDSTONE_TRANSMITTER;
             case "monitor_2x1" -> MONITOR_2x1;
             case "monitor_3x2" -> MONITOR_3x2;

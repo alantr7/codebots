@@ -1,5 +1,6 @@
-package com.github.alantr7.codebots.plugin.bot;
+package com.github.alantr7.codebots.fs;
 
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -8,11 +9,20 @@ import java.util.Map;
 
 public class BotFileSystem {
 
-    private final Map<String, BotFile> files = new HashMap<>();
+    final CraftCodeBot bot;
+
+    final Map<String, BotFile> files = new HashMap<>();
+
+    public BotFileSystem(CraftCodeBot bot) {
+        this.bot = bot;
+    }
 
     public BotFile createFile(String name) {
-        BotFile file = new BotFile(name, new byte[0]);
+        BotFile file = new BotFile(name, new byte[0], System.currentTimeMillis());
         files.put(file.getName(), file);
+
+        bot.setDirty(true);
+        bot.location.getChunk().isUnsaved = true;
         return file;
     }
 

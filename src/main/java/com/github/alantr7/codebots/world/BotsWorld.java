@@ -1,9 +1,10 @@
 package com.github.alantr7.codebots.world;
 
-import com.github.alantr7.codebots.api.monitor.Monitor;
+import com.github.alantr7.codebots.fs.FileSystemManager;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.world.structure.StructureInstance;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,10 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class BotsWorld {
 
@@ -28,6 +26,8 @@ public class BotsWorld {
 
     protected final Map<Vector2i, BotsRegion> regions = new HashMap<>();
 
+    public final FileSystemManager fsManager;
+
     protected final Map<String, CraftMonitor> monitors = new HashMap<>();
 
     @Getter
@@ -39,6 +39,7 @@ public class BotsWorld {
         this.botsDirectory.mkdirs();
         this.botsRegionsDirectory = new File(this.botsDirectory, "region");
         this.botsRegionsDirectory.mkdirs();
+        this.fsManager = new FileSystemManager(this);
     }
 
     static final Set<Material> MINECRAFT_BLOCK_CONTAINER_TYPES = Set.of(
@@ -149,23 +150,27 @@ public class BotsWorld {
 
     public StructureInstance currentlyTicked;
     void tick() {
+        List<StructureInstance> tickQueue = new ArrayList<>();
         for (BotsRegion region : regions.values()) {
             for (BotsChunk chunk : region.chunks.values()) {
                 for (StructureInstance s : chunk.tickableStructures.values()) {
                     if (s.isCorrupted || s.isUnloaded())
                         return;
 
-                    currentlyTicked = s;
-                    try {
-                        s.tick();
-                    } catch (Exception e) {
-//                        TorusLogger.error(Category.STRUCTURES, "Encountered an error whilst ticking a structure - marked it as corrupted.");
-                        e.printStackTrace();
-                        s.corrupt();
-                    }
-                    currentlyTicked = null;
+                    tickQueue.add(s);
                 }
             }
+        }
+        for (StructureInstance s : tickQueue) {
+            currentlyTicked = s;
+            try {
+                s.tick();
+            } catch (Exception e) {
+//              TorusLogger.error(Category.STRUCTURES, "Encountered an error whilst ticking a structure - marked it as corrupted.");
+                e.printStackTrace();
+                s.corrupt();
+            }
+            currentlyTicked = null;
         }
         ticks++;
     }
@@ -191,8 +196,10 @@ public class BotsWorld {
         // Place bounds
         byte[] bounds = instance.getCollisionVectors();
         for (int i = 0; i < bounds.length; i += 3) {
-            BlockLocation relative = instance.location.getRelative(bounds[i], bounds[i+1], bounds[i+2]);
-            relative.getBlock().setType(Material.BARRIER);
+            BlockLocation relative = instance.location.getRelative(bounds[i], bounds[i + 1], bounds[i + 2]);
+            if (instance.collisionBarriers) {
+                relative.getBlock().setType(Material.BARRIER);
+            }
 
             BotsChunk occupationChunk = getChunkOrLoad(relative);
             occupationChunk.occupations.put(relative, instance.location);
@@ -203,14 +210,17 @@ public class BotsWorld {
     public void removeStructure(@NotNull StructureInstance instance) {
         BotsChunk chunk0 = getChunkOrLoad(instance.location);
         chunk0._unregisterStructure(instance);
-
+        chunk0.isUnsaved = true;
         instance.isRemoved = true;
 
         // Remove bounds
         byte[] bounds = instance.getCollisionVectors();
         for (int i = 0; i < bounds.length; i += 3) {
-            BlockLocation relative = instance.location.getRelative(bounds[i], bounds[i+1], bounds[i+2]);
-            relative.getBlock().setType(Material.AIR);
+            BlockLocation relative = instance.location.getRelative(bounds[i], bounds[i + 1], bounds[i + 2]);
+
+            if (instance.collisionBarriers) {
+                relative.getBlock().setType(Material.AIR);
+            }
 
             BotsChunk chunk = getChunkOrLoad(relative);
             if (chunk.occupations.remove(relative) != null) {
@@ -223,6 +233,22 @@ public class BotsWorld {
 
         // Run destroy callbacks
         instance.onRemove();
+    }
+
+    public void unregisterStructure(@NotNull StructureInstance instance) {
+        BotsChunk chunk0 = getChunkOrLoad(instance.location);
+        chunk0._unregisterStructure(instance);
+        chunk0.isUnsaved = true;
+
+        // Remove bounds
+        byte[] bounds = instance.getCollisionVectors();
+        for (int i = 0; i < bounds.length; i += 3) {
+            BlockLocation relative = instance.location.getRelative(bounds[i], bounds[i + 1], bounds[i + 2]);
+            BotsChunk chunk = getChunkOrLoad(relative);
+            if (chunk.occupations.remove(relative) != null) {
+                chunk.isUnsaved = true;
+            }
+        }
     }
 
     void load() {}

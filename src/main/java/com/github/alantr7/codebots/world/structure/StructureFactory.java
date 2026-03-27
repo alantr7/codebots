@@ -6,6 +6,7 @@ import com.github.alantr7.codebots.api.monitor.Monitor;
 import com.github.alantr7.codebots.api.redstone.RedstoneTransmitter;
 import com.github.alantr7.codebots.utils.MathUtils;
 import com.github.alantr7.codebots.world.BlockLocation;
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,11 +14,13 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public class StructureFactory {
 
     private static final Map<String, StructureConstructor<StructureInstance>> constructors = new HashMap<>();
     static {
+        constructors.put("bot", (location, direction) -> new CraftCodeBot(location, direction, UUID.randomUUID()));
         constructors.put("redstone_transmitter", (location, direction) -> new CraftRedstoneTransmitter(location));
         constructors.put("monitor_2x1", (location, direction) -> new CraftMonitor(
           NanoIdUtils.randomNanoId(new SecureRandom(), NanoIdUtils.DEFAULT_ALPHABET, 8), location, direction, Monitor.Size.SIZE_2x1
@@ -32,6 +35,7 @@ public class StructureFactory {
 
     private static final Map<String, byte[]> structureCollisions = new HashMap<>();
     static {
+        structureCollisions.put("bot", new byte[] { 0, 0, 0 });
         structureCollisions.put("redstone_transmitter", new byte[] { 0, 0, 0 });
         structureCollisions.put("monitor_2x1", CraftMonitor.COLLISION_2x1);
         structureCollisions.put("monitor_3x2", CraftMonitor.COLLISION_3x2);

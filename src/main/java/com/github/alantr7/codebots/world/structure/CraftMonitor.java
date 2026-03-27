@@ -10,7 +10,7 @@ import com.github.alantr7.codebots.api.monitor.Monitor;
 import com.github.alantr7.codebots.api.monitor.PresetColor;
 import com.github.alantr7.codebots.item.BotsItem;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.utils.StringUtils;
 import com.github.alantr7.codebots.utils.StringPool;
 import com.github.alantr7.codebots.world.BlockLocation;

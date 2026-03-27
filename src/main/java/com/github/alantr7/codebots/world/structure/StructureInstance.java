@@ -3,7 +3,7 @@ package com.github.alantr7.codebots.world.structure;
 import com.github.alantr7.bytils.buffer.ByteArrayReader;
 import com.github.alantr7.bytils.buffer.ByteArrayWriter;
 import com.github.alantr7.codebots.api.bot.Direction;
-import com.github.alantr7.codebots.item.BotsItem;
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import com.github.alantr7.codebots.utils.MathUtils;
 import com.github.alantr7.codebots.utils.StringPool;
 import com.github.alantr7.codebots.world.BlockLocation;
@@ -17,13 +17,15 @@ import java.util.Set;
 
 public abstract class StructureInstance {
 
-    public final BlockLocation location;
+    public BlockLocation location;
 
-    public final Direction direction;
+    public Direction direction;
 
     public boolean isCorrupted;
 
     public boolean isRemoved;
+
+    public boolean collisionBarriers = true;
 
     private byte[] collisionVectors;
 
@@ -43,7 +45,7 @@ public abstract class StructureInstance {
         return this.collisionVectors = MathUtils.rotateVectors(getOriginalCollisionVectors(), direction);
     }
 
-    void setOccupiedChunks() {
+    protected void setOccupiedChunks() {
         byte[] bounds = getCollisionVectors();
         Set<Vector2i> positions = new HashSet<>();
 
@@ -108,6 +110,7 @@ public abstract class StructureInstance {
 
     public static StructureInstance fromBytes(BotsRegion region, BotsChunk chunk, ByteArrayReader reader, int structureId) {
         return switch (structureId) {
+            case 2 -> CraftCodeBot.fromBytes(region, chunk, reader);
             case 3 -> CraftMonitor.fromBytes(region, chunk, reader);
             case 4 -> CraftRedstoneTransmitter.fromBytes(region, chunk, reader);
             default -> null;

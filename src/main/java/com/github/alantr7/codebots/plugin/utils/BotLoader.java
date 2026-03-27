@@ -1,8 +1,7 @@
 package com.github.alantr7.codebots.plugin.utils;
 
 import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
-import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
-import com.github.alantr7.codebots.plugin.bot.CraftMemory;
+import com.github.alantr7.codebots.world.bot.CraftMemory;
 import net.querz.nbt.tag.*;
 
 import java.util.*;

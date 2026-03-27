@@ -3,20 +3,14 @@ package com.github.alantr7.codebots.plugin.gui;
 import com.github.alantr7.bukkitplugin.gui.ClickType;
 import com.github.alantr7.bukkitplugin.gui.CloseInitiator;
 import com.github.alantr7.bukkitplugin.gui.GUI;
-import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
-import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.config.Config;
-import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import lombok.Getter;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,11 +59,11 @@ public class BotControllerGUI extends GUI {
 
         // Rotate right
         setItem(21, createVerticalMovementAndRotationButton("§6Turn Right", "§7Rotate the bot to it's right"));
-        registerInteractionCallback(21, ClickType.LEFT, jog(() -> bot.setDirection(bot.getDirection().getRight(), true)));
+        registerInteractionCallback(21, ClickType.LEFT, jog(() -> bot.rotate(bot.getDirection().getRight(), true)));
 
         // Rotate left
         setItem(19, createVerticalMovementAndRotationButton("§6Turn Left", "§7Rotate the bot to it's left"));
-        registerInteractionCallback(19, ClickType.LEFT, jog(() -> bot.setDirection(bot.getDirection().getLeft(), true)));
+        registerInteractionCallback(19, ClickType.LEFT, jog(() -> bot.rotate(bot.getDirection().getLeft(), true)));
 
 
 

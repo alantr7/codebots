@@ -7,8 +7,8 @@ import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.bot.BotMovement;
-import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import com.github.alantr7.codebots.world.bot.BotMovement;
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.config.Config;
 import lombok.Getter;
 import org.bukkit.Location;
@@ -101,7 +101,6 @@ public class BotRegistry {
         var chunk = new Vector2i(location.getBlockX() >> 4, location.getBlockZ() >> 4);
         var map = botsPerChunk.computeIfAbsent(chunk, k -> new HashMap<>());
         map.put(bot.getId(), bot);
-        bot.setCachedLocation(location);
         bot.setLastSavedLocation(location);
     }
 
@@ -132,53 +131,10 @@ public class BotRegistry {
 
     @InvokePeriodically(interval = 2)
     public void tickBots() {
-        long time = System.currentTimeMillis();
-        bots.forEach((id, bot) -> {
-            var program = bot.getProgram();
-            if (program != null && bot.isActive()) {
-                if (program.hasNext()) {
-                    program.run();
-                } else {
-                    bot.setActive(false);
-
-                    // If there was an exception, save it to the bot instance
-                    if (program.isInterrupted()) {
-                        bot.setError(new ProgramError(
-                                ProgramError.ErrorLocation.EXECUTION,
-                                program.getError().getMessage(),
-                                new String[0] // todo: stack traces
-                        ));
-                    }
-                }
-            }
-
-            if (bot.isChunkLoaded() && bot.getTextDisplay() != null) {
-                String text = (bot.isActive() ? "" : "§7") + "ʙᴏᴛ ";
-                text += bot.isActive() ? "§6ᴀᴄᴛɪᴠᴇ" : bot.hasError() ? "§cᴄʀᴀꜱʜᴇᴅ" : "ᴏꜰꜰʟɪɴᴇ";
-
-                if (time <= bot.getLastStatusExpiry()) {
-                    text += "\n" + bot.getLastStatus();
-                }
-
-                bot.getTextDisplay().setText(text);
-            }
-
-            // Periodically save the bot
-            if (bot.isDirty() && System.currentTimeMillis() - bot.getLastSaved() > Config.BOT_AUTO_SAVE_COOLDOWN && bot.isChunkLoaded())
-                bot.save();
-        });
-
         var it = movingBots.entrySet().iterator();
         while (it.hasNext()) {
             var bot = it.next().getValue();
             if (bot.getMovement().isCompleted()) {
-                if (bot.getMovement().getType() == BotMovement.Type.TRANSLATION) {
-                    try {
-                        bot.completeTranslation();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
                 bot.setMovement(null);
                 bot.setDirty(true);
                 it.remove();

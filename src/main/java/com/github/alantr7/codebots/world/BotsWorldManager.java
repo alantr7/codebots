@@ -73,7 +73,7 @@ public class BotsWorldManager {
     @Getter
     private final Timing tickDurationTimings = new Timing(5);
 
-    @InvokePeriodically(interval = 20L, delay = 10L)
+    @InvokePeriodically(interval = 2L, delay = 2L)
     private void tickLoadedStructures() {
         long start = System.currentTimeMillis();
         worlds.values().forEach(BotsWorld::tick);
@@ -88,7 +88,7 @@ public class BotsWorldManager {
 
     @Invoke(Invoke.Schedule.AFTER_PLUGIN_DISABLE)
     private void removeModelsOnDisable() {
-        worlds.values().forEach(world ->world.regions.values().forEach(region -> region.chunks.values().forEach(chunk -> {
+        worlds.values().forEach(world -> world.regions.values().forEach(region -> region.chunks.values().forEach(chunk -> {
             chunk.structures.values().forEach(StructureInstance::handleUnload);
         })));
     }

@@ -51,7 +51,7 @@ public class RotateFunction extends ExternalFunction {
         var bot = (CodeBot) context.getProgram().getExtra("bot");
         var direction = this.getName().equals("rotateRight") ? bot.getDirection().getRight() : bot.getDirection().getLeft();
 
-        bot.setDirection(direction, true);
+        bot.rotate(direction, true);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.github.alantr7.codebots.plugin.utils;
 
-import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import com.github.alantr7.codebots.api.event.BotLoadEvent;
 import org.bukkit.Bukkit;
 

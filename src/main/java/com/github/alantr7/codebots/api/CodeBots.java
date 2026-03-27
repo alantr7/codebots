@@ -6,8 +6,8 @@ import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.bot.BotFactory;
-import com.github.alantr7.codebots.plugin.bot.BotFile;
+import com.github.alantr7.codebots.world.bot.BotFactory;
+import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.data.PlayerRegistry;
@@ -17,8 +17,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.UUID;
 
 public interface CodeBots {

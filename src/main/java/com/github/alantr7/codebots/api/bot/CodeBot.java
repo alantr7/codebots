@@ -3,14 +3,13 @@ package com.github.alantr7.codebots.api.bot;
 import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.cbslang.low.runtime.Program;
-import com.github.alantr7.codebots.plugin.bot.BotFileSystem;
+import com.github.alantr7.codebots.fs.BotFileSystem;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Interaction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -51,7 +50,7 @@ public interface CodeBot {
      * @param direction new direction
      * @param interpolate if rotation should be animated
      */
-    void setDirection(Direction direction, boolean interpolate);
+    void rotate(Direction direction, boolean interpolate);
 
     /**
      * Set the direction of the bot without animating the rotation

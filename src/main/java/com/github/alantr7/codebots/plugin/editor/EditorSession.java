@@ -2,7 +2,7 @@ package com.github.alantr7.codebots.plugin.editor;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.bot.BotFile;
+import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.plugin.config.Config;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,9 +12,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.CommandSender;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -105,7 +103,10 @@ public final class EditorSession {
                     if (file == null)
                         return;
 
-                    file.setContent(fileInfo.getCode().getBytes(StandardCharsets.UTF_8));
+                    byte[] buffer = new byte[2048];
+                    byte[] code = fileInfo.getCode().getBytes(StandardCharsets.UTF_8);
+                    System.arraycopy(code, 0, buffer, 0, Math.min(code.length, buffer.length));
+                    file.setContent(buffer);
                 });
                 bot.reloadProgram();
             } catch (Exception e) {

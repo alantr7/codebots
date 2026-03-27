@@ -1,15 +1,13 @@
 package com.github.alantr7.codebots.api.bot;
 
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.bot.BotFile;
+import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.plugin.editor.EditorSession;
 import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
@@ -28,7 +26,7 @@ public class ProgramSource {
         this.directory = category;
         this.name = name;
         this.source = source;
-        this.code = code;
+        this.code = code.trim();
     }
 
     public ItemStack toItem() {

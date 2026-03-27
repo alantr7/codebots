@@ -9,24 +9,20 @@ import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.bot.BotFile;
+import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
-import com.github.alantr7.codebots.plugin.bot.CraftCodeBot;
-import com.github.alantr7.codebots.plugin.bot.CraftMemory;
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
+import com.github.alantr7.codebots.world.bot.CraftMemory;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.world.structure.CraftRedstoneTransmitter;
 import com.github.alantr7.codebots.plugin.utils.BotLoader;
-import com.github.alantr7.codebots.plugin.utils.Compatibility;
 import com.github.alantr7.codebots.plugin.utils.EventDispatcher;
-import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.tag.CompoundTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.BlockDisplay;
-import org.joml.AxisAngle4f;
 
 import java.io.File;
 import java.io.IOException;
@@ -138,72 +134,6 @@ public class DataLoader {
     }
 
     private void loadBot(File directory) throws IOException {
-        var data = (CompoundTag) NBTUtil.read(new File(directory, "bot.dat"), false).getTag();
-        var botId = UUID.fromString(directory.getName());
-        var world = Bukkit.getWorld(data.getString("World"));
-        var position = data.getIntArray("Location");
-        var direction = Direction.toDirection((char) data.getByte("Direction"));
-
-        var bot = new CraftCodeBot(new BlockLocation(CodeBotsPlugin.inst().getWorldManager().getWorld(world), position[0], position[1], position[2]), botId);
-        bot.setCachedLocation(new Location(world, position[0], position[1], position[2]));
-        bot.setCachedDirection(direction);
-
-        if (bot.isChunkLoaded()) {
-            bot.onModelSpawn();
-        }
-
-        var programTag = data.getCompoundTag("Program");
-        if (programTag != null) {
-            var programPath = programTag.getString("Name");
-            var programDirectory = programTag.getString("Directory");
-
-            if (programPath != null && programDirectory != null) {
-                try {
-                    var programDirectoryEnum = Directory.valueOfOrDefault(programDirectory.toUpperCase(), Directory.LOCAL_PROGRAMS);
-                    var programFile = programDirectoryEnum == Directory.SHARED_PROGRAMS ? new BotFile(new File(plugin.getDataFolder(), "programs/" + programPath)) : bot.getFileSystem().getFile(programPath);
-                    // todo: fix shared files!
-
-                    ProgramSource program = loadProgram(programDirectoryEnum, programFile);
-                    var program1 = programDirectoryEnum == Directory.SHARED_PROGRAMS ? programs.getProgram(programPath) : new ProgramSource(Directory.LOCAL_PROGRAMS, programPath, programFile, program.getCode());
-
-                    bot.setProgramSource(program1);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        int selectedSlot = data.getInt("Slot");
-        var memoryTag = data.getCompoundTag("Memory");
-
-        if (memoryTag != null) {
-            bot.setMemory(BotLoader.loadMemory(memoryTag));
-        }
-
-        var ownerId = data.getString("OwnerId");
-        if (!ownerId.isEmpty()) {
-            bot.setOwnerId(UUID.fromString(ownerId));
-        }
-
-        bot.setSelectedSlot(selectedSlot);
-
-        var inventoryFile = new File(directory, "inventory.yml");
-        if (inventoryFile.exists()) {
-            var inventoryData = YamlConfiguration.loadConfiguration(inventoryFile);
-            for (int i = 0; i < 7; i++) {
-                bot.getInventory().setItem(i, inventoryData.getItemStack("Slot" + i));
-            }
-        }
-
-        this.botsRegistry.registerBot(bot);
-
-        if (bot.isDirty()) {
-            save(bot);
-        }
-
-        if (bot.isChunkLoaded()) {
-            EventDispatcher.callBotLoadEvent(bot);
-        }
     }
 
     public ProgramSource loadProgram(Directory directory, File file) throws IOException {

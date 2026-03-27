@@ -1,9 +1,10 @@
-package com.github.alantr7.codebots.plugin.bot;
+package com.github.alantr7.codebots.world.bot;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
+import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
@@ -28,15 +29,10 @@ public class BotFactory {
     }
 
     public static CodeBot createBot(@NotNull UUID botId, @NotNull UUID ownerId, @NotNull BlockLocation location) {
-        var bot = new CraftCodeBot(location, botId);
-        bot.setCachedLocation(location.toBukkit());
-        bot.setCachedDirection(Direction.WEST);
+        var bot = new CraftCodeBot(location, Direction.WEST, botId);
         bot.setOwnerId(ownerId);
 
         bot.onModelSpawn();
-        bot.setLocation(location.toBukkitCentered());
-        bot.fixTransformation();
-
         CodeBotsPlugin.inst().getSingleton(BotRegistry.class).registerBot(bot);
         CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(bot);
 
@@ -67,7 +63,7 @@ public class BotFactory {
         entity.setRotation(0, 0);
         var transformation = entity.getTransformation();
         entity.setTransformation(new Transformation(
-                transformation.getTranslation().add(0.3f, 0.75f, 0.3f),
+                new Vector3f(0, 0.75f, 0),
                 transformation.getLeftRotation(),
                 new Vector3f(1, 1f, 1f),
                 transformation.getRightRotation()

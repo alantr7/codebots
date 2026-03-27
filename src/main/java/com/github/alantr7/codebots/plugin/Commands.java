@@ -223,7 +223,7 @@ public class Commands {
                     return;
                 }
 
-                bot.setDirection(direction, true);
+                bot.rotate(direction, true);
                 ctx.respond("§eBot has been rotated.");
             });
 
@@ -262,7 +262,7 @@ public class Commands {
             .parameter("give")
             .parameter("{player}", p -> p.tabComplete(args -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toList()))
             .parameter("{item}", p -> p
-                    .tabComplete("redstone_transmitter", "monitor_2x1", "monitor_3x2", "monitor_4x3")
+                    .tabComplete("bot", "redstone_transmitter", "monitor_2x1", "monitor_3x2", "monitor_4x3")
                     .ifNotProvided(ctx -> ctx.respond("§cItem is not provided.")))
             .executes(ctx -> {
                 BotsItem item = BotsItem.getById((String) ctx.getArgument("item"));

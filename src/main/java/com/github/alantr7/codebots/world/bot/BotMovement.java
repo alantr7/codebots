@@ -1,4 +1,4 @@
-package com.github.alantr7.codebots.plugin.bot;
+package com.github.alantr7.codebots.world.bot;
 
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.plugin.config.Config;

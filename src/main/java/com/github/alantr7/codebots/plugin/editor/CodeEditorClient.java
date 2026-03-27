@@ -9,7 +9,7 @@ import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.ExternalFunction;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.Module;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.bot.BotFile;
+import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
 import lombok.SneakyThrows;
@@ -20,12 +20,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -137,10 +135,10 @@ public class CodeEditorClient {
                     var name = file.getName();
                     var fileObject = new JSONObject();
                     fileObject.put("name", name);
-                    fileObject.put("content", new String(file.getContent()));
+                    fileObject.put("content", new String(file.getContent()).trim());
                     jsonFiles.add(fileObject);
 
-                    sessionFiles.put(name, new EditorSessionFile(new String(file.getContent())));
+                    sessionFiles.put(name, new EditorSessionFile(new String(file.getContent()).trim()));
                 }
 
                 var request = HttpRequest.newBuilder()
