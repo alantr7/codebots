@@ -16,6 +16,7 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
+import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -53,7 +54,7 @@ public class BotFactory {
         return bot;
     }
 
-    public static ItemDisplay createBotEntity(@NotNull Location location) {
+    public static ItemDisplay createBotEntity(@NotNull Location location, @NotNull Direction direction) {
         var entity = (ItemDisplay) location.getWorld().spawnEntity(location, EntityType.ITEM_DISPLAY);
         entity.setPersistent(false);
 
@@ -63,9 +64,9 @@ public class BotFactory {
         var transformation = entity.getTransformation();
         entity.setTransformation(new Transformation(
                 new Vector3f(0, 0.75f, 0),
-                transformation.getLeftRotation(),
+                new AxisAngle4f(Direction.toAngle(direction), 0, 1, 0),
                 new Vector3f(1, 1f, 1f),
-                transformation.getRightRotation()
+                new AxisAngle4f(transformation.getRightRotation())
         ));
         entity.setInterpolationDuration(20);
 

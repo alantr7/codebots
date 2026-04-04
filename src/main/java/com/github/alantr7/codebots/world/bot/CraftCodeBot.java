@@ -188,16 +188,8 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         if (isMoving() || !isChunkLoaded() || (entity = getEntity()) == null)
             return;
 
-        var angle = switch (direction) {
-            case NORTH -> RotateFunction.ANGLE_NORTH;
-            case WEST -> RotateFunction.ANGLE_WEST;
-            case EAST -> RotateFunction.ANGLE_EAST;
-            case SOUTH -> RotateFunction.ANGLE_SOUTH;
-            default -> 0;
-        };
-
+        var angle = Direction.toAngle(direction);
         var initialTransformation = entity.getTransformation();
-
         var nextRotation = new AxisAngle4f(angle, 0, 1, 0);
         entity.setInterpolationDelay(0);
         entity.setInterpolationDuration(interpolate ? Config.BOT_ROTATION_DURATION * 2 : 0);
@@ -404,7 +396,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     @Override
     public void onModelSpawn() {
-        this.entity = BotFactory.createBotEntity(location.toBukkitCentered());
+        this.entity = BotFactory.createBotEntity(location.toBukkitCentered(), direction);
         entity.setTeleportDuration(Config.BOT_MOVEMENT_DURATION * 2);
         this.textDisplayEntity = BotFactory.createBotTextEntity(location.toBukkitCentered().add(0, Config.BOT_STATUS_ENTITY_OFFSET, 0));
         this.textDisplayEntity.setTeleportDuration(Config.BOT_MOVEMENT_DURATION * 2);

@@ -1,5 +1,6 @@
 package com.github.alantr7.codebots.api.bot;
 
+import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
 import lombok.Getter;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
@@ -92,6 +93,16 @@ public enum Direction {
             case 'S' -> SOUTH;
             case 'W' -> WEST;
             default -> NORTH;
+        };
+    }
+
+    public static float toAngle(Direction direction) {
+        return switch (direction) {
+            case NORTH -> RotateFunction.ANGLE_NORTH;
+            case WEST -> RotateFunction.ANGLE_WEST;
+            case EAST -> RotateFunction.ANGLE_EAST;
+            case SOUTH -> RotateFunction.ANGLE_SOUTH;
+            default -> 0;
         };
     }
 
