@@ -28,14 +28,6 @@ public class PlayerData {
         return Bukkit.getPlayer(id);
     }
 
-    public @Nullable CodeBot getSelectedBot() {
-        return selectedBot != null ? CodeBots.getBot(selectedBot) : null;
-    }
-
-    public void setSelectedBot(@Nullable CodeBot bot) {
-        this.selectedBot = bot != null ? bot.getId() : null;
-    }
-
     public static PlayerData get(Player player) {
         return CodeBots.getPlayer(player);
     }
