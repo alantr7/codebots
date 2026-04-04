@@ -47,60 +47,7 @@ public class Commands {
     public static final String CREATE_CMD = "";
 
     @CommandHandler
-    public com.github.alantr7.bukkitplugin.commands.registry.Command setSkin = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_SET_SKIN)
-            .forExecutors(ExecutorType.PLAYER)
-            .parameter("setskin")
-            .executes(ctx -> {
-                var bot = CodeBots.getSelectedBot((Player) ctx.getExecutor());
-                if (bot == null) {
-                    ctx.respond("§cPlease select a bot first.");
-                    return;
-                }
-
-                var hand = ((Player) ctx.getExecutor()).getInventory().getItemInMainHand();
-                if (hand.getType() != Material.PLAYER_HEAD) {
-                    ctx.respond("§cYou must hold a head.");
-                    return;
-                }
-
-                var entity = bot.getEntity();
-                if (!(entity instanceof ItemDisplay id)) {
-                    ctx.respond("§cEntity is not valid. Please report this issue.");
-                    return;
-                }
-
-                id.setItemStack(hand.clone());
-                ctx.respond("§eBot skin updated!");
-            });
-
-    @CommandHandler
-    public com.github.alantr7.bukkitplugin.commands.registry.Command editor = CommandBuilder.using("codebots")
-            .permission(Permissions.COMMAND_EDITOR)
-            .parameter("editor")
-            .executes(ctx -> {
-                var bot = PlayerData.get((Player) ctx.getExecutor()).getSelectedBot();
-                if (bot == null) {
-                    ctx.respond("§cPlease select a bot first.");
-                    return;
-                }
-
-                var session = editorClient.getActiveSessionByBot(bot);
-                if (session != null) {
-                    ctx.respond("§cBot already has an active session.");
-                    return;
-                }
-
-                ctx.getExecutor().sendMessage("§oCreating an editor session. Please wait...");
-                editorClient.createSession(bot.getFileSystem().getFiles()).whenComplete((sess, err) -> {
-                    editorClient.registerActiveSessionByBot(sess, bot);
-                    sess.sendLink(ctx.getExecutor());
-                    sess.subscribe(EditorSession.createBotSubscriber(bot));
-                });
-            });
-
-    @CommandHandler
-    public com.github.alantr7.bukkitplugin.commands.registry.Command createMonitor = CommandBuilder.using("codebots")
+    public com.github.alantr7.bukkitplugin.commands.registry.Command give = CommandBuilder.using("codebots")
             .permission(Permissions.COMMAND_GIVE)
             .parameter("give")
             .parameter("{player}", p -> p.tabComplete(args -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toList()))
