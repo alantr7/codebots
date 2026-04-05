@@ -2,6 +2,7 @@ package com.github.alantr7.codebots.plugin.codeint.functions;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
+import com.github.alantr7.codebots.cbslang.exceptions.ExecutionException;
 import com.github.alantr7.codebots.cbslang.low.runtime.memory.Data;
 import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.Context;
@@ -17,68 +18,47 @@ import org.bukkit.inventory.ItemStack;
 
 public class MineFunction extends ExternalFunction {
 
+    private static final byte MEMORY_MINE_PROGRESS = 0;
+
     public MineFunction(Module module) {
         super(module, "mine", DataType.INT, DataType.STRING);
     }
 
     @Override
-    public Data handle(Context context) {
-        /*
+    public void prepareContext(Context context) {
+        context.getMemory()[MEMORY_MINE_PROGRESS] = Data.of(0);
+    }
+
+    @Override
+    public Data handle(Context context) throws ExecutionException {
         if (!Config.BOT_ALLOW_BLOCK_BREAKING) {
-            environment.interrupt(new ExecutionException("Block breaking is disabled"));
-            return;
+            throw new ExecutionException("Block breaking is disabled");
         }
 
-        var call = environment.getCallStack().getLast();
-        if (call.getArguments().length != 1) {
-            environment.interrupt(new ExecutionException("Expected 1 argument, but received " + call.getArguments().length));
-            return;
-        }
-
-        if (!(call.getArguments()[0] instanceof String)) {
-            environment.interrupt(new ExecutionException("Expected a string argument"));
-            return;
-        }
-
-        var bot = (CodeBot) environment.getProgram().getExtra("bot");
-        var arg = call.getArguments()[0];
+        var bot = (CodeBot) context.getProgram().getExtra("bot");
+        var arg = context.getArgumentAs(0, DataType.STRING);
         var direction = (arg.equals("forward")
           ? bot.getDirection()
           : arg.equals("back")
           ? bot.getDirection().getRight().getRight()
-          : Direction.toDirection((String) call.getArguments()[0]));
+          : Direction.toDirection(arg));
 
         if (direction == null) {
-            environment.interrupt(new ExecutionException(arg + " is not a valid direction"));
-            return;
+            throw new ExecutionException(arg + " is not a valid direction");
         }
 
-        int progress;
-
-        if (context.getLineIndex() == 0) {
-            progress = 0;
-        }
-
-        else {
-            progress = (int) context.getExtra("progress");
-        }
+        int progress = context.getMemory()[MEMORY_MINE_PROGRESS].getValueAs(DataType.INT);
 
         var blockLocation = bot.getLocation().add(direction.toVector());
         if (blockLocation.getBlock().getType().isAir()) {
-            context.setFlag(BlockContext.FLAG_COMPLETED, true);
-            context.advance();
-
-            return;
+            return Data.of(1);
         }
 
-        if (progress == 6) {
-            context.setFlag(BlockContext.FLAG_COMPLETED, true);
-            context.advance();
-
+        if (progress / 5 == 6) {
             var blockData = bot.getLocation().add(direction.toVector()).getBlock().getBlockData();
             bot.getLocation().getWorld().spawnParticle(
               Particle.BLOCK_CRACK,
-              blockLocation.add(.5, .5, .5),
+              blockLocation.clone().add(0, .5, 0),
               12,  0, 0, 0,
               blockData
             );
@@ -91,21 +71,18 @@ public class MineFunction extends ExternalFunction {
             }
 
             CodeBotsPlugin.inst().getSingleton(DataLoader.class).saveInventory(bot);
-            return;
+            return Data.of(1);
         }
 
-        if (context.getLineIndex() % 5 == 0) {
-            float damage = progress / 5f;
-
+        if (progress % 5 == 0) {
+            float damage = (progress / 5f) / 6f;
             for (var player : Bukkit.getOnlinePlayers()) {
                 player.sendBlockDamage(blockLocation, damage, bot.getEntity());
             }
-
-            context.setExtra("progress", progress + 1);
         }
 
-        context.advance();
-        environment.setHalted(true);*/
+        context.getMemory()[MEMORY_MINE_PROGRESS].updateValue(DataType.INT, v -> v + 1);
+        context.setRecall(true);
         return null;
     }
 

@@ -11,7 +11,7 @@ import com.github.alantr7.codebots.plugin.config.Config;
 
 public class MoveFunction extends ExternalFunction {
 
-    private static final byte MEMORY_MINE_PROGRESS = 0;
+    private static final byte MEMORY_MOVE_PROGRESS = 0;
 
     public MoveFunction(Module module) {
         super(module, "move", DataType.INT, DataType.STRING);
@@ -19,7 +19,7 @@ public class MoveFunction extends ExternalFunction {
 
     @Override
     public void prepareContext(Context context) {
-        context.getMemory()[MEMORY_MINE_PROGRESS] = new Data(DataType.INT, 0);
+        context.getMemory()[MEMORY_MOVE_PROGRESS] = new Data(DataType.INT, 0);
     }
 
     private boolean beginMovement(Context context) throws Exception {
@@ -36,7 +36,7 @@ public class MoveFunction extends ExternalFunction {
 
     @Override
     public Data handle(Context context) {
-        Data mineProgress = context.getMemory()[MEMORY_MINE_PROGRESS];
+        Data mineProgress = context.getMemory()[MEMORY_MOVE_PROGRESS];
 
         // If this is the first tick, then begin movement
         if (mineProgress.getValueAs(DataType.INT) == 0) {
