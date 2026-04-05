@@ -10,7 +10,7 @@ import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
 import com.github.alantr7.codebots.world.BotsWorldManager;
 import org.bstats.bukkit.Metrics;
 
-@JavaPlugin(name = "CodeBots", version = "0.8.0")
+@JavaPlugin(name = "CodeBots", version = "1.0.0")
 @Relocations(@Relocate(from = "com.github.alantr7.bukkitplugin", to = "com.github.alantr7.codebots.bpf"))
 public class CodeBotsPlugin extends BukkitPlugin {
 
