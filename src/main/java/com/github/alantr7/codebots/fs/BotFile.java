@@ -6,6 +6,8 @@ import java.io.File;
 
 public class BotFile {
 
+    FileSystemManager fs;
+
     @Getter
     long position = -1;
 
@@ -21,7 +23,8 @@ public class BotFile {
     @Getter
     private boolean isUnsaved = true;
 
-    public BotFile(String name, byte[] content, long lastModified) {
+    public BotFile(FileSystemManager fs, String name, byte[] content, long lastModified) {
+        this.fs = fs;
         this.name = name;
         this.content = content;
         this.lastModified = lastModified;
@@ -42,7 +45,7 @@ public class BotFile {
     }
 
     public void delete() {
-
+        fs.delete(this);
     }
 
 }

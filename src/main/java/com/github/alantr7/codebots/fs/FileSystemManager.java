@@ -52,7 +52,7 @@ public class FileSystemManager {
         long lastModified = reader.readLong();
         byte[] content = reader.readBytes(2048);
 
-        BotFile file = new BotFile(new String(nameBytes).trim(), content, lastModified);
+        BotFile file = new BotFile(this, new String(nameBytes).trim(), content, lastModified);
         file.position = position;
 
         return file;
@@ -104,6 +104,26 @@ public class FileSystemManager {
 
     public void save() {
 
+    }
+
+    public void delete(BotFile file) {
+        if (file.position == -1)
+            return;
+
+        try (RandomAccessFile raf = new RandomAccessFile(this.file, "rw")) {
+            delete(raf, file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void delete(RandomAccessFile raf, BotFile file) throws Exception {
+        if (file.position == -1)
+            return;
+
+        raf.seek(file.position);
+        raf.writeByte(0);
+        file.position = -1;
     }
 
 }

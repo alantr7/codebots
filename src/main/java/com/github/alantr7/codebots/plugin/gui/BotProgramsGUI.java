@@ -192,6 +192,7 @@ public class BotProgramsGUI extends GUI {
                             return;
                         }
 
+                        bot.getFileSystem().deleteFile(file.getName());
                         file.delete();
                         refill();
 

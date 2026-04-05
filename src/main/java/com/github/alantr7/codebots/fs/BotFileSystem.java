@@ -18,7 +18,7 @@ public class BotFileSystem {
     }
 
     public BotFile createFile(String name) {
-        BotFile file = new BotFile(name, new byte[0], System.currentTimeMillis());
+        BotFile file = new BotFile(bot.location.world.fsManager, name, new byte[0], System.currentTimeMillis());
         files.put(file.getName(), file);
 
         bot.setDirty(true);
@@ -29,6 +29,10 @@ public class BotFileSystem {
     @Nullable
     public BotFile getFile(String name) {
         return files.get(name);
+    }
+
+    public void deleteFile(String name) {
+        files.remove(name);
     }
 
     public Collection<BotFile> getFiles() {
