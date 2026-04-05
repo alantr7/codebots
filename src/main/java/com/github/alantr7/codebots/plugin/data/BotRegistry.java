@@ -7,6 +7,7 @@ import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.bot.BotMovement;
 import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import com.github.alantr7.codebots.plugin.config.Config;
@@ -30,14 +31,8 @@ public class BotRegistry {
     private final Map<Vector2i, Map<UUID, CraftCodeBot>> botsPerChunk = new LinkedHashMap<>();
 
     public CodeBot getBotAt(@NotNull Location location) {
-        var bots = botsPerChunk.get(new Vector2i(location.getBlockX() >> 4, location.getBlockZ() >> 4));
-        if (bots == null)
-            return null;
-
-        var blockLocation = new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        for (var bot : bots.values())
-            if (bot.getBlockLocation().equals(blockLocation))
-                return bot;
+        if (new BlockLocation(location).getStructure() instanceof CodeBot bot)
+            return bot;
 
         return null;
     }
