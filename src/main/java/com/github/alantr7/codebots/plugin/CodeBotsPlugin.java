@@ -6,6 +6,7 @@ import com.github.alantr7.bukkitplugin.annotations.relocate.Relocate;
 import com.github.alantr7.bukkitplugin.annotations.relocate.Relocations;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.ModuleRepository;
 import com.github.alantr7.codebots.plugin.codeint.modules.*;
+import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
 import com.github.alantr7.codebots.world.BotsWorldManager;
 
 @JavaPlugin(name = "CodeBots", version = "0.8.0")
@@ -32,12 +33,16 @@ public class CodeBotsPlugin extends BukkitPlugin {
 
     }
 
-    public ModuleRepository getModuleRepository() {
-        return MODULE_REPOSITORY;
-    }
-
     public static CodeBotsPlugin inst() {
         return instance;
+    }
+
+    public ProgramRegistry getProgramRegistry() {
+        return getSingleton(ProgramRegistry.class);
+    }
+
+    public ModuleRepository getModuleRepository() {
+        return MODULE_REPOSITORY;
     }
 
     public BotsWorldManager getWorldManager() {

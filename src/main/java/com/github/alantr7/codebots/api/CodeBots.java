@@ -42,7 +42,7 @@ public interface CodeBots {
         return getPlayer(player.getUniqueId());
     }
 
-    static @NotNull ProgramSource loadProgram(@NotNull Directory directory, @NotNull BotFile file) throws ParserException {
+    static @NotNull ProgramSource loadProgram(@NotNull Directory directory, @NotNull BotFile file) {
         return CodeBotsPlugin.inst().getSingleton(DataLoader.class).loadProgram(directory, file);
     }
 

@@ -472,8 +472,36 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             filePointers[i] = reader.readLong();
         }
 
+        // Loaded program file
+        int directoryPointer = reader.readU1();
+
         CraftCodeBot bot = new CraftCodeBot(location, direction, id);
         location.world.fsManager.load(bot.fileSystem, filePointers);
+
+        if (directoryPointer != 0) {
+            Directory sourceDirectory = Directory.values()[directoryPointer - 1];
+            String fileName = reader.readString();
+            ProgramSource source = null;
+
+            // Find the file
+            if (sourceDirectory == Directory.SHARED_PROGRAMS) {
+                source = CodeBotsPlugin.inst().getProgramRegistry().getProgram(fileName);
+            } else {
+                BotFile sourceFile = bot.fileSystem.getFile(fileName);
+                if (sourceFile != null) {
+                    source = CodeBots.loadProgram(sourceDirectory, sourceFile);
+                }
+            }
+
+            if (source != null) {
+                try {
+                    bot.loadProgram(source);
+                } catch (Exception e) {
+                    System.out.println("Could not load program for bot " + id);
+                    e.printStackTrace();
+                }
+            }
+        }
 
         return bot;
     }
@@ -508,6 +536,12 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             } else {
                 System.err.println("Could not save file " + file.getName() + " as it is not written to the file system.");
             }
+        }
+
+        // Loaded program file
+        buffer.writeU1(programSource != null ? (programSource.getDirectory().ordinal() + 1) : 0);
+        if (programSource != null) {
+            buffer.writeString(programSource.getName());
         }
 
         int returnPointer = buffer.getPointer();
