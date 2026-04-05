@@ -73,7 +73,7 @@ public class BotGUI extends GUI {
         });
 
         registerInteractionCallback(16, ClickType.LEFT, () -> {
-            var botItem = ItemFactory.createBotItem("§eCodeBot", bot);
+            var botItem = ItemFactory.createBotItem(bot);
             if (getPlayer().getInventory().getItemInMainHand().getType().isAir()) {
                 getPlayer().getInventory().setItemInMainHand(botItem);
             } else {

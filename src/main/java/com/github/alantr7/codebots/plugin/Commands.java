@@ -4,29 +4,13 @@ import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.bukkitplugin.annotations.generative.Command;
 import com.github.alantr7.bukkitplugin.commands.annotations.CommandHandler;
-import com.github.alantr7.bukkitplugin.commands.executor.ExecutorType;
 import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
-import com.github.alantr7.codebots.api.CodeBots;
-import com.github.alantr7.codebots.api.bot.BotBuilder;
-import com.github.alantr7.codebots.api.bot.Direction;
-import com.github.alantr7.codebots.api.bot.Directory;
-import com.github.alantr7.codebots.api.player.PlayerData;
 import com.github.alantr7.codebots.item.BotsItem;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
-import com.github.alantr7.codebots.plugin.editor.EditorSession;
-import com.github.alantr7.codebots.plugin.gui.BotGUI;
-import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
-import org.bukkit.persistence.PersistentDataType;
-
-import java.util.UUID;
 
 @Singleton
 public class Commands {

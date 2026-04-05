@@ -383,6 +383,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
                 gui.close(CloseInitiator.EXTERNAL);
             }
         }
+        location.world.removeStructure(this);
     }
 
     public void save() {
