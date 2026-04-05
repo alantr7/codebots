@@ -20,7 +20,6 @@ import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.BotsChunk;
 import com.github.alantr7.codebots.world.BotsRegion;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
-import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
@@ -301,6 +300,17 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
     @Override
     public void loadProgram(ProgramSource program) throws ParserException {
         _loadProgram(program);
+    }
+
+    @Override
+    public void loadProgram(@NotNull Directory directory, @NotNull String fileName) throws Exception {
+        if (directory == Directory.SHARED_PROGRAMS) {
+            loadProgram(CodeBotsPlugin.inst().getProgramRegistry().getProgram(fileName));
+        } else {
+            BotFile file = fileSystem.getFile(fileName);
+            if (file != null)
+                loadProgram(new ProgramSource(directory, file.getName(), file, new String(file.getContent()).trim()));
+        }
     }
 
     @Override

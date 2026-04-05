@@ -1,6 +1,8 @@
 package com.github.alantr7.codebots.plugin.program;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.fs.BotFile;
+import com.github.alantr7.codebots.fs.BotFileSystem;
 import com.github.alantr7.codebots.item.BotsItem;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import org.bukkit.Material;
@@ -10,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -29,13 +32,21 @@ public class ItemFactory {
 
         var items = bot.getInventory().getItems();
         var pdc = meta.getPersistentDataContainer();
-        var pdcInventory = pdc.getAdapterContext().newPersistentDataContainer();
         var pdcProgram = pdc.getAdapterContext().newPersistentDataContainer();
+        var pdcInventory = pdc.getAdapterContext().newPersistentDataContainer();
         var lore = new LinkedList<String>();
         lore.add("§7Right-click on ground to place");
         lore.add("");
 
         pdc.set(key("BotId"), PersistentDataType.STRING, bot.getId().toString());
+
+        long[] fileSystemPointers = new long[bot.getFileSystem().getFiles().size()];
+        Iterator<BotFile> fs = bot.getFileSystem().getFiles().iterator();
+        for (int i = 0; fs.hasNext(); i++) {
+            fileSystemPointers[i] = fs.next().getPosition();
+        }
+        pdc.set(key("FileSystem"), PersistentDataType.LONG_ARRAY, fileSystemPointers);
+        lore.add("§7• File System: §f" + fileSystemPointers.length + " files");
 
         if (bot.hasProgram()) {
             pdcProgram.set(key("File"), PersistentDataType.STRING, bot.getProgramSource().getSource().getName());

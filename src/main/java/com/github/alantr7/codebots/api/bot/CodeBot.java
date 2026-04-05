@@ -100,6 +100,8 @@ public interface CodeBot {
 
     void loadProgram(ProgramSource program) throws ParserException;
 
+    void loadProgram(@NotNull Directory directory, @NotNull String fileName) throws Exception;
+
     void reloadProgram() throws ParserException, IOException;
 
     @Nullable

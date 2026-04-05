@@ -1,14 +1,18 @@
 package com.github.alantr7.codebots.world.structure;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
+import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.Direction;
+import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.monitor.Monitor;
 import com.github.alantr7.codebots.api.redstone.RedstoneTransmitter;
 import com.github.alantr7.codebots.utils.MathUtils;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.bot.CraftCodeBot;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,11 +22,44 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import static com.github.alantr7.codebots.plugin.program.ItemFactory.key;
+
 public class StructureFactory {
 
     private static final Map<String, StructureConstructor<StructureInstance>> constructors = new HashMap<>();
     static {
-        constructors.put("bot", (location, direction, item) -> new CraftCodeBot(location, direction, UUID.randomUUID()));
+        constructors.put("bot", (location, direction, item) -> {
+            CraftCodeBot bot = new CraftCodeBot(location, direction, UUID.randomUUID());
+            if (item != null && item.hasItemMeta()) {
+                var pdc = item.getItemMeta().getPersistentDataContainer();
+
+                // load file system
+                long[] filePointers = pdc.get(key("FileSystem"), PersistentDataType.LONG_ARRAY);
+                if (filePointers != null) {
+                    location.world.fsManager.load(bot.getFileSystem(), filePointers);
+                }
+
+                // load active program
+                var pdcProgram = pdc.get(key("Program"), PersistentDataType.TAG_CONTAINER);
+                if (pdcProgram != null) {
+                    String sourceDirectoryName = pdcProgram.get(key("Dir"), PersistentDataType.STRING);
+                    String sourceName = pdcProgram.get(key("File"), PersistentDataType.STRING);
+
+                    if (sourceName != null && sourceDirectoryName != null) {
+                        Directory sourceDirectory = Directory.valueOfOrDefault(sourceDirectoryName, null);
+                        if (sourceDirectory != null) {
+                            try {
+                                bot.loadProgram(sourceDirectory, sourceName);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            }
+
+            return bot;
+        });
         constructors.put("redstone_transmitter", (location, direction, item) -> new CraftRedstoneTransmitter(location));
         constructors.put("monitor_2x1", (location, direction, item) -> new CraftMonitor(
           NanoIdUtils.randomNanoId(new SecureRandom(), NanoIdUtils.DEFAULT_ALPHABET, 8), location, direction, Monitor.Size.SIZE_2x1
