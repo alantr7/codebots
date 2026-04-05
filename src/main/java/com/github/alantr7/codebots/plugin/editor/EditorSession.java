@@ -4,6 +4,7 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.plugin.config.Config;
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -107,6 +108,9 @@ public final class EditorSession {
                     byte[] code = fileInfo.getCode().getBytes(StandardCharsets.UTF_8);
                     System.arraycopy(code, 0, buffer, 0, Math.min(code.length, buffer.length));
                     file.setContent(buffer);
+
+                    ((CraftCodeBot) bot).setDirty(true);
+                    ((CraftCodeBot) bot).location.getChunk().isUnsaved = true;
                 });
                 bot.reloadProgram();
             } catch (Exception e) {
