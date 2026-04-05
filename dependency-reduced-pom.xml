@@ -40,6 +40,10 @@
                   <pattern>com.github.alantr7.bytils</pattern>
                   <shadedPattern>com.github.alantr7.codebots.bytils</shadedPattern>
                 </relocation>
+                <relocation>
+                  <pattern>org.bstats</pattern>
+                  <shadedPattern>com.github.alantr7.codebots</shadedPattern>
+                </relocation>
               </relocations>
             </configuration>
           </execution>
