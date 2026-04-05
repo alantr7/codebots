@@ -43,6 +43,7 @@ public class RotateFunction extends ExternalFunction {
             return new Data(DataType.INT, 1);
         }
 
+        context.getMemory()[MEMORY_ROTATION_PROGRESS].updateValue(DataType.INT, v -> v + 1);
         context.setRecall(true);
         return null;
     }
