@@ -8,7 +8,9 @@ import com.github.alantr7.codebots.utils.MathUtils;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -20,15 +22,15 @@ public class StructureFactory {
 
     private static final Map<String, StructureConstructor<StructureInstance>> constructors = new HashMap<>();
     static {
-        constructors.put("bot", (location, direction) -> new CraftCodeBot(location, direction, UUID.randomUUID()));
-        constructors.put("redstone_transmitter", (location, direction) -> new CraftRedstoneTransmitter(location));
-        constructors.put("monitor_2x1", (location, direction) -> new CraftMonitor(
+        constructors.put("bot", (location, direction, item) -> new CraftCodeBot(location, direction, UUID.randomUUID()));
+        constructors.put("redstone_transmitter", (location, direction, item) -> new CraftRedstoneTransmitter(location));
+        constructors.put("monitor_2x1", (location, direction, item) -> new CraftMonitor(
           NanoIdUtils.randomNanoId(new SecureRandom(), NanoIdUtils.DEFAULT_ALPHABET, 8), location, direction, Monitor.Size.SIZE_2x1
         ));
-        constructors.put("monitor_3x2", (location, direction) -> new CraftMonitor(
+        constructors.put("monitor_3x2", (location, direction, item) -> new CraftMonitor(
           NanoIdUtils.randomNanoId(new SecureRandom(), NanoIdUtils.DEFAULT_ALPHABET, 8), location, direction, Monitor.Size.SIZE_3x2
         ));
-        constructors.put("monitor_4x3", (location, direction) -> new CraftMonitor(
+        constructors.put("monitor_4x3", (location, direction, item) -> new CraftMonitor(
           NanoIdUtils.randomNanoId(new SecureRandom(), NanoIdUtils.DEFAULT_ALPHABET, 8), location, direction, Monitor.Size.SIZE_4x3
         ));
     }
@@ -43,12 +45,12 @@ public class StructureFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends StructureInstance> T construct(String id, BlockLocation location, Direction direction) {
+    public static <T extends StructureInstance> T construct(String id, BlockLocation location, Direction direction, @Nullable ItemStack item) {
         StructureConstructor<StructureInstance> constructor = constructors.get(id);
         if (constructor == null)
             return null;
 
-        StructureInstance instance = constructor.instantiate(location, direction);
+        StructureInstance instance = constructor.instantiate(location, direction, item);
         return (T) instance;
     }
 
@@ -68,7 +70,7 @@ public class StructureFactory {
 
     @FunctionalInterface
     interface StructureConstructor<T> {
-        T instantiate(BlockLocation location, Direction direction);
+        T instantiate(BlockLocation location, Direction direction, @Nullable ItemStack item);
     }
 
 }

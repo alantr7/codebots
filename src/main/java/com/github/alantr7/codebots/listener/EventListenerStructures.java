@@ -53,7 +53,7 @@ public class EventListenerStructures {
             return;
         }
 
-        StructureInstance structure = StructureFactory.construct(item.id, new BlockLocation(location), direction);
+        StructureInstance structure = StructureFactory.construct(item.id, new BlockLocation(location), direction, stack);
         if (structure != null) {
             StructureInstance.place(structure);
             CodeBotsPlugin.inst().getWorldManager().getWorld(event.getClickedBlock().getWorld()).placeStructure(structure);
