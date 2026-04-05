@@ -266,7 +266,7 @@ public class CodeEditorClient {
         });
     }
 
-    @InvokePeriodically(interval = 20 * 60 * 60)
+    @InvokePeriodically(delay = 20 * 60 * 60, interval = 20 * 60 * 60)
     void renewAccessToken() {
         fetchAccessToken();
     }
