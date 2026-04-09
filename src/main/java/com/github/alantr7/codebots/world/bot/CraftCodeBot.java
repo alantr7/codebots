@@ -11,6 +11,8 @@ import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.cbslang.high.compiler.Compiler;
 import com.github.alantr7.codebots.cbslang.high.parser.Parser;
 import com.github.alantr7.codebots.cbslang.low.runtime.Program;
+import com.github.alantr7.codebots.cbslang.low.runtime.ProgramState;
+import com.github.alantr7.codebots.cbslang.low.runtime.memory.Data;
 import com.github.alantr7.codebots.cbslang.low.tokenizer.Tokenizer;
 import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.fs.BotFileSystem;
@@ -442,6 +444,9 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
                     ));
                 }
             }
+
+            isDirty = true;
+            location.getChunk().isUnsaved = true;
         }
 
         if (isChunkLoaded() && getTextDisplay() != null) {
@@ -514,6 +519,14 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             }
         }
 
+        // Load program state
+        int isActive = reader.readU1();
+        if (isActive == 1) {
+            bot.setActive(true);
+            ProgramState state = ProgramState.deserialize(bot.program, reader);
+            bot.program.setState(state);
+        }
+
         return bot;
     }
 
@@ -555,6 +568,20 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             buffer.writeString(programSource.getName());
         }
 
+        // State
+        if (isActive) {
+            byte[] state = program.getState().serialize();
+            if (state.length < 1024) {
+                buffer.writeU1(1);
+                buffer.writeBytes(state);
+            } else {
+                buffer.writeU1(0);
+            }
+        } else {
+            buffer.writeU1(0);
+        }
+
+        // Size on disk
         int returnPointer = buffer.getPointer();
         buffer.setPointer(basePointer);
         buffer.writeU2(returnPointer - basePointer - 2);

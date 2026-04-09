@@ -45,17 +45,6 @@ public class CodeEditorClient {
         this.client = HttpClient.newHttpClient();
     }
 
-    @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
-    void onPluginEnable() {
-        this.initialize();
-    }
-
-    @SneakyThrows
-    private void initialize() {
-        // Get an access token from the server
-        fetchAccessToken();
-    }
-
     public CompletableFuture<String> fetchAccessToken() {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -266,7 +255,7 @@ public class CodeEditorClient {
         });
     }
 
-    @InvokePeriodically(delay = 20 * 60 * 60, interval = 20 * 60 * 60)
+    @InvokePeriodically(delay = 10, interval = 20 * 60 * 60)
     void renewAccessToken() {
         fetchAccessToken();
     }
