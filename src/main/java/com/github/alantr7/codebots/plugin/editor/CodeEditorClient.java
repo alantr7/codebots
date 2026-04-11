@@ -293,8 +293,6 @@ public class CodeEditorClient {
             long lastModified = reader.readLong(); // last mod
             long lastFetched = reader.readLong(); // last fet
 
-            System.out.println(sessionId + ", " + accessToken + ", " + expiry + ", " + lastModified + ", " + lastFetched);
-
             int filesCount = reader.readU1();
 
             Map<String, EditorSessionFile> files = new LinkedHashMap<>();
