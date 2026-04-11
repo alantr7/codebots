@@ -17,6 +17,7 @@ import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.fs.BotFileSystem;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.editor.EditorSession;
+import com.github.alantr7.codebots.plugin.program.ItemFactory;
 import com.github.alantr7.codebots.utils.StringPool;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.BotsChunk;
@@ -485,7 +486,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     @Override
     public ItemStack getItemDrop() {
-        return null;
+        return ItemFactory.createBotItem(this);
     }
 
     public static CraftCodeBot fromBytes(BotsRegion region, BotsChunk chunk, ByteArrayReader reader) {
