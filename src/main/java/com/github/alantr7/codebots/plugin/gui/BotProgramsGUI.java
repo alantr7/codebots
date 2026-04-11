@@ -147,6 +147,7 @@ public class BotProgramsGUI extends GUI {
             ((CraftCodeBot) bot).getInventory().updateProgramButton();
 
             getPlayer().sendMessage("§eCode editor session closed.");
+            refill();
         });
 
 
