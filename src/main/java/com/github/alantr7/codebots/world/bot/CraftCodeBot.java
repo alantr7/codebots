@@ -12,7 +12,6 @@ import com.github.alantr7.codebots.cbslang.high.compiler.Compiler;
 import com.github.alantr7.codebots.cbslang.high.parser.Parser;
 import com.github.alantr7.codebots.cbslang.low.runtime.Program;
 import com.github.alantr7.codebots.cbslang.low.runtime.ProgramState;
-import com.github.alantr7.codebots.cbslang.low.runtime.memory.Data;
 import com.github.alantr7.codebots.cbslang.low.tokenizer.Tokenizer;
 import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.fs.BotFileSystem;
@@ -23,7 +22,6 @@ import com.github.alantr7.codebots.world.BotsChunk;
 import com.github.alantr7.codebots.world.BotsRegion;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.plugin.config.Config;
-import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.plugin.gui.BotProgramsGUI;
@@ -165,8 +163,10 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         getInteraction().teleport(blockLocation.clone().add(.5, 0, .5));
         getTextDisplay().teleport(blockLocation.clone().add(.5, Config.BOT_STATUS_ENTITY_OFFSET, .5));
 
+        BlockLocation previousLocation = this.location;
         this.location = new BlockLocation(location);
-        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation(this);
+        this.location.getChunk().isUnsaved = true;
+        previousLocation.getChunk().isUnsaved = true;
     }
 
     public void fixTransformation() {
@@ -204,7 +204,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         this.direction = direction;
         if (interpolate) {
             this.movement = new BotMovement(getLocation(), BotMovement.Type.ROTATION, direction, initialTransformation);
-            CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getMovingBots().put(id, this);
+            location.world.getMovingBots().add(this);
         }
     }
 
@@ -236,8 +236,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         textDisplay.teleport(this.location.toBukkitCentered().add(0, Config.BOT_STATUS_ENTITY_OFFSET, 0));
 
         this.movement = new BotMovement(getBlockLocation(), BotMovement.Type.TRANSLATION, direction, entity.getTransformation());
-        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).updateBotLocation(this);
-        CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getMovingBots().put(id, this);
+        location.world.getMovingBots().add(this);
 
         return true;
     }
@@ -409,6 +408,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     @Override
     public void onModelSpawn() {
+        location.world.registerBot(this);
         this.entity = BotFactory.createBotEntity(location.toBukkitCentered(), direction);
         entity.setTeleportDuration(Config.BOT_MOVEMENT_DURATION * 2);
         this.textDisplayEntity = BotFactory.createBotTextEntity(location.toBukkitCentered().add(0, Config.BOT_STATUS_ENTITY_OFFSET, 0));
@@ -421,6 +421,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     @Override
     public void onModelDestroy() {
+        location.world.unregisterBot(this);
         this.entity.remove();
         this.textDisplayEntity.remove();
         this.interactionEntity.remove();
@@ -429,6 +430,15 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
     @Override
     public void tick() {
         long time = System.currentTimeMillis();
+
+        if (movement != null) {
+            if (movement.isCompleted()) {
+                setMovement(null);
+                setDirty(true);
+                location.world.getMovingBots().remove(this);
+            }
+        }
+
         if (program != null && isActive()) {
             if (program.hasNext()) {
                 program.run();

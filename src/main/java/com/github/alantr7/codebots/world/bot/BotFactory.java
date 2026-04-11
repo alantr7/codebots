@@ -6,7 +6,6 @@ import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.utils.FileHelper;
 import com.github.alantr7.codebots.plugin.utils.SkullFactory;

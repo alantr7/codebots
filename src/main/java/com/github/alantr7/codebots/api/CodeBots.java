@@ -4,11 +4,10 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
 import com.github.alantr7.codebots.api.player.PlayerData;
-import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.world.BotsWorld;
 import com.github.alantr7.codebots.world.bot.BotFactory;
 import com.github.alantr7.codebots.fs.BotFile;
-import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.data.PlayerManager;
 import com.github.alantr7.codebots.world.BlockLocation;
@@ -26,11 +25,16 @@ public interface CodeBots {
     }
 
     static @Nullable CodeBot getBot(UUID id) {
-        return CodeBotsPlugin.inst().getSingleton(BotRegistry.class).getBots().get(id);
+        for (BotsWorld world : CodeBotsPlugin.inst().getWorldManager().getWorlds()) {
+            CodeBot bot = world.getBot(id);
+            if (bot != null)
+                return bot;
+        }
+        return null;
     }
 
     static boolean isBlockOccupied(@NotNull Location location, @Nullable CodeBot bot) {
-        return CodeBotsPlugin.inst().getSingleton(BotRegistry.class).isOccupied(location, bot);
+        return new BlockLocation(location).world.isOccupied(location, bot);
     }
 
     static @Nullable PlayerData getPlayer(UUID id) {

@@ -5,7 +5,6 @@ import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.item.BotsItem;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.plugin.Permissions;
-import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.bot.CraftCodeBot;
@@ -89,17 +88,9 @@ public class EventListenerStructures {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     void onPlaceBlockInsideOfBot(BlockPlaceEvent event) {
-        var registry = CodeBotsPlugin.inst().getSingleton(BotRegistry.class);
-        var bot = registry.getBotAt(event.getBlockPlaced().getLocation());
+        var bot = new BlockLocation(event.getBlockPlaced().getLocation()).world.getBotMovingTo(event.getBlockPlaced().getLocation());
         if (bot != null) {
             event.setCancelled(true);
-            return;
-        }
-
-        bot = registry.getBotMovingTo(event.getBlockPlaced().getLocation());
-        if (bot != null) {
-            event.setCancelled(true);
-            return;
         }
     }
 

@@ -1,13 +1,12 @@
 package com.github.alantr7.codebots.world;
 
+import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.fs.FileSystemManager;
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.world.structure.StructureInstance;
 import lombok.Getter;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
@@ -29,6 +28,11 @@ public class BotsWorld {
     public final FileSystemManager fsManager;
 
     protected final Map<String, CraftMonitor> monitors = new HashMap<>();
+
+    protected final Map<UUID, CraftCodeBot> bots = new HashMap<>();
+
+    @Getter
+    protected final Set<CraftCodeBot> movingBots = new HashSet<>();
 
     @Getter
     private int ticks;
@@ -129,6 +133,29 @@ public class BotsWorld {
         }
     }
 
+    public CodeBot getBotMovingTo(@NotNull Location location) {
+        var blockLocation = new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        for (var bot : movingBots)
+            if (bot.getMovement().getDestination().equals(blockLocation))
+                return bot;
+
+        return null;
+    }
+
+    public boolean isOccupied(@NotNull Location location, @Nullable CodeBot bot) {
+        CodeBot occupying;
+        return !location.getBlock().getType().isAir() || getBotAt(location) != null ||
+          ((occupying = getBotMovingTo(location)) != null && occupying != bot);
+    }
+
+    public CodeBot getBot(UUID id) {
+        return bots.get(id);
+    }
+
+    public CodeBot getBotAt(@NotNull Location location) {
+        return getStructure(new BlockLocation(location)) instanceof CodeBot bot ? bot : null;
+    }
+
     public StructureInstance getStructure(BlockLocation location) {
         BotsChunk chunk = getChunk(location);
         if (chunk == null)
@@ -173,6 +200,14 @@ public class BotsWorld {
             currentlyTicked = null;
         }
         ticks++;
+    }
+
+    public void registerBot(CraftCodeBot bot) {
+        bots.put(bot.getId(), bot);
+    }
+
+    public void unregisterBot(CraftCodeBot bot) {
+        bots.remove(bot.getId());
     }
 
     public void registerMonitor(CraftMonitor monitor) {

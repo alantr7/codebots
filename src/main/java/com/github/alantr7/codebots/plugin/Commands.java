@@ -6,7 +6,6 @@ import com.github.alantr7.bukkitplugin.annotations.generative.Command;
 import com.github.alantr7.bukkitplugin.commands.annotations.CommandHandler;
 import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
 import com.github.alantr7.codebots.item.BotsItem;
-import com.github.alantr7.codebots.plugin.data.BotRegistry;
 import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import org.bukkit.Bukkit;
@@ -17,9 +16,6 @@ public class Commands {
 
     @Inject
     CodeBotsPlugin plugin;
-
-    @Inject
-    BotRegistry botsRegistry;
 
     @Inject
     CodeEditorClient editorClient;

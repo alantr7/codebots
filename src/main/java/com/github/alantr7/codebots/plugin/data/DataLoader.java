@@ -30,9 +30,6 @@ public class DataLoader {
     CodeBotsPlugin plugin;
 
     @Inject
-    BotRegistry botsRegistry;
-
-    @Inject
     PlayerManager players;
 
     @Inject
@@ -52,22 +49,6 @@ public class DataLoader {
     public void reload() {
         loadConfig();
         loadPrograms();
-
-        // todo: reload programs for loaded bots
-        botsRegistry.getBots().forEach((id, bot) -> {
-            bot.setProgram(null);
-
-            var source = bot.getProgramSource();
-            if (source != null) {
-                try {
-                    bot.setProgramSource(loadProgram(source.getDirectory(), source.getSource()));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            bot.setActive(false);
-        });
     }
 
     private void loadPrograms() {
@@ -113,9 +94,6 @@ public class DataLoader {
 
 
         Config.EDITOR_URL = config.getString("EditorUrl", Config.EDITOR_URL);
-    }
-
-    private void loadBot(File directory) throws IOException {
     }
 
     public ProgramSource loadProgram(Directory directory, File file) throws IOException {
