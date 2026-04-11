@@ -107,6 +107,8 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
     @Getter @Setter
     private long lastSaved = 0;
 
+    private String monitorId;
+
     @Setter
     @Getter
     private CraftMonitor monitor;
@@ -414,6 +416,10 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         this.interactionEntity.setPersistent(false);
         this.interactionEntity.setInteractionWidth(0.8f);
         this.interactionEntity.getPersistentDataContainer().set(new NamespacedKey(CodeBotsPlugin.inst(), "bot_id"), PersistentDataType.STRING, id.toString());
+
+        if (monitorId != null) {
+            monitor = location.world.getMonitorById(monitorId);
+        }
     }
 
     @Override
@@ -505,6 +511,11 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             }
         }
 
+        // Monitor
+        if (reader.readU1() == 1) {
+            bot.monitorId = reader.readString();
+        }
+
         // File system
         long[] filePointers = new long[reader.readU1()];
         for (int i = 0; i < filePointers.length; i++) {
@@ -586,6 +597,14 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             int pos = constants.pool(item.getType().name());
             buffer.writeU2(pos);
             buffer.writeU1(item.getAmount());
+        }
+
+        // Monitor
+        if (monitor != null) {
+            buffer.writeU1(1);
+            buffer.writeString(monitor.getId());
+        } else {
+            buffer.writeU1(0);
         }
 
         // File system

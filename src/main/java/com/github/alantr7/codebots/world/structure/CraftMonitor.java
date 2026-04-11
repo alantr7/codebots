@@ -471,7 +471,14 @@ public class CraftMonitor extends StructureInstance implements Monitor {
         // Size
         Size size = Size.values()[reader.readU1()];
 
-        return new CraftMonitor(monitorId, location, direction, size);
+        CraftMonitor monitor = new CraftMonitor(monitorId, location, direction, size);
+
+        // Connected bot
+        if (reader.readU1() == 1) {
+            monitor.botId = UUID.fromString(reader.readString());
+        }
+
+        return monitor;
     }
 
     @Override
@@ -495,6 +502,14 @@ public class CraftMonitor extends StructureInstance implements Monitor {
         buffer.writeString(id);
         // Size
         buffer.writeU1(size.ordinal());
+
+        // Connected bot
+        if (botId != null) {
+            buffer.writeU1(1);
+            buffer.writeString(botId.toString());
+        } else {
+            buffer.writeU1(0);
+        }
 
         int returnPointer = buffer.getPointer();
         buffer.setPointer(basePointer);
