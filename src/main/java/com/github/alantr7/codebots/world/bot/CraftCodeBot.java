@@ -291,7 +291,8 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             this.programSource = program;
 
             inventory.updateProgramButton();
-            CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
+            isDirty = true;
+            location.getChunk().isUnsaved = true;
         } catch (ParserException e) {
             setError(new ProgramError(ProgramError.ErrorLocation.PARSER, e.getMessage()));
             throw e;
@@ -397,10 +398,6 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         location.world.removeStructure(this);
     }
 
-    public void save() {
-        CodeBotsPlugin.inst().getSingleton(DataLoader.class).save(this);
-    }
-
     @Override
     public byte[] getOriginalCollisionVectors() {
         return new byte[] { 0, 0, 0 };
@@ -469,10 +466,6 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
             getTextDisplay().setText(text);
         }
-
-        // Periodically save the bot
-        if (isDirty() && System.currentTimeMillis() - getLastSaved() > Config.BOT_AUTO_SAVE_COOLDOWN && isChunkLoaded())
-            save();
     }
 
     @Override

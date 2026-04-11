@@ -70,7 +70,6 @@ public class MineFunction extends ExternalFunction {
                 player.sendBlockDamage(blockLocation, 0, bot.getEntity());
             }
 
-            CodeBotsPlugin.inst().getSingleton(DataLoader.class).saveInventory(bot);
             return Data.of(1);
         }
 

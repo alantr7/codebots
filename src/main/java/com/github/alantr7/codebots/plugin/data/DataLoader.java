@@ -105,24 +105,4 @@ public class DataLoader {
         return new ProgramSource(directory, file.getName(), file, new String(file.getContent()));
     }
 
-    public void save(CodeBot bot) {
-    }
-
-    public void saveInventory(CodeBot bot) {
-//        var file = new File(bot.getDirectory(), "inventory.yml");
-//        var data = new YamlConfiguration();
-//
-//        var inventory = bot.getInventory();
-//        for (int i = 0; i < 7; i++) {
-//            var item = inventory.getItem(i);
-//            data.set("Slot" + i, item);
-//        }
-//
-//        try {
-//            data.save(file);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-    }
-
 }
