@@ -7,6 +7,7 @@ import com.github.alantr7.bukkitplugin.annotations.relocate.Relocations;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.ModuleRepository;
 import com.github.alantr7.codebots.plugin.codeint.modules.*;
 import com.github.alantr7.codebots.plugin.data.ProgramRegistry;
+import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
 import com.github.alantr7.codebots.world.BotsWorldManager;
 import org.bstats.bukkit.Metrics;
 
@@ -40,6 +41,10 @@ public class CodeBotsPlugin extends BukkitPlugin {
 
     public static CodeBotsPlugin inst() {
         return instance;
+    }
+
+    public CodeEditorClient getEditorClient() {
+        return getSingleton(CodeEditorClient.class);
     }
 
     public ProgramRegistry getProgramRegistry() {

@@ -41,7 +41,7 @@ public final class EditorSession {
     @Getter
     private final Map<String, EditorSessionFile> files;
 
-    private final Consumer<EditorSession>[] subscribers = new Consumer[2];
+    private final Consumer<EditorSession>[] subscribers = new Consumer[1];
 
     public EditorSession(UUID id, String accessToken, long expiry, Map<String, EditorSessionFile> files) {
         this.id = id;
@@ -82,11 +82,11 @@ public final class EditorSession {
     }
 
     public void subscribe(Consumer<EditorSession> session) {
-        if (subscribers[0] == null) {
-            subscribers[0] = session;
-        } else if (subscribers[1] == null) {
-            subscribers[1] = session;
-        }
+        subscribers[0] = session;
+    }
+
+    public void unsubscribeAll() {
+        subscribers[0] = null;
     }
 
     public void notifySubscribers() {

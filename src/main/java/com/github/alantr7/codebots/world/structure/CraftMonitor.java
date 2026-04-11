@@ -466,7 +466,7 @@ public class CraftMonitor extends StructureInstance implements Monitor {
         // Direction
         Direction direction = Direction.toDirection((char) reader.readU1());
 
-        String monitorId = reader.readString();
+        String monitorId = reader.readShortString();
 
         // Size
         Size size = Size.values()[reader.readU1()];
@@ -475,7 +475,7 @@ public class CraftMonitor extends StructureInstance implements Monitor {
 
         // Connected bot
         if (reader.readU1() == 1) {
-            monitor.botId = UUID.fromString(reader.readString());
+            monitor.botId = UUID.fromString(reader.readShortString());
         }
 
         return monitor;
@@ -499,14 +499,14 @@ public class CraftMonitor extends StructureInstance implements Monitor {
         // Direction
         buffer.writeU1(direction.name().charAt(0));
         // Monitor ID
-        buffer.writeString(id);
+        buffer.writeShortString(id);
         // Size
         buffer.writeU1(size.ordinal());
 
         // Connected bot
         if (botId != null) {
             buffer.writeU1(1);
-            buffer.writeString(botId.toString());
+            buffer.writeShortString(botId.toString());
         } else {
             buffer.writeU1(0);
         }

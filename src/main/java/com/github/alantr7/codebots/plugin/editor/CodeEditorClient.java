@@ -4,6 +4,8 @@ import com.github.alantr7.bukkitplugin.annotations.core.Inject;
 import com.github.alantr7.bukkitplugin.annotations.core.Invoke;
 import com.github.alantr7.bukkitplugin.annotations.core.InvokePeriodically;
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
+import com.github.alantr7.bytils.buffer.ByteArrayReader;
+import com.github.alantr7.bytils.buffer.ByteArrayWriter;
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.ExternalFunction;
@@ -20,10 +22,12 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,6 +41,8 @@ public class CodeEditorClient {
     private final Map<UUID, EditorSession> activeSessionsByBots = new HashMap<>();
 
     private String serverToken;
+
+    private long serverTokenExpiry;
 
     @Inject
     private CodeBotsPlugin plugin;
@@ -64,6 +70,7 @@ public class CodeEditorClient {
                 }
 
                 plugin.getLogger().info("Server token fetched.");
+                serverTokenExpiry = System.currentTimeMillis() + 24 * 60 * 60 * 1000;
                 return serverToken = response.body();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -257,7 +264,106 @@ public class CodeEditorClient {
 
     @InvokePeriodically(delay = 10, interval = 20 * 60 * 60)
     void renewAccessToken() {
-        fetchAccessToken();
+        if (serverTokenExpiry - System.currentTimeMillis() <= 4 * 60 * 60 * 1000) {
+            fetchAccessToken();
+        }
+    }
+
+    @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
+    void loadSessions() throws Exception {
+        File editorFile = new File(CodeBotsPlugin.inst().getDataFolder(), "editor.dat");
+        if (!editorFile.exists())
+            return;
+
+        ByteArrayReader reader = new ByteArrayReader(Files.readAllBytes(editorFile.toPath()));
+        if (reader.readU1() == 0)
+            return;
+
+        serverToken = reader.readString();
+        serverTokenExpiry = reader.readLong();
+
+        if (serverTokenExpiry < System.currentTimeMillis()) // server token has expired
+            return;
+
+        int activeSessionsCount = reader.readU1();
+        for (int i = 0; i < activeSessionsCount; i++) {
+            UUID sessionId = UUID.fromString(reader.readShortString()); // session id
+            String accessToken = reader.readString(); // access token
+            long expiry = reader.readLong(); // expiry
+            long lastModified = reader.readLong(); // last mod
+            long lastFetched = reader.readLong(); // last fet
+
+            System.out.println(sessionId + ", " + accessToken + ", " + expiry + ", " + lastModified + ", " + lastFetched);
+
+            int filesCount = reader.readU1();
+
+            Map<String, EditorSessionFile> files = new LinkedHashMap<>();
+            for (int j = 0; j < filesCount; j++) {
+                String path = reader.readShortString(); // file path
+                long fileLastModified = reader.readLong(); // last mod
+                EditorSessionFile file = new EditorSessionFile(reader.readString());
+                file.setLastModified(fileLastModified);
+                files.put(path, file);
+            }
+
+            EditorSession session = new EditorSession(sessionId, accessToken, expiry, files);
+            session.setLastModified(lastModified);
+            session.setLastFetched(lastFetched);
+
+            activeSessions.put(sessionId, session);
+        }
+
+        int sessionsByBotsCount = reader.readU1();
+        for (int i = 0; i < sessionsByBotsCount; i++) {
+            UUID botId = UUID.fromString(reader.readShortString());
+            EditorSession session = activeSessions.get(UUID.fromString(reader.readShortString()));
+
+            if (session != null) {
+                activeSessionsByBots.put(botId, session);
+            }
+        }
+    }
+
+    @InvokePeriodically(delay = 20 * 60L, interval = 20 * 60L)
+    @Invoke(Invoke.Schedule.AFTER_PLUGIN_DISABLE)
+    void saveSessions() {
+        ByteArrayWriter buffer = new ByteArrayWriter(1024);
+        if (serverToken != null && System.currentTimeMillis() < serverTokenExpiry) {
+            buffer.writeU1(1);
+            buffer.writeString(serverToken);
+            buffer.writeLong(serverTokenExpiry);
+
+            buffer.writeU1(activeSessions.size());
+            for (EditorSession session : activeSessions.values()) {
+                buffer.writeShortString(session.id().toString());
+                buffer.writeString(session.accessToken());
+                buffer.writeLong(session.expiry());
+                buffer.writeLong(session.getLastModified());
+                buffer.writeLong(session.getLastFetched());
+
+                buffer.writeU1(session.getFiles().size());
+                session.getFiles().forEach((path, file) -> {
+                    buffer.writeShortString(path);
+                    buffer.writeLong(file.getLastModified());
+                    buffer.writeString(file.getCode());
+                });
+            }
+
+            buffer.writeU1(activeSessionsByBots.size());
+            activeSessionsByBots.forEach((botId, session) -> {
+                buffer.writeShortString(botId.toString());
+                buffer.writeShortString(session.id().toString());
+            });
+        } else {
+            buffer.writeU1(0);
+        }
+
+        File file = new File(CodeBotsPlugin.inst().getDataFolder(), "editor.dat");
+        try {
+            Files.write(file.toPath(), buffer.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

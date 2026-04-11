@@ -16,6 +16,7 @@ import com.github.alantr7.codebots.cbslang.low.tokenizer.Tokenizer;
 import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.fs.BotFileSystem;
 import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.plugin.editor.EditorSession;
 import com.github.alantr7.codebots.utils.StringPool;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.BotsChunk;
@@ -420,6 +421,10 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         if (monitorId != null) {
             monitor = location.world.getMonitorById(monitorId);
         }
+        EditorSession editorSession = CodeBotsPlugin.inst().getEditorClient().getActiveSessionByBot(this);
+        if (editorSession != null) {
+            editorSession.subscribe(EditorSession.createBotSubscriber(this));
+        }
     }
 
     @Override
@@ -428,6 +433,10 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         this.entity.remove();
         this.textDisplayEntity.remove();
         this.interactionEntity.remove();
+        EditorSession editorSession = CodeBotsPlugin.inst().getEditorClient().getActiveSessionByBot(this);
+        if (editorSession != null) {
+            editorSession.unsubscribeAll();
+        }
     }
 
     @Override
@@ -489,7 +498,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         Direction direction = Direction.toDirection((char) reader.readU1());
 
         // Bot ID
-        UUID id = UUID.fromString(reader.readString());
+        UUID id = UUID.fromString(reader.readShortString());
 
         CraftCodeBot bot = new CraftCodeBot(location, direction, id);
 
@@ -513,7 +522,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
         // Monitor
         if (reader.readU1() == 1) {
-            bot.monitorId = reader.readString();
+            bot.monitorId = reader.readShortString();
         }
 
         // File system
@@ -529,7 +538,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
         if (directoryPointer != 0) {
             Directory sourceDirectory = Directory.values()[directoryPointer - 1];
-            String fileName = reader.readString();
+            String fileName = reader.readShortString();
             ProgramSource source = null;
 
             // Find the file
@@ -582,7 +591,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         buffer.writeU1(direction.name().charAt(0));
 
         // Bot ID
-        buffer.writeString(id.toString());
+        buffer.writeShortString(id.toString());
 
         // Inventory
         ItemStack[] items = inventory.getItems();
@@ -602,7 +611,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         // Monitor
         if (monitor != null) {
             buffer.writeU1(1);
-            buffer.writeString(monitor.getId());
+            buffer.writeShortString(monitor.getId());
         } else {
             buffer.writeU1(0);
         }
@@ -621,7 +630,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         // Loaded program file
         buffer.writeU1(programSource != null ? (programSource.getDirectory().ordinal() + 1) : 0);
         if (programSource != null) {
-            buffer.writeString(programSource.getName());
+            buffer.writeShortString(programSource.getName());
         }
 
         // State
