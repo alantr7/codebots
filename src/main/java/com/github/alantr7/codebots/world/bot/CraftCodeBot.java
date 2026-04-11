@@ -24,7 +24,6 @@ import com.github.alantr7.codebots.world.BotsChunk;
 import com.github.alantr7.codebots.world.BotsRegion;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.plugin.config.Config;
-import com.github.alantr7.codebots.plugin.data.DataLoader;
 import com.github.alantr7.codebots.plugin.gui.BotGUI;
 import com.github.alantr7.codebots.plugin.gui.BotProgramsGUI;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
@@ -109,7 +108,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
     @Getter @Setter
     private long lastSaved = 0;
 
-    private String monitorId;
+    private String pendingMonitorId;
 
     @Setter
     @Getter
@@ -419,9 +418,6 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         this.interactionEntity.setInteractionWidth(0.8f);
         this.interactionEntity.getPersistentDataContainer().set(new NamespacedKey(CodeBotsPlugin.inst(), "bot_id"), PersistentDataType.STRING, id.toString());
 
-        if (monitorId != null) {
-            monitor = location.world.getMonitorById(monitorId);
-        }
         EditorSession editorSession = CodeBotsPlugin.inst().getEditorClient().getActiveSessionByBot(this);
         if (editorSession != null) {
             editorSession.subscribe(EditorSession.createBotSubscriber(this));
@@ -443,6 +439,11 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
     @Override
     public void tick() {
         long time = System.currentTimeMillis();
+
+        if (pendingMonitorId != null) {
+            monitor = location.world.getMonitorById(pendingMonitorId);
+            pendingMonitorId = null;
+        }
 
         if (movement != null) {
             if (movement.isCompleted()) {
@@ -523,7 +524,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
         // Monitor
         if (reader.readU1() == 1) {
-            bot.monitorId = reader.readShortString();
+            bot.pendingMonitorId = reader.readShortString();
         }
 
         // File system
