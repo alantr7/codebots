@@ -269,6 +269,25 @@ public class CodeEditorClient {
         }
     }
 
+    @InvokePeriodically(delay = 10, interval = 20 * 60)
+    void removeExpiredSessions() {
+        Iterator<Map.Entry<UUID, EditorSession>> iterator = activeSessions.entrySet().iterator();
+        while (iterator.hasNext()) {
+            EditorSession session = iterator.next().getValue();
+            if (System.currentTimeMillis() > session.expiry()) {
+                iterator.remove();
+            }
+        }
+
+        iterator = activeSessionsByBots.entrySet().iterator();
+        while (iterator.hasNext()) {
+            EditorSession session = iterator.next().getValue();
+            if (System.currentTimeMillis() > session.expiry()) {
+                iterator.remove();
+            }
+        }
+    }
+
     @Invoke(Invoke.Schedule.AFTER_PLUGIN_ENABLE)
     void loadSessions() throws Exception {
         File editorFile = new File(CodeBotsPlugin.inst().getDataFolder(), "editor.dat");
