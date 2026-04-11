@@ -485,6 +485,26 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         // Bot ID
         UUID id = UUID.fromString(reader.readString());
 
+        CraftCodeBot bot = new CraftCodeBot(location, direction, id);
+
+        // Inventory
+        int inventorySize = reader.readU1();
+        for (int i = 0; i < inventorySize; i++) {
+            if (reader.readU1() == 0)
+                continue;
+
+            int pos = reader.readU2();
+            int amount = reader.readU1();
+            String itemType = region.strings.at(pos);
+
+            if (itemType != null) {
+                Material material = Material.getMaterial(itemType);
+                if (material != null) {
+                    bot.inventory.setItem(i, new ItemStack(material, amount));
+                }
+            }
+        }
+
         // File system
         long[] filePointers = new long[reader.readU1()];
         for (int i = 0; i < filePointers.length; i++) {
@@ -494,7 +514,6 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         // Loaded program file
         int directoryPointer = reader.readU1();
 
-        CraftCodeBot bot = new CraftCodeBot(location, direction, id);
         location.world.fsManager.load(bot.fileSystem, filePointers);
 
         if (directoryPointer != 0) {
@@ -553,6 +572,21 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
         // Bot ID
         buffer.writeString(id.toString());
+
+        // Inventory
+        ItemStack[] items = inventory.getItems();
+        buffer.writeU1(items.length); // inv size
+        for (ItemStack item : items) {
+            if (item == null) {
+                buffer.writeU1(0);
+                continue;
+            }
+
+            buffer.writeU1(1);
+            int pos = constants.pool(item.getType().name());
+            buffer.writeU2(pos);
+            buffer.writeU1(item.getAmount());
+        }
 
         // File system
         location.world.fsManager.save(fileSystem);
