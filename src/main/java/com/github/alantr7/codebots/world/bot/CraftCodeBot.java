@@ -12,6 +12,8 @@ import com.github.alantr7.codebots.cbslang.high.compiler.Compiler;
 import com.github.alantr7.codebots.cbslang.high.parser.Parser;
 import com.github.alantr7.codebots.cbslang.low.runtime.Program;
 import com.github.alantr7.codebots.cbslang.low.runtime.ProgramState;
+import com.github.alantr7.codebots.cbslang.low.runtime.memory.Data;
+import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
 import com.github.alantr7.codebots.cbslang.low.tokenizer.Tokenizer;
 import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.fs.BotFileSystem;
@@ -43,6 +45,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.UUID;
 
 public class CraftCodeBot extends StructureInstance implements CodeBot {
@@ -91,7 +94,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     @Getter
     @Setter
-    private Memory memory;
+    private CraftMemory memory;
 
     @Getter
     private int selectedSlot = 0;
@@ -571,6 +574,16 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             bot.program.setState(state);
         }
 
+        // Persistent memory
+        int memorySize = reader.readU1();
+        for (int i = 0; i < memorySize; i++) {
+            String key = reader.readShortString();
+            Data entry = Data.deserialize(reader);
+            if (entry != null) {
+                bot.memory.map().put(key, new AbstractMap.SimpleEntry<>((DataType<Object>) entry.getDataType(), entry.getValue()));
+            }
+        }
+
         return bot;
     }
 
@@ -647,6 +660,13 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         } else {
             buffer.writeU1(0);
         }
+
+        // Persistent memory
+        buffer.writeU1(memory.map().size());
+        memory.map().forEach((key, value) -> {
+            buffer.writeShortString(key);
+            Data.serialize(buffer, value.getKey(), value.getValue());
+        });
 
         // Size on disk
         int returnPointer = buffer.getPointer();
