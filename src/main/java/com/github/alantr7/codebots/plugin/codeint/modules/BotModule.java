@@ -2,6 +2,7 @@ package com.github.alantr7.codebots.plugin.codeint.modules;
 
 import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.api.bot.Direction;
+import com.github.alantr7.codebots.cbslang.exceptions.ExecutionException;
 import com.github.alantr7.codebots.cbslang.low.runtime.memory.Data;
 import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.Context;
@@ -10,7 +11,9 @@ import com.github.alantr7.codebots.cbslang.low.runtime.modules.Module;
 import com.github.alantr7.codebots.plugin.codeint.functions.MineFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.MoveFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import org.bukkit.block.Container;
+import org.bukkit.inventory.ItemStack;
 import org.objectweb.asm.Type;
 
 public class BotModule extends Module {
@@ -61,6 +64,34 @@ public class BotModule extends Module {
                   input.equals("back") ? bot.getDirection().toVector().multiply(-1) : Direction.toDirection(input).toVector();
 
                 return new Data(DataType.STRING, bot.getLocation().add(direction).getBlock().getType().name().toLowerCase());
+            }
+        });
+        registerFunction("place", new ExternalFunction(this, "place", DataType.INT, DataType.STRING) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                var bot = (CraftCodeBot) context.getProgram().getExtra("bot");
+                var arg = context.getArgumentAs(0, DataType.STRING);
+                var direction = (arg.equals("forward")
+                  ? bot.getDirection()
+                  : arg.equals("back")
+                  ? bot.getDirection().getRight().getRight()
+                  : Direction.toDirection(arg));
+
+                if (direction == null) {
+                    throw new ExecutionException(arg + " is not a valid direction");
+                }
+
+                ItemStack selected = bot.getInventory().getItem(bot.getSelectedSlot());
+                if (selected == null || !selected.getType().isBlock())
+                    return Data.of(0);
+
+                bot.getBlockLocation().add(direction.toVector()).getBlock().setBlockData(selected.getType().createBlockData());
+                selected.subtract();
+
+                bot.setDirty(true);
+                bot.location.getChunk().isUnsaved = true;
+
+                return Data.of(1);
             }
         });
         registerFunction("mine", new MineFunction(this));
