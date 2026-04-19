@@ -25,17 +25,7 @@ public class Config {
 
     // </editor-fold>
 
-    public static final int BOT_AUTO_SAVE_COOLDOWN = 5000;
-
-    // <editor-fold desc="Scripts Configuration">
-    public static int SCRIPTS_MAX_FUNCTION_CALL_STACK_SIZE = 8;
-
-    public static int SCRIPTS_MAX_VARIABLES_COUNT = 20;
-
-    public static int SCRIPTS_MAX_FUNCTIONS_COUNT = 10;
-    // </editor-fold>
-
-    public static String EDITOR_URL = "https://codebots.myqualia.net";
+    public static String EDITOR_URL = "https://editor.myqualia.net";
 
 
 }
