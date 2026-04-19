@@ -12,6 +12,10 @@ bots:
   # Default: true
   allow_block_breaking: true
 
+  # Allow bots to place blocks
+  # Default: true
+  allow_block_placing: true
+
   # Allow bots to use certain group of scripts
   # LOCAL - only scripts that belong to the bot
   # SHARED - only global scripts that are available to all bots

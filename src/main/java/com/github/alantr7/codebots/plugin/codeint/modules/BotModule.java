@@ -11,6 +11,7 @@ import com.github.alantr7.codebots.cbslang.low.runtime.modules.Module;
 import com.github.alantr7.codebots.plugin.codeint.functions.MineFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.MoveFunction;
 import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
+import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import org.bukkit.block.Container;
 import org.bukkit.inventory.ItemStack;
@@ -69,6 +70,10 @@ public class BotModule extends Module {
         registerFunction("place", new ExternalFunction(this, "place", DataType.INT, DataType.STRING) {
             @Override
             public Data handle(Context context) throws ExecutionException {
+                if (!Config.BOT_ALLOW_BLOCK_PLACING) {
+                    throw new ExecutionException("Block placing is disabled");
+                }
+
                 var bot = (CraftCodeBot) context.getProgram().getExtra("bot");
                 var arg = context.getArgumentAs(0, DataType.STRING);
                 var direction = (arg.equals("forward")

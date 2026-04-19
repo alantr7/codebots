@@ -80,6 +80,7 @@ public class DataLoader {
         Config.BOT_MOVEMENT_DURATION = config.getInt("bots.movement_duration", Config.BOT_MOVEMENT_DURATION);
         Config.BOT_ROTATION_DURATION = config.getInt("bots.rotation_duration", Config.BOT_ROTATION_DURATION);
         Config.BOT_ALLOW_BLOCK_BREAKING = config.getBoolean("bots.allow_block_breaking", Config.BOT_ALLOW_BLOCK_BREAKING);
+        Config.BOT_ALLOW_BLOCK_PLACING = config.getBoolean("bots.allow_block_placing", Config.BOT_ALLOW_BLOCK_PLACING);
 
         var scriptsOption = config.getString("bots.allowed_scripts", "ALL");
         Config.BOT_ALLOWED_SCRIPTS = scriptsOption.equals("LOCAL") ? 1 : scriptsOption.equals("SHARED") ? 2 : 0;
