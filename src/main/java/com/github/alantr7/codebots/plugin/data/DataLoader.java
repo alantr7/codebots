@@ -77,17 +77,17 @@ public class DataLoader {
         plugin.saveDefaultConfig();
         var config = plugin.getConfig();
 
-        Config.BOT_MOVEMENT_DURATION = config.getInt("Bots.MovementDuration", Config.BOT_MOVEMENT_DURATION);
-        Config.BOT_ROTATION_DURATION = config.getInt("Bots.RotationDuration", Config.BOT_ROTATION_DURATION);
-        Config.BOT_ALLOW_BLOCK_BREAKING = config.getBoolean("Bots.AllowBlockBreaking", Config.BOT_ALLOW_BLOCK_BREAKING);
+        Config.BOT_MOVEMENT_DURATION = config.getInt("bots.movement_duration", Config.BOT_MOVEMENT_DURATION);
+        Config.BOT_ROTATION_DURATION = config.getInt("bots.rotation_duration", Config.BOT_ROTATION_DURATION);
+        Config.BOT_ALLOW_BLOCK_BREAKING = config.getBoolean("bots.allow_block_breaking", Config.BOT_ALLOW_BLOCK_BREAKING);
 
-        var scriptsOption = config.getString("Bots.AllowedScripts", "ALL");
+        var scriptsOption = config.getString("bots.allowed_scripts", "ALL");
         Config.BOT_ALLOWED_SCRIPTS = scriptsOption.equals("LOCAL") ? 1 : scriptsOption.equals("SHARED") ? 2 : 0;
-        Config.BOT_CHAT_FORMAT = config.getString("Bots.ChatFormat", Config.BOT_CHAT_FORMAT);
-        Config.BOT_MAX_MEMORY_ENTRIES = config.getInt("Bots.MaxMemoryEntries", Config.BOT_MAX_MEMORY_ENTRIES);
-        Config.BOT_MAX_LOCAL_PROGRAMS = config.getInt("Bots.MaxLocalPrograms", Config.BOT_MAX_LOCAL_PROGRAMS);
+        Config.BOT_CHAT_FORMAT = config.getString("bots.chat_format", Config.BOT_CHAT_FORMAT);
+        Config.BOT_MAX_MEMORY_ENTRIES = config.getInt("bots.max_memory_entries", Config.BOT_MAX_MEMORY_ENTRIES);
+        Config.BOT_MAX_LOCAL_PROGRAMS = config.getInt("bots.max_local_programs", Config.BOT_MAX_LOCAL_PROGRAMS);
 
-        Config.EDITOR_URL = config.getString("EditorUrl", Config.EDITOR_URL);
+        Config.EDITOR_URL = config.getString("editor.url", Config.EDITOR_URL);
     }
 
     public ProgramSource loadProgram(Directory directory, File file) throws IOException {
