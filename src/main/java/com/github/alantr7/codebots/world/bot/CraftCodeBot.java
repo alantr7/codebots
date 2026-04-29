@@ -288,10 +288,8 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
     // allow reloading without checking whether the editor is active
     private void _loadProgram(ProgramSource program) throws ParserException {
         try {
-            Compiler compiler = new Compiler(Parser.parse(CodeBotsPlugin.inst().getModuleRepository(), program.getCode()));
-            compiler.experimentalCompile();
-
-            this.program = new Program(Tokenizer.tokenize(compiler.getOutput()), CodeBotsPlugin.inst().getModuleRepository());
+            String output = Compiler.toHumanReadable(CodeBotsPlugin.inst().getModuleRepository(), program.getCode());
+            this.program = new Program(Tokenizer.tokenize(output), CodeBotsPlugin.inst().getModuleRepository());
             this.program.setMode(Program.RUN_UNTIL_HALT);
             this.program.setExtra("bot", this);
             this.programSource = program;
@@ -672,6 +670,9 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         int returnPointer = buffer.getPointer();
         buffer.setPointer(basePointer);
         buffer.writeU2(returnPointer - basePointer - 2);
+
+        System.out.println("bot size on disk: " + (returnPointer - basePointer - 2));
+
         buffer.setPointer(returnPointer);
     }
 
