@@ -9,7 +9,6 @@ import com.github.alantr7.codebots.api.bot.*;
 import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.cbslang.high.compiler.Compiler;
-import com.github.alantr7.codebots.cbslang.high.parser.Parser;
 import com.github.alantr7.codebots.cbslang.low.runtime.Program;
 import com.github.alantr7.codebots.cbslang.low.runtime.ProgramState;
 import com.github.alantr7.codebots.cbslang.low.runtime.memory.Data;
@@ -670,9 +669,6 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         int returnPointer = buffer.getPointer();
         buffer.setPointer(basePointer);
         buffer.writeU2(returnPointer - basePointer - 2);
-
-        System.out.println("bot size on disk: " + (returnPointer - basePointer - 2));
-
         buffer.setPointer(returnPointer);
     }
 

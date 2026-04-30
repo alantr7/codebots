@@ -85,8 +85,6 @@ public class FileSystemManager {
             raf.seek(file.position);
         }
 
-        System.out.println("saved " + file.getName() + " to position " + file.position);
-
         ByteArrayWriter writer = new ByteArrayWriter(FILE_SIZE);
         long lastModified = file.getLastModified();
 
