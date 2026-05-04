@@ -14,7 +14,6 @@ import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
 import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.plugin.config.Config;
 import com.github.alantr7.codebots.plugin.utils.MathHelper;
-import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,8 +27,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class CodeEditorClient {
@@ -48,7 +50,10 @@ public class CodeEditorClient {
     private CodeBotsPlugin plugin;
 
     public CodeEditorClient() {
-        this.client = HttpClient.newHttpClient();
+        this.client = HttpClient.newBuilder()
+          .followRedirects(HttpClient.Redirect.ALWAYS)
+          .connectTimeout(Duration.ofSeconds(5))
+          .build();
     }
 
     public CompletableFuture<String> fetchAccessToken() {
