@@ -22,12 +22,6 @@ public class MemoryModule extends Module {
                 return handleSave(context, DataType.INT);
             }
         });
-        registerFunction("save_long", new ExternalFunction(this, "save_long", DataType.INT, DataType.STRING, DataType.LONG) {
-            @Override
-            public Data handle(Context context) {
-                return handleSave(context, DataType.LONG);
-            }
-        });
         registerFunction("save_float", new ExternalFunction(this, "save_float", DataType.INT, DataType.STRING, DataType.FLOAT) {
             @Override
             public Data handle(Context context) {
@@ -45,12 +39,6 @@ public class MemoryModule extends Module {
             @Override
             public Data handle(Context context) {
                 return handleLoad(context, DataType.INT);
-            }
-        });
-        registerFunction("load_long", new ExternalFunction(this, "load_long", DataType.LONG, DataType.STRING) {
-            @Override
-            public Data handle(Context context) {
-                return handleLoad(context, DataType.LONG);
             }
         });
         registerFunction("load_float", new ExternalFunction(this, "load_float", DataType.FLOAT, DataType.STRING) {
