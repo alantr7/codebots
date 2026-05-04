@@ -104,6 +104,16 @@ public class FileSystemManager {
 
     }
 
+    public void delete(BotFileSystem fileSystem) {
+        try (RandomAccessFile raf = new RandomAccessFile(this.file, "rw")) {
+            for (BotFile file : fileSystem.files.values()) {
+                delete(raf, file);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void delete(BotFile file) {
         if (file.position == -1)
             return;

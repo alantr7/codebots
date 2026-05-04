@@ -399,6 +399,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             }
         }
         location.world.removeStructure(this);
+        location.world.fsManager.delete(fileSystem);
     }
 
     @Override
