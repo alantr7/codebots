@@ -22,7 +22,7 @@ public class LangModule extends Module {
                 return Data.of(context.getArgumentAs(0, DataType.STRING).matches("\\d+") ? 1 : 0);
             }
         });
-        registerFunction("is_float", new ExternalFunction(this, "is_int", DataType.INT, DataType.STRING) {
+        registerFunction("is_float", new ExternalFunction(this, "is_float", DataType.INT, DataType.STRING) {
             @Override
             public Data handle(Context context) {
                 return Data.of(context.getArgumentAs(0, DataType.STRING).matches("-?((\\d+\\.\\d+f?)|(\\d+f))") ? 1 : 0);

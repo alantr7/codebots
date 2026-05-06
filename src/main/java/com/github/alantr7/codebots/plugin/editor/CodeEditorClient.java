@@ -110,16 +110,15 @@ public class CodeEditorClient {
                 for (Module module : CodeBotsPlugin.inst().getModuleRepository().getModules()) {
                     JSONObject moduleObject = new JSONObject();
                     moduleObject.put("name", module.getName());
+                    moduleObject.put("auto_import", module.getName().equals("lang"));
 
                     JSONArray jsonFunctions = new JSONArray();
                     moduleObject.put("functions", jsonFunctions);
                     for (ExternalFunction fun : module.getFunctions()) {
                         JSONObject functionObject = new JSONObject();
-                        functionObject.put("module", module.getName().equals("lang") ? null : module.getName());
                         functionObject.put("name", fun.getName());
                         functionObject.put("return_type", fun.getReturnType().getTypeName().toLowerCase());
                         functionObject.put("parameter_types", Arrays.stream(fun.getParameterTypes()).map(DataType::getTypeName).map(String::toLowerCase).toList());
-                        functionObject.put("completion", fun.getName() + "($1)$0");
 
                         jsonFunctions.add(functionObject);
                     }
