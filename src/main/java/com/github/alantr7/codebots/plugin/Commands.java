@@ -5,9 +5,10 @@ import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.bukkitplugin.annotations.generative.Command;
 import com.github.alantr7.bukkitplugin.commands.annotations.CommandHandler;
 import com.github.alantr7.bukkitplugin.commands.factory.CommandBuilder;
+import com.github.alantr7.codebots.CodeBotsPlugin;
 import com.github.alantr7.codebots.item.BotsItem;
-import com.github.alantr7.codebots.plugin.data.DataLoader;
-import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
+import com.github.alantr7.codebots.data.DataLoader;
+import com.github.alantr7.codebots.editor.CodeEditorClient;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

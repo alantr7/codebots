@@ -1,7 +1,7 @@
 package com.github.alantr7.codebots.world;
 
 import com.github.alantr7.codebots.api.bot.Direction;
-import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.CodeBotsPlugin;
 import com.github.alantr7.codebots.world.structure.StructureInstance;
 import org.bukkit.Location;
 import org.bukkit.block.Block;

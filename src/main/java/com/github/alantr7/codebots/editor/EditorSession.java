@@ -1,0 +1,127 @@
+package com.github.alantr7.codebots.editor;
+
+import com.github.alantr7.codebots.api.bot.CodeBot;
+import com.github.alantr7.codebots.CodeBotsPlugin;
+import com.github.alantr7.codebots.fs.BotFile;
+import com.github.alantr7.codebots.config.Config;
+import com.github.alantr7.codebots.world.bot.CraftCodeBot;
+import lombok.Getter;
+import lombok.Setter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.command.CommandSender;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
+public final class EditorSession {
+
+    private final UUID id;
+
+    private final String accessToken;
+
+    private final long expiry;
+
+    @Getter @Setter
+    private long lastModified;
+
+    @Getter
+    @Setter
+    private boolean isCurrentlyFetching = false;
+
+    @Getter
+    @Setter
+    private long lastFetched = 0;
+
+    @Getter
+    private final Map<String, EditorSessionFile> files;
+
+    private final Consumer<EditorSession>[] subscribers = new Consumer[1];
+
+    public EditorSession(UUID id, String accessToken, long expiry, Map<String, EditorSessionFile> files) {
+        this.id = id;
+        this.accessToken = accessToken;
+        this.expiry = expiry;
+        this.files = files;
+    }
+
+    public CompletableFuture<Void> fetch() {
+        return CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).fetchSession(this);
+    }
+
+    public UUID id() {
+        return id;
+    }
+
+    public String accessToken() {
+        return accessToken;
+    }
+
+    public long expiry() {
+        return expiry;
+    }
+
+    public void sendLink(CommandSender receiver) {
+        receiver.sendMessage("§eEditor session created!");
+        var editorButton = Component.text("here")
+                .decorate(TextDecoration.UNDERLINED)
+                .color(TextColor.color(255, 200, 0))
+                .clickEvent(ClickEvent.openUrl(
+                        Config.EDITOR_URL + "/edit/" + id + "?token=" + accessToken
+                ));
+        receiver.sendMessage(
+                Component.text("§eClick ")
+                        .append(editorButton)
+                        .append(Component.text("§e to open the editor."))
+        );
+    }
+
+    public void subscribe(Consumer<EditorSession> session) {
+        subscribers[0] = session;
+    }
+
+    public void unsubscribeAll() {
+        subscribers[0] = null;
+    }
+
+    public void notifySubscribers() {
+        for (var subscriber : subscribers) {
+            if (subscriber != null)
+                subscriber.accept(this);
+        }
+    }
+
+    public static Consumer<EditorSession> createBotSubscriber(CodeBot bot) {
+        return session -> {
+            try {
+                session.getFiles().forEach((name, fileInfo) -> {
+                    BotFile file = bot.getFileSystem().getFile(name);
+                    if (file == null)
+                        return;
+
+                    byte[] buffer = new byte[2048];
+                    byte[] code = fileInfo.getCode().getBytes(StandardCharsets.UTF_8);
+                    System.arraycopy(code, 0, buffer, 0, Math.min(code.length, buffer.length));
+                    file.setContent(buffer);
+
+                    ((CraftCodeBot) bot).setDirty(true);
+                    ((CraftCodeBot) bot).location.getChunk().isUnsaved = true;
+                });
+                bot.reloadProgram();
+            } catch (Exception e) {
+//                getPlayer().sendMessage("§cThere was an error while loading the program.");
+//                if (e instanceof ParserException || e instanceof ParseException) {
+//                    getPlayer().sendMessage("§4" + e.getMessage());
+//                }
+
+                e.printStackTrace();
+            }
+        };
+    }
+
+}

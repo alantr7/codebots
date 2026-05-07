@@ -1,10 +1,10 @@
 package com.github.alantr7.codebots.api.bot;
 
-import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.CodeBotsPlugin;
 import com.github.alantr7.codebots.fs.BotFile;
-import com.github.alantr7.codebots.plugin.editor.CodeEditorClient;
-import com.github.alantr7.codebots.plugin.editor.EditorSession;
-import com.github.alantr7.codebots.plugin.program.ItemFactory;
+import com.github.alantr7.codebots.editor.CodeEditorClient;
+import com.github.alantr7.codebots.editor.EditorSession;
+import com.github.alantr7.codebots.item.ItemFactory;
 import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 

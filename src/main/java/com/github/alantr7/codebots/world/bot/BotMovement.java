@@ -1,7 +1,7 @@
 package com.github.alantr7.codebots.world.bot;
 
 import com.github.alantr7.codebots.api.bot.Direction;
-import com.github.alantr7.codebots.plugin.config.Config;
+import com.github.alantr7.codebots.config.Config;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

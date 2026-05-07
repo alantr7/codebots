@@ -1,6 +1,6 @@
 package com.github.alantr7.codebots.api.bot;
 
-import com.github.alantr7.codebots.plugin.codeint.functions.RotateFunction;
+import com.github.alantr7.codebots.codeint.functions.RotateFunction;
 import lombok.Getter;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;

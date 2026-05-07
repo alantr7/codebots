@@ -16,18 +16,18 @@ import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
 import com.github.alantr7.codebots.cbslang.low.tokenizer.Tokenizer;
 import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.fs.BotFileSystem;
-import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
-import com.github.alantr7.codebots.plugin.editor.EditorSession;
-import com.github.alantr7.codebots.plugin.program.ItemFactory;
+import com.github.alantr7.codebots.CodeBotsPlugin;
+import com.github.alantr7.codebots.editor.EditorSession;
+import com.github.alantr7.codebots.item.ItemFactory;
+import com.github.alantr7.codebots.utils.MathUtils;
 import com.github.alantr7.codebots.utils.StringPool;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.BotsChunk;
 import com.github.alantr7.codebots.world.BotsRegion;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
-import com.github.alantr7.codebots.plugin.config.Config;
-import com.github.alantr7.codebots.plugin.gui.BotGUI;
-import com.github.alantr7.codebots.plugin.gui.BotProgramsGUI;
-import com.github.alantr7.codebots.plugin.utils.MathHelper;
+import com.github.alantr7.codebots.config.Config;
+import com.github.alantr7.codebots.gui.BotGUI;
+import com.github.alantr7.codebots.gui.BotProgramsGUI;
 import com.github.alantr7.codebots.world.structure.StructureInstance;
 import lombok.Getter;
 import lombok.Setter;
@@ -163,7 +163,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     @Override
     public void setLocation(@NotNull Location location) {
-        var blockLocation = MathHelper.toBlockLocation(location);
+        var blockLocation = MathUtils.toBlockLocation(location);
         getEntity().teleport(blockLocation.clone().add(.2, 0, .2));
         getInteraction().teleport(blockLocation.clone().add(.5, 0, .5));
         getTextDisplay().teleport(blockLocation.clone().add(.5, Config.BOT_STATUS_ENTITY_OFFSET, .5));

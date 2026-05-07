@@ -1,28 +1,22 @@
 package com.github.alantr7.codebots.world.structure;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.Direction;
 import com.github.alantr7.codebots.api.bot.Directory;
 import com.github.alantr7.codebots.api.monitor.Monitor;
-import com.github.alantr7.codebots.api.redstone.RedstoneTransmitter;
 import com.github.alantr7.codebots.utils.MathUtils;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.bot.CraftCodeBot;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
-import static com.github.alantr7.codebots.plugin.program.ItemFactory.key;
+import static com.github.alantr7.codebots.item.ItemFactory.key;
 
 public class StructureFactory {
 

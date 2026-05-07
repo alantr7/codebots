@@ -1,6 +1,6 @@
 package com.github.alantr7.codebots.item;
 
-import com.github.alantr7.codebots.plugin.CodeBotsPlugin;
+import com.github.alantr7.codebots.CodeBotsPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

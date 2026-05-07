@@ -4,7 +4,7 @@ import com.github.alantr7.codebots.api.error.ProgramError;
 import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.cbslang.low.runtime.Program;
 import com.github.alantr7.codebots.fs.BotFileSystem;
-import com.github.alantr7.codebots.plugin.editor.EditorSession;
+import com.github.alantr7.codebots.editor.EditorSession;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Interaction;

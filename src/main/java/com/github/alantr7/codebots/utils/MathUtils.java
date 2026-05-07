@@ -1,6 +1,7 @@
 package com.github.alantr7.codebots.utils;
 
 import com.github.alantr7.codebots.api.bot.Direction;
+import org.bukkit.Location;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -82,6 +83,19 @@ public class MathUtils {
             return String.format("%.1fk", number / 1_000f);
         }
         return String.format("%d", number);
+    }
+
+    public static Location toBlockLocation(Location location) {
+        return new Location(
+          location.getWorld(),
+          location.getBlockX(),
+          location.getBlockY(),
+          location.getBlockZ()
+        );
+    }
+
+    public static <T> T any(T val, T def) {
+        return val != null ? val : def;
     }
 
 }

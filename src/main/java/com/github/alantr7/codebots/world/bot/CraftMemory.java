@@ -2,7 +2,7 @@ package com.github.alantr7.codebots.world.bot;
 
 import com.github.alantr7.codebots.api.bot.Memory;
 import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
-import com.github.alantr7.codebots.plugin.config.Config;
+import com.github.alantr7.codebots.config.Config;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
