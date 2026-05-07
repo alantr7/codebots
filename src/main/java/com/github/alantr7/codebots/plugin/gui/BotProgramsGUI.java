@@ -176,7 +176,7 @@ public class BotProgramsGUI extends GUI {
                         } catch (ParserException e) {
                             ((CraftCodeBot) bot).setError(new ProgramError(ProgramError.ErrorLocation.PARSER, e.getMessage()));
                             getPlayer().sendMessage("§cThere was an error while loading the program.");
-                            getPlayer().sendMessage("§4" + e.getMessage());
+                            getPlayer().sendMessage("§cLine #" + e.getLine() + ": §4" + e.getMessage());
 
                             e.printStackTrace();
                         } catch (Exception e) {
