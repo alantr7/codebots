@@ -338,6 +338,11 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
     }
 
     @Override
+    public @Nullable EditorSession getEditorSession() {
+        return CodeBotsPlugin.inst().getEditorClient().getActiveSessionByBot(this);
+    }
+
+    @Override
     public boolean hasError() {
         return error != null;
     }

@@ -193,6 +193,11 @@ public class BotProgramsGUI extends GUI {
                             return;
                         }
 
+                        if (bot.getEditorSession() != null) {
+                            getPlayer().sendMessage("§cYou can not delete a program while editor is active.");
+                            return;
+                        }
+
                         bot.getFileSystem().deleteFile(file.getName());
                         file.delete();
                         refill();
@@ -213,6 +218,10 @@ public class BotProgramsGUI extends GUI {
 
                     var fileName = "program_" + fileNameId + ".cbs";
                     registerInteractionCallback(slot, ClickType.LEFT, () -> {
+                        if (bot.getEditorSession() != null) {
+                            getPlayer().sendMessage("§cYou can not create a new program while editor is active.");
+                            return;
+                        }
                         BotFile file = bot.getFileSystem().createFile(fileName);
                         file.setContent(FileHelper.loadResource("default_program.cbs"));
                         refill();
