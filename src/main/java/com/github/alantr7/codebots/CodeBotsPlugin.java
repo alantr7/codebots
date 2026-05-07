@@ -26,6 +26,7 @@ public class CodeBotsPlugin extends BukkitPlugin {
         instance = this;
 
         MODULE_REPOSITORY.registerModule(new LangModule());
+        MODULE_REPOSITORY.registerModule(new MathModule());
         MODULE_REPOSITORY.registerModule(new BotModule());
         MODULE_REPOSITORY.registerModule(new MonitorModule());
         MODULE_REPOSITORY.registerModule(new RedstoneModule());
