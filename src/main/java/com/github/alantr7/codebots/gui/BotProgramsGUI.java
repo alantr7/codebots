@@ -56,7 +56,7 @@ public class BotProgramsGUI extends GUI {
 
         selectedCategory = Config.BOT_ALLOWED_SCRIPTS == 0
                 ? bot.getProgramSource() != null && bot.getProgramSource().getDirectory() == Directory.LOCAL_PROGRAMS ? CATEGORY_LOCAL : CATEGORY_SHARED
-                : Config.BOT_ALLOWED_SCRIPTS == 1 ? CATEGORY_LOCAL : CATEGORY_SHARED;
+                : CATEGORY_LOCAL;
     }
 
     @Override
@@ -224,6 +224,15 @@ public class BotProgramsGUI extends GUI {
                         }
                         BotFile file = bot.getFileSystem().createFile(fileName);
                         file.setContent(FileHelper.loadResource("default_program.cbs"));
+                        if (bot.getFileSystem().getFiles().size() == 1) {
+                            try {
+                                bot.loadProgram(CodeBots.loadProgram(Directory.LOCAL_PROGRAMS, file));
+                                refill();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
                         refill();
                     });
                 }

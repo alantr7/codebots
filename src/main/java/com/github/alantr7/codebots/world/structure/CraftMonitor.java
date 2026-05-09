@@ -454,7 +454,6 @@ public class CraftMonitor extends StructureInstance implements Monitor {
         dataConnectedBot = dataContainer.persist("connected_bot", Data.Type.UUID);
         botId = dataConnectedBot.get();
         dataTextAlignment = dataContainer.persist("alignment", Data.Type.INT, TextDisplay.TextAlignment.LEFT.ordinal());
-        Bukkit.broadcastMessage("text alignment: " + dataTextAlignment.get());
     }
 
     @Override
