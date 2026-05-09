@@ -130,6 +130,20 @@ public class BotModule extends Module {
             }
         });
 
+        registerFunction("play_sound", new ExternalFunction(this, "play_sound", DataType.INT, DataType.STRING, DataType.FLOAT, DataType.FLOAT) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                if (!Config.BOT_ALLOW_SOUNDS_PLAYING) {
+                    throw new ExecutionException("Playing sounds is disabled");
+                }
+
+                var bot = (CodeBot) context.getProgram().getExtra("bot");
+                String sound = context.getArgumentAs(0, DataType.STRING);
+
+                bot.getLocation().getWorld().playSound(bot.getEntity(), sound, context.getArgumentAs(1, DataType.FLOAT), context.getArgumentAs(2, DataType.FLOAT));
+                return Data.of(1);
+            }
+        });
 
         // Dispense items
         registerFunction("deposit_item", new ExternalFunction(this, "deposit_item", DataType.INT, DataType.STRING) {

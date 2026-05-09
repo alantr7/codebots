@@ -11,6 +11,8 @@ public class Config {
 
     public static boolean BOT_ALLOW_BLOCK_PLACING = true;
 
+    public static boolean BOT_ALLOW_SOUNDS_PLAYING = true;
+
     public static int BOT_ALLOWED_SCRIPTS = 0;
 
     public static String BOT_CHAT_FORMAT = "&7[Bot] {message}";
