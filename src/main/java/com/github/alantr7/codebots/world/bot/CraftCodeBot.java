@@ -449,6 +449,9 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
         if (pendingMonitorId != null) {
             monitor = location.world.getMonitorById(pendingMonitorId);
+            if (monitor != null) {
+                monitor.setConnectedBot(this);
+            }
             pendingMonitorId = null;
         }
 

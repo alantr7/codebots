@@ -51,11 +51,6 @@ public class CraftMonitor extends StructureInstance implements Monitor {
     @Setter
     private Direction direction;
 
-    @Getter
-    private TextDisplay.TextAlignment textAlignment = TextDisplay.TextAlignment.LEFT;
-
-    private byte[] display = {(byte) 0};
-
     private int currentLineIndex;
 
     private TextComponent[] lines;
@@ -73,6 +68,8 @@ public class CraftMonitor extends StructureInstance implements Monitor {
     private UUID botId;
 
     private Data<UUID> dataConnectedBot;
+
+    private Data<Integer> dataTextAlignment;
 
     public static final int[] MAX_CHARS_PER_LINES = {
             7,  // Width = 1
@@ -278,8 +275,13 @@ public class CraftMonitor extends StructureInstance implements Monitor {
     }
 
     @Override
+    public @NotNull TextDisplay.TextAlignment getTextAlignment() {
+        return TextDisplay.TextAlignment.values()[dataTextAlignment.get()];
+    }
+
+    @Override
     public void setTextAlignment(TextDisplay.@NotNull TextAlignment textAlignment) {
-        this.textAlignment = textAlignment;
+        this.dataTextAlignment.update(textAlignment.ordinal());
         if (textDisplay != null)
             textDisplay.setAlignment(textAlignment);
     }
@@ -304,6 +306,7 @@ public class CraftMonitor extends StructureInstance implements Monitor {
         } else {
             showDefaultText();
         }
+        dataConnectedBot.update(bot != null ? bot.getId() : null);
     }
 
     public void showDefaultText() {
@@ -330,7 +333,7 @@ public class CraftMonitor extends StructureInstance implements Monitor {
         transformation.getTranslation().y = -0.1f + CraftMonitor.TEXT_DISPLAY_VERTICAL_OFFSETS[getHeight() - 1];
         transformation.getScale().set(0.75);
         textDisplay.setTransformation(transformation);
-        textDisplay.setAlignment(TextDisplay.TextAlignment.LEFT);
+        textDisplay.setAlignment(getTextAlignment());
         textDisplay.setBackgroundColor(Color.fromARGB(0));
 
         // TODO: Fix this offsetX, offsetZ mess
@@ -450,6 +453,8 @@ public class CraftMonitor extends StructureInstance implements Monitor {
     public void setup() {
         dataConnectedBot = dataContainer.persist("connected_bot", Data.Type.UUID);
         botId = dataConnectedBot.get();
+        dataTextAlignment = dataContainer.persist("alignment", Data.Type.INT, TextDisplay.TextAlignment.LEFT.ordinal());
+        Bukkit.broadcastMessage("text alignment: " + dataTextAlignment.get());
     }
 
     @Override
