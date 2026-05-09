@@ -16,6 +16,8 @@ import com.github.alantr7.codebots.utils.StringPool;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.BotsChunk;
 import com.github.alantr7.codebots.world.BotsRegion;
+import com.github.alantr7.codebots.world.structure.data.Data;
+import com.github.alantr7.codebots.world.structure.data.DataContainer;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -69,6 +71,8 @@ public class CraftMonitor extends StructureInstance implements Monitor {
     private Size size;
 
     private UUID botId;
+
+    private Data<UUID> dataConnectedBot;
 
     public static final int[] MAX_CHARS_PER_LINES = {
             7,  // Width = 1
@@ -443,6 +447,12 @@ public class CraftMonitor extends StructureInstance implements Monitor {
     public void tick() {}
 
     @Override
+    public void setup() {
+        dataConnectedBot = dataContainer.persist("connected_bot", Data.Type.UUID);
+        botId = dataConnectedBot.get();
+    }
+
+    @Override
     public ItemStack getItemDrop() {
         BotsItem drop = switch (size) {
             case SIZE_2x1 -> BotsItem.MONITOR_2x1;
@@ -473,10 +483,9 @@ public class CraftMonitor extends StructureInstance implements Monitor {
 
         CraftMonitor monitor = new CraftMonitor(monitorId, location, direction, size);
 
-        // Connected bot
-        if (reader.readU1() == 1) {
-            monitor.botId = UUID.fromString(reader.readShortString());
-        }
+        // Data container
+        DataContainer dataContainer = DataContainer.fromBytes(reader, region.strings);
+        DataContainer.overwrite(monitor.dataContainer, dataContainer, dataContainer.getEntries().keySet());
 
         return monitor;
     }
@@ -503,13 +512,9 @@ public class CraftMonitor extends StructureInstance implements Monitor {
         // Size
         buffer.writeU1(size.ordinal());
 
-        // Connected bot
-        if (botId != null) {
-            buffer.writeU1(1);
-            buffer.writeShortString(botId.toString());
-        } else {
-            buffer.writeU1(0);
-        }
+        // Data container
+        buffer.writeBytes(dataContainer.toBytes(constants));
+        dataContainer.setUnsaved(false);
 
         int returnPointer = buffer.getPointer();
         buffer.setPointer(basePointer);

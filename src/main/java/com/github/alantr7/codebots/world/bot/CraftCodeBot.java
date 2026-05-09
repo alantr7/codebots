@@ -29,6 +29,7 @@ import com.github.alantr7.codebots.config.Config;
 import com.github.alantr7.codebots.gui.BotGUI;
 import com.github.alantr7.codebots.gui.BotProgramsGUI;
 import com.github.alantr7.codebots.world.structure.StructureInstance;
+import com.github.alantr7.codebots.world.structure.data.DataContainer;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.*;
@@ -587,6 +588,10 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             }
         }
 
+        // Data container
+        DataContainer dataContainer = DataContainer.fromBytes(reader, region.strings);
+        DataContainer.overwrite(bot.dataContainer, dataContainer, dataContainer.getEntries().keySet());
+
         return bot;
     }
 
@@ -670,6 +675,10 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             buffer.writeShortString(key);
             Data.serialize(buffer, value.getKey(), value.getValue());
         });
+
+        // Data container
+        buffer.writeBytes(dataContainer.toBytes(constants));
+        dataContainer.setUnsaved(false);
 
         // Size on disk
         int returnPointer = buffer.getPointer();

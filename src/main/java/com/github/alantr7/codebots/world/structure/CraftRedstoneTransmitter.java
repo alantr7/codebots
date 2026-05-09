@@ -9,6 +9,7 @@ import com.github.alantr7.codebots.utils.StringPool;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.BotsChunk;
 import com.github.alantr7.codebots.world.BotsRegion;
+import com.github.alantr7.codebots.world.structure.data.DataContainer;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -130,7 +131,13 @@ public class CraftRedstoneTransmitter extends StructureInstance implements Redst
         // Direction
         reader.readU1();
 
-        return new CraftRedstoneTransmitter(location);
+        CraftRedstoneTransmitter transmitter = new CraftRedstoneTransmitter(location);
+
+        // Data container
+        DataContainer dataContainer = DataContainer.fromBytes(reader, region.strings);
+        DataContainer.overwrite(transmitter.dataContainer, dataContainer, dataContainer.getEntries().keySet());
+
+        return transmitter;
     }
 
     @Override
@@ -150,6 +157,10 @@ public class CraftRedstoneTransmitter extends StructureInstance implements Redst
 
         // Direction
         buffer.writeU1(0);
+
+        // Data container
+        buffer.writeBytes(dataContainer.toBytes(constants));
+        dataContainer.setUnsaved(false);
 
         int returnPointer = buffer.getPointer();
         buffer.setPointer(basePointer);

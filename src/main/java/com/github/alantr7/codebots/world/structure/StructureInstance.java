@@ -9,6 +9,7 @@ import com.github.alantr7.codebots.utils.StringPool;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.BotsChunk;
 import com.github.alantr7.codebots.world.BotsRegion;
+import com.github.alantr7.codebots.world.structure.data.DataContainer;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector2i;
 
@@ -30,6 +31,8 @@ public abstract class StructureInstance {
     private byte[] collisionVectors;
 
     private int[][] occupiedChunks;
+
+    protected final DataContainer dataContainer = new DataContainer();
 
     public StructureInstance(BlockLocation location, Direction direction) {
         this.location = location;
@@ -87,7 +90,7 @@ public abstract class StructureInstance {
 
     public abstract void tick();
 
-    public abstract void save(ByteArrayWriter writer, StringPool constants);
+    public void save(ByteArrayWriter writer, StringPool constants) {}
 
     public void onModelSpawn() {}
 
@@ -97,9 +100,11 @@ public abstract class StructureInstance {
 
     public abstract ItemStack getItemDrop();
 
+    public void setup() {}
+
     public static void place(StructureInstance instance) {
         try {
-//            instance.setup();
+            instance.setup();
         } catch (Exception exc) {
             instance.isCorrupted = true;
             exc.printStackTrace();
