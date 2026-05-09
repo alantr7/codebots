@@ -149,7 +149,6 @@ public class BotsRegion {
                 try {
                     StructureInstance structure = StructureInstance.fromBytes(this, chunk, reader, structureId);
                     if (structure != null) {
-                        structure.setup();
                         StructureInstance.place(structure);
                         chunk._placeStructureWithOccupations(structure);
 
