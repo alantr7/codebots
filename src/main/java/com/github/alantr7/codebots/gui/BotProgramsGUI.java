@@ -124,6 +124,10 @@ public class BotProgramsGUI extends GUI {
                 editorSession.sendLink(getPlayer());
             } else {
                 var player = getPlayer();
+                if (bot.getFileSystem().getFiles().isEmpty()) {
+                    player.sendMessage("§cYou must create at least one file before opening editor.");
+                    return;
+                }
 
                 player.sendMessage("§oCreating an editor session. Please wait...");
                 CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).createSession(bot.getFileSystem().getFiles(), player.getName())
