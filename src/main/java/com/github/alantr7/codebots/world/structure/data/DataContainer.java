@@ -76,7 +76,8 @@ public class DataContainer {
                         buffer.writeLong(((UUID) entry.value).getMostSignificantBits());
                         buffer.writeLong(((UUID) entry.value).getLeastSignificantBits());
                     } else {
-                        buffer.writeBytes(new byte[] { 0, 0 });
+                        buffer.writeLong(0);
+                        buffer.writeLong(0);
                     }
                 }
             }
