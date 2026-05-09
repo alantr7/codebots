@@ -37,6 +37,7 @@ public abstract class StructureInstance {
     public StructureInstance(BlockLocation location, Direction direction) {
         this.location = location;
         this.direction = direction;
+        this.dataContainer.structure = this;
     }
 
     public abstract byte[] getOriginalCollisionVectors();

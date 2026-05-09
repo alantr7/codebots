@@ -154,9 +154,9 @@ public class DataContainer {
             Data<Object> newValue = data.entries.get(key);
             Data<Object> oldValue = original.entries.get(key);
 
-            if (newValue == null || oldValue == null)
-                continue;
-
+            if (oldValue == null) {
+                oldValue = original.persist(key, newValue.type);
+            }
             oldValue.value = newValue.value;
         }
     }

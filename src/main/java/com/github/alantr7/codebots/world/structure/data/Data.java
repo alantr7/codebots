@@ -32,6 +32,11 @@ public class Data<T> {
         container.structure.location.getChunk().isUnsaved = true;
     }
 
+    @Override
+    public String toString() {
+        return value == null ? "null" : value.toString();
+    }
+
     public static class Type<T> {
 
         public static final Type<Byte>      BYTE = new Type<>(0, "byte");
