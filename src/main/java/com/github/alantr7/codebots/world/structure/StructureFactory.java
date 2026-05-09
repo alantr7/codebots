@@ -8,11 +8,13 @@ import com.github.alantr7.codebots.utils.MathUtils;
 import com.github.alantr7.codebots.world.BlockLocation;
 import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,9 +30,14 @@ public class StructureFactory {
                 var pdc = item.getItemMeta().getPersistentDataContainer();
 
                 // load file system
-                long[] filePointers = pdc.get(key("FileSystem"), PersistentDataType.LONG_ARRAY);
-                if (filePointers != null) {
-                    location.world.fsManager.load(bot.getFileSystem(), filePointers);
+                List<PersistentDataContainer> pdcFs = pdc.get(key("FileSystem"), PersistentDataType.LIST.dataContainers());
+                if (pdcFs != null) {
+                    for (PersistentDataContainer pdcFile : pdcFs) {
+                        String fileName = pdcFile.get(key("Name"), PersistentDataType.STRING);
+                        byte[] fileContent = pdcFile.get(key("Content"), PersistentDataType.BYTE_ARRAY);
+
+                        bot.getFileSystem().createFile(fileName).setContent(fileContent);
+                    }
                 }
 
                 // load active program

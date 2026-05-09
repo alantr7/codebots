@@ -8,8 +8,10 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.Consumer;
@@ -37,13 +39,17 @@ public class ItemFactory {
 
         pdc.set(key("BotId"), PersistentDataType.STRING, bot.getId().toString());
 
-        long[] fileSystemPointers = new long[bot.getFileSystem().getFiles().size()];
-        Iterator<BotFile> fs = bot.getFileSystem().getFiles().iterator();
-        for (int i = 0; fs.hasNext(); i++) {
-            fileSystemPointers[i] = fs.next().getPosition();
+        PersistentDataType type = PersistentDataType.LIST.dataContainers();
+        var pdcFileSystem = new ArrayList<PersistentDataContainer>();
+        for (BotFile file : bot.getFileSystem().getFiles()) {
+            var pdcFile = pdc.getAdapterContext().newPersistentDataContainer();
+            pdcFile.set(key("Name"), PersistentDataType.STRING, file.getName());
+            pdcFile.set(key("Content"), PersistentDataType.BYTE_ARRAY, file.getContent());
+            pdcFileSystem.add(pdcFile);
         }
-        pdc.set(key("FileSystem"), PersistentDataType.LONG_ARRAY, fileSystemPointers);
-        lore.add("§7• File System: §f" + fileSystemPointers.length + " files");
+
+        pdc.set(key("FileSystem"), type, pdcFileSystem);
+        lore.add("§7• File System: §f" + bot.getFileSystem().getFiles().size() + " files");
 
         if (bot.hasProgram()) {
             pdcProgram.set(key("File"), PersistentDataType.STRING, bot.getProgramSource().getSource().getName());
