@@ -21,16 +21,20 @@ public class CodeBotsPlugin extends BukkitPlugin {
 
     private Metrics metrics;
 
+    CodeBotsPlugin() {
+        instance = this;
+    }
+
     @Override
     protected void onPluginEnable() {
-        instance = this;
-
         MODULE_REPOSITORY.registerModule(new LangModule());
         MODULE_REPOSITORY.registerModule(new MathModule());
         MODULE_REPOSITORY.registerModule(new BotModule());
         MODULE_REPOSITORY.registerModule(new MonitorModule());
         MODULE_REPOSITORY.registerModule(new RedstoneModule());
         MODULE_REPOSITORY.registerModule(new MemoryModule());
+        MODULE_REPOSITORY.registerModule(new HttpModule());
+        MODULE_REPOSITORY.registerModule(new ResponsesModule());
 
         metrics = new Metrics(this, 28911);
     }
