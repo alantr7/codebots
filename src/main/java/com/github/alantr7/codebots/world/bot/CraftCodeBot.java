@@ -288,10 +288,10 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     // This method handles program loading logic. It is separated from the method below to
     // allow reloading without checking whether the editor is active
-    private void _loadProgram(ProgramSource program, boolean isResume) throws ParserException {
+    private void _loadProgram(UUID processId, ProgramSource program, boolean isResume) throws ParserException {
         try {
             String output = Compiler.toHumanReadable(CodeBotsPlugin.inst().getModuleRepository(), program.getCode());
-            this.program = new Program(Tokenizer.tokenize(output), CodeBotsPlugin.inst().getModuleRepository());
+            this.program = new Program(processId, Tokenizer.tokenize(output), CodeBotsPlugin.inst().getModuleRepository());
             this.program.setMode(Program.RUN_UNTIL_HALT);
             this.program.setExtra("bot", this);
             this.programSource = program;
@@ -311,7 +311,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     @Override
     public void loadProgram(ProgramSource program) throws ParserException {
-        _loadProgram(program, false);
+        _loadProgram(UUID.randomUUID(), program, false);
     }
 
     @Override
@@ -332,7 +332,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
         try {
             var programSource = CodeBots.loadProgram(this.programSource.getDirectory(), this.programSource.getSource());
-            _loadProgram(programSource, false);
+            _loadProgram(UUID.randomUUID(), programSource, false);
         } catch (ParserException e) {
             setError(new ProgramError(ProgramError.ErrorLocation.PARSER, e.getMessage(), new String[] { e.getMessage() }));
             throw e;
@@ -572,7 +572,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
             if (source != null) {
                 try {
-                    bot._loadProgram(source, true);
+                    bot._loadProgram(UUID.randomUUID(), source, true);
                 } catch (Exception e) {
                     System.out.println("Could not load program for bot " + id);
                     e.printStackTrace();
@@ -584,8 +584,8 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
         int isActive = reader.readU1();
         if (isActive == 1) {
             bot.setActive(true);
-            ProgramState state = ProgramState.deserialize(bot.program, reader);
-            bot.program.setState(state);
+            bot.program.setProcessId(new UUID(reader.readLong(), reader.readLong()));
+            bot.program.setState(ProgramState.deserialize(bot.program, reader));
         }
 
         // Persistent memory
@@ -671,6 +671,8 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             byte[] state = program.getState().serialize();
             if (state.length < 1024) {
                 buffer.writeU1(1);
+                buffer.writeLong(program.getProcessId().getMostSignificantBits());
+                buffer.writeLong(program.getProcessId().getLeastSignificantBits());
                 buffer.writeBytes(state);
             } else {
                 buffer.writeU1(0);
