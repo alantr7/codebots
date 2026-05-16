@@ -301,7 +301,13 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             location.getChunk().isUnsaved = true;
 
             if (!isResume) {
-                Bukkit.getPluginManager().callEvent(new ProgramStartEvent(this.program));
+                if (Bukkit.isPrimaryThread()) {
+                    Bukkit.getPluginManager().callEvent(new ProgramStartEvent(this.program));
+                } else {
+                    Bukkit.getScheduler().runTask(CodeBotsPlugin.inst(), () ->
+                        Bukkit.getPluginManager().callEvent(new ProgramStartEvent(this.program))
+                    );
+                }
             }
         } catch (ParserException e) {
             setError(new ProgramError(ProgramError.ErrorLocation.PARSER, e.getMessage()));
