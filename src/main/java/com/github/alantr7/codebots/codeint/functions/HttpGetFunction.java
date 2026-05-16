@@ -29,13 +29,13 @@ public class HttpGetFunction extends ExternalFunction {
             String url = context.getArgumentAs(0, DataType.STRING);
 
             if (responseType.equals("json")) {
-                CodeBotsPlugin.inst().getSingleton(HttpManager.class).getJson(url)
+                CodeBotsPlugin.inst().getSingleton(HttpManager.class).getJson(url, context.getProgram().getProcessId())
                     .whenComplete((response, throwable) -> {
                         context.getMemory()[1].setValue(DataType.INT, response.handle);
                     });
             }
             else if (responseType.equals("text")) {
-                CodeBotsPlugin.inst().getSingleton(HttpManager.class).getString(url)
+                CodeBotsPlugin.inst().getSingleton(HttpManager.class).getString(url, context.getProgram().getProcessId())
                   .whenComplete((response, throwable) -> {
                       context.getMemory()[1].setValue(DataType.INT, response.handle);
                   });

@@ -1,11 +1,11 @@
 package com.github.alantr7.codebots.codeint.http;
 
-import java.net.http.HttpResponse;
+import java.util.UUID;
 
 public class StringResponse extends Response<String> {
 
-    public StringResponse(int handle, HttpResponse<String> response, String value, Throwable exception) {
-        super(handle, response, value, exception);
+    public StringResponse(int handle, UUID processId, long expiry, int statusCode, String body, String exception) {
+        super(handle, processId, expiry, statusCode, body, body, exception);
     }
 
 }

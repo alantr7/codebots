@@ -31,7 +31,7 @@ public class ResponsesModule extends Module {
                 if (response == null) {
                     throw new ExecutionException("Unknown response with handle: " + context.getArgumentAs(0, DataType.INT));
                 }
-                return Data.of(response.response.body());
+                return Data.of(response.body);
             }
         });
         registerFunction(new ExternalFunction(this, "get_status_code", DataType.INT, DataType.INT) {
@@ -41,7 +41,7 @@ public class ResponsesModule extends Module {
                 if (response == null) {
                     throw new ExecutionException("Unknown response with handle: " + context.getArgumentAs(0, DataType.INT));
                 }
-                return Data.of(response.response.statusCode());
+                return Data.of(response.statusCode);
             }
         });
 

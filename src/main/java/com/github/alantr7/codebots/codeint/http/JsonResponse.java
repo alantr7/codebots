@@ -1,11 +1,11 @@
 package com.github.alantr7.codebots.codeint.http;
 
-import java.net.http.HttpResponse;
+import java.util.UUID;
 
 public class JsonResponse extends Response<Object> {
 
-    public JsonResponse(int handle, HttpResponse<String> response, Object value, Throwable exception) {
-        super(handle, response, value, exception);
+    public JsonResponse(int handle, UUID processId, long expiry, int statusCode, String body, Object value, String exception) {
+        super(handle, processId, expiry, statusCode, body, value, exception);
     }
 
 }
