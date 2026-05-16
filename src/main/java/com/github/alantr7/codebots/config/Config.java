@@ -1,5 +1,8 @@
 package com.github.alantr7.codebots.config;
 
+import java.util.Collections;
+import java.util.List;
+
 public class Config {
 
     // <editor-fold desc="Bots Configuration">
@@ -26,7 +29,12 @@ public class Config {
     public static final int BOT_MAX_STATUS_LENGTH = 64;
 
     public static final boolean BOT_SHOW_CHAT_AS_STATUS = true;
+    // </editor-fold>
 
+    // <editor-fold desc="Scripting Configuration">
+    public static boolean SCRIPTS_HTTP_ENABLE_URL_WHITELIST = true;
+
+    public static List<String> SCRIPTS_HTTP_URL_WHITELIST = Collections.emptyList();
     // </editor-fold>
 
     public static String EDITOR_URL = "https://editor.myqualia.net";

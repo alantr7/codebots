@@ -8,11 +8,11 @@ public abstract class Response<T> {
 
     public final HttpResponse<String> response;
 
-    public final Exception exception;
+    public final Throwable exception;
 
     public final T value;
 
-    public Response(int handle, HttpResponse<String> response, T value, Exception exception) {
+    public Response(int handle, HttpResponse<String> response, T value, Throwable exception) {
         this.handle = handle;
         this.response = response;
         this.value = value;

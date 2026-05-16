@@ -24,19 +24,34 @@ public class HttpGetFunction extends ExternalFunction {
     @Override
     public Data handle(Context context) throws ExecutionException {
         if (context.getMemory()[0].getValueAs(DataType.INT) == 0) {
+            String responseType = context.getArgumentAs(1, DataType.STRING);
             String url = context.getArgumentAs(0, DataType.STRING);
+
+            if (responseType.equals("json")) {
+                CodeBotsPlugin.inst().getSingleton(HttpManager.class).getJson(url)
+                    .whenComplete((response, throwable) -> {
+                        System.out.println(response.response.body());
+                        context.getMemory()[1].setValue(DataType.INT, response.handle);
+                    });
+            }
+            else if (responseType.equals("text")) {
+                CodeBotsPlugin.inst().getSingleton(HttpManager.class).getString(url)
+                  .whenComplete((response, throwable) -> {
+                      System.out.println(response.response.body());
+                      context.getMemory()[1].setValue(DataType.INT, response.handle);
+                  });
+            } else {
+                throw new ExecutionException("Invalid response type: " + responseType + ". It must be be json or text.");
+            }
+
             context.getMemory()[0].setValue(DataType.INT, 1);
-            CodeBotsPlugin.inst().getSingleton(HttpManager.class).getJson(url)
-                .whenComplete((response, throwable) -> {
-                    System.out.println(response.response.body());
-                    context.getMemory()[1].setValue(DataType.INT, response.handle);
-                });
         } else {
             if (context.getMemory()[1].getValueAs(DataType.INT) != 0) {
                 context.setRecall(false);
                 return Data.of(context.getMemory()[1].getValueAs(DataType.INT));
             }
         }
+
         context.setRecall(true);
         return null;
     }

@@ -2,12 +2,15 @@ package com.github.alantr7.codebots.codeint.http;
 
 import com.github.alantr7.bukkitplugin.annotations.core.Singleton;
 import com.github.alantr7.codebots.CodeBotsPlugin;
+import com.github.alantr7.codebots.cbslang.exceptions.ExecutionException;
+import com.github.alantr7.codebots.config.Config;
 import org.bukkit.Bukkit;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -26,54 +29,77 @@ public class HttpManager {
 
     private int nextResponseId = 1;
 
-    public CompletableFuture<StringResponse> getString(String url) {
-        int responseId = nextResponseId++;
-        return CompletableFuture.supplyAsync(() -> {
-            StringResponse stringResponse;
-            try {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .GET()
-                        .uri(new URI(url))
-                        .build();
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                stringResponse = new StringResponse(responseId, response, response.body(), null);
-            } catch (Exception e) {
-                stringResponse = new StringResponse(responseId, null, null, e);
-            }
+    private CompletableFuture<HttpResponse<String>> get(String url) throws ExecutionException {
+        if (Config.SCRIPTS_HTTP_ENABLE_URL_WHITELIST) {
+            if (!isUrlWhitelisted(url))
+                throw new ExecutionException("Website is not whitelisted");
+        }
 
-            StringResponse finalResponse = stringResponse;
-            Bukkit.getScheduler().runTask(CodeBotsPlugin.inst(), () -> responses.put(responseId, finalResponse));
+        try {
+            return client.sendAsync(HttpRequest.newBuilder()
+                .GET()
+                .uri(new URI(url))
+                .build(),
+              HttpResponse.BodyHandlers.ofString());
+        } catch (URISyntaxException exception) {
+            throw new ExecutionException("Invalid URL: " + url);
+        }
+    }
+
+    public CompletableFuture<StringResponse> getString(String url) throws ExecutionException {
+        CompletableFuture<HttpResponse<String>> httpResponseFuture = get(url);
+        int responseId = nextResponseId++;
+
+        return httpResponseFuture.thenApply(httpResponse -> {
+            StringResponse stringResponse = new StringResponse(responseId, httpResponse, httpResponse.body(), null);
+            Bukkit.getScheduler().runTask(CodeBotsPlugin.inst(), () -> responses.put(responseId, stringResponse));
+
+            return stringResponse;
+        }).exceptionally(error -> {
+            StringResponse stringResponse = new StringResponse(responseId, null, null, error);
+            Bukkit.getScheduler().runTask(CodeBotsPlugin.inst(), () -> responses.put(responseId, stringResponse));
+
             return stringResponse;
         });
     }
 
-    public CompletableFuture<JsonResponse> getJson(String url) {
+    public CompletableFuture<JsonResponse> getJson(String url) throws ExecutionException {
+        CompletableFuture<HttpResponse<String>> httpResponseFuture = get(url);
         int responseId = nextResponseId++;
-        return CompletableFuture.supplyAsync(() -> {
-            JsonResponse jsonResponse;
+
+        return httpResponseFuture.thenApply(httpResponse -> {
+            JsonResponse response = null;
             try {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .GET()
-                        .uri(new URI(url))
-                        .build();
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                try {
-                    jsonResponse = new JsonResponse(responseId, response, new JSONParser().parse(response.body()), null);
-                } catch (Exception e) {
-                    jsonResponse = new JsonResponse(responseId, response, null, null);
-                }
+                response = new JsonResponse(responseId, httpResponse, new JSONParser().parse(httpResponse.body()), null);
             } catch (Exception e) {
-                jsonResponse = new JsonResponse(responseId, null, null, e);
+                response = new JsonResponse(responseId, httpResponse, null, e);
             }
 
-            JsonResponse finalResponse = jsonResponse;
-            Bukkit.getScheduler().runTask(CodeBotsPlugin.inst(), () -> responses.put(responseId, finalResponse));
-            return jsonResponse;
+            JsonResponse response1 = response;
+            Bukkit.getScheduler().runTask(CodeBotsPlugin.inst(), () -> responses.put(responseId, response1));
+            return response;
+        }).exceptionally(error -> {
+            JsonResponse response = new JsonResponse(responseId, null, null, error);
+            Bukkit.getScheduler().runTask(CodeBotsPlugin.inst(), () -> responses.put(responseId, response));
+
+            return response;
         });
     }
 
     public Response<?> getResponse(int id) {
         return responses.get(id);
+    }
+
+    public static boolean isUrlWhitelisted(String url) {
+        for (String whitelist : Config.SCRIPTS_HTTP_URL_WHITELIST) {
+            UrlComponents whitelistComps = UrlComponents.fromUrl(whitelist);
+            if (whitelistComps == null)
+                return false;
+
+            if (whitelistComps.isMatch(url))
+                return true;
+        }
+        return false;
     }
 
 }

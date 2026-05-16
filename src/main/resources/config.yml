@@ -38,6 +38,14 @@ bots:
   # The maximum number of local programs that users can make per bot
   max_local_programs: 4
 
+# Section for configuring scripting
+scripts:
+  # Whitelist allows users to access only configured websites. It is recommended to keep it enabled!
+  # WARNING: Disabling this will allow users to discover your server's IPv4 address, or other servers (non Minecraft too) on your network!
+  http_enable_url_whitelist: true
+  http_url_whitelist:
+    - api.open-meteo.com/*
+
 # Section for configuring the editor
 editor:
   url: "https://editor.myqualia.net"
