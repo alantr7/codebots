@@ -7,6 +7,8 @@ import com.github.alantr7.bytils.buffer.ByteArrayWriter;
 import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.*;
 import com.github.alantr7.codebots.api.error.ProgramError;
+import com.github.alantr7.codebots.api.event.ProgramEndEvent;
+import com.github.alantr7.codebots.api.event.ProgramStartEvent;
 import com.github.alantr7.codebots.cbslang.exceptions.ParserException;
 import com.github.alantr7.codebots.cbslang.high.compiler.Compiler;
 import com.github.alantr7.codebots.cbslang.low.runtime.Program;
@@ -286,7 +288,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     // This method handles program loading logic. It is separated from the method below to
     // allow reloading without checking whether the editor is active
-    private void _loadProgram(ProgramSource program) throws ParserException {
+    private void _loadProgram(ProgramSource program, boolean isResume) throws ParserException {
         try {
             String output = Compiler.toHumanReadable(CodeBotsPlugin.inst().getModuleRepository(), program.getCode());
             this.program = new Program(Tokenizer.tokenize(output), CodeBotsPlugin.inst().getModuleRepository());
@@ -297,6 +299,10 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             inventory.updateProgramButton();
             isDirty = true;
             location.getChunk().isUnsaved = true;
+
+            if (!isResume) {
+                Bukkit.getPluginManager().callEvent(new ProgramStartEvent(this.program));
+            }
         } catch (ParserException e) {
             setError(new ProgramError(ProgramError.ErrorLocation.PARSER, e.getMessage()));
             throw e;
@@ -305,7 +311,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
     @Override
     public void loadProgram(ProgramSource program) throws ParserException {
-        _loadProgram(program);
+        _loadProgram(program, false);
     }
 
     @Override
@@ -326,7 +332,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
         try {
             var programSource = CodeBots.loadProgram(this.programSource.getDirectory(), this.programSource.getSource());
-            _loadProgram(programSource);
+            _loadProgram(programSource, false);
         } catch (ParserException e) {
             setError(new ProgramError(ProgramError.ErrorLocation.PARSER, e.getMessage(), new String[] { e.getMessage() }));
             throw e;
@@ -467,6 +473,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
             if (program.hasNext()) {
                 program.run();
             } else {
+                Bukkit.getPluginManager().callEvent(new ProgramEndEvent(program));
                 setActive(false);
 
                 // If there was an exception, save it to the bot instance
@@ -565,7 +572,7 @@ public class CraftCodeBot extends StructureInstance implements CodeBot {
 
             if (source != null) {
                 try {
-                    bot.loadProgram(source);
+                    bot._loadProgram(source, true);
                 } catch (Exception e) {
                     System.out.println("Could not load program for bot " + id);
                     e.printStackTrace();

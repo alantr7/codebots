@@ -5,8 +5,6 @@ import com.github.alantr7.codebots.CodeBotsPlugin;
 import com.github.alantr7.codebots.cbslang.exceptions.ExecutionException;
 import com.github.alantr7.codebots.config.Config;
 import org.bukkit.Bukkit;
-import org.json.simple.JSONAware;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.net.URI;

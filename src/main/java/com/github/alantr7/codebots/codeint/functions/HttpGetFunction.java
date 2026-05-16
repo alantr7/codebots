@@ -1,6 +1,7 @@
 package com.github.alantr7.codebots.codeint.functions;
 
 import com.github.alantr7.codebots.CodeBotsPlugin;
+import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.cbslang.exceptions.ExecutionException;
 import com.github.alantr7.codebots.cbslang.low.runtime.memory.Data;
 import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
@@ -30,14 +31,12 @@ public class HttpGetFunction extends ExternalFunction {
             if (responseType.equals("json")) {
                 CodeBotsPlugin.inst().getSingleton(HttpManager.class).getJson(url)
                     .whenComplete((response, throwable) -> {
-                        System.out.println(response.response.body());
                         context.getMemory()[1].setValue(DataType.INT, response.handle);
                     });
             }
             else if (responseType.equals("text")) {
                 CodeBotsPlugin.inst().getSingleton(HttpManager.class).getString(url)
                   .whenComplete((response, throwable) -> {
-                      System.out.println(response.response.body());
                       context.getMemory()[1].setValue(DataType.INT, response.handle);
                   });
             } else {
