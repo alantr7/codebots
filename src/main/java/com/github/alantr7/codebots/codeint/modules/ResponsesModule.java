@@ -93,6 +93,14 @@ public class ResponsesModule extends Module {
                 return Data.of(string);
             }
         });
+
+        registerFunction(new ExternalFunction(this, "delete", DataType.INT, DataType.INT) {
+            @Override
+            public Data handle(Context context) throws ExecutionException {
+                httpManager.deleteResponse(context.getArgumentAs(0, DataType.INT));
+                return Data.of(1);
+            }
+        });
     }
 
     private static Object getJsonElement(Object json, String path0) {
