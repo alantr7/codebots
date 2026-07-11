@@ -31,6 +31,7 @@ import com.github.alantr7.codebots.config.Config;
 import com.github.alantr7.codebots.gui.BotGUI;
 import com.github.alantr7.codebots.gui.BotProgramsGUI;
 import com.github.alantr7.codebots.world.structure.StructureInstance;
+import com.github.alantr7.codebots.world.structure.Tickable;
 import com.github.alantr7.codebots.world.structure.data.DataContainer;
 import lombok.Getter;
 import lombok.Setter;
@@ -50,7 +51,7 @@ import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.UUID;
 
-public class CraftCodeBot extends StructureInstance implements CodeBot {
+public class CraftCodeBot extends StructureInstance implements CodeBot, Tickable {
 
     @Getter
     private World world;

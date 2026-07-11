@@ -114,10 +114,6 @@ public class CraftRedstoneTransmitter extends StructureInstance implements Redst
     }
 
     @Override
-    public void tick() {
-    }
-
-    @Override
     public ItemStack getItemDrop() {
         return BotsItem.REDSTONE_TRANSMITTER.toItemStack();
     }

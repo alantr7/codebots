@@ -5,6 +5,7 @@ import com.github.alantr7.codebots.fs.FileSystemManager;
 import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import com.github.alantr7.codebots.world.structure.CraftMonitor;
 import com.github.alantr7.codebots.world.structure.StructureInstance;
+import com.github.alantr7.codebots.world.structure.Tickable;
 import lombok.Getter;
 import org.bukkit.*;
 import org.jetbrains.annotations.NotNull;
@@ -175,27 +176,29 @@ public class BotsWorld {
         return machineChunk.structures.get(machineLocation);
     }
 
-    public StructureInstance currentlyTicked;
+    public Tickable currentlyTicked;
     void tick() {
-        List<StructureInstance> tickQueue = new ArrayList<>();
+        List<Tickable> tickQueue = new ArrayList<>();
         for (BotsRegion region : regions.values()) {
             for (BotsChunk chunk : region.chunks.values()) {
-                for (StructureInstance s : chunk.tickableStructures.values()) {
-                    if (s.isCorrupted || s.isUnloaded())
+                for (Tickable s : chunk.tickableStructures.values()) {
+                    if (s instanceof StructureInstance si && (si.isCorrupted || si.isUnloaded()))
                         return;
 
                     tickQueue.add(s);
                 }
             }
         }
-        for (StructureInstance s : tickQueue) {
+        for (Tickable s : tickQueue) {
             currentlyTicked = s;
             try {
                 s.tick();
             } catch (Exception e) {
 //              TorusLogger.error(Category.STRUCTURES, "Encountered an error whilst ticking a structure - marked it as corrupted.");
                 e.printStackTrace();
-                s.corrupt();
+                if (s instanceof StructureInstance si) {
+                    si.corrupt();
+                }
             }
             currentlyTicked = null;
         }

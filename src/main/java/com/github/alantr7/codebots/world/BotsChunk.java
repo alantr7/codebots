@@ -1,6 +1,7 @@
 package com.github.alantr7.codebots.world;
 
 import com.github.alantr7.codebots.world.structure.StructureInstance;
+import com.github.alantr7.codebots.world.structure.Tickable;
 import lombok.Getter;
 import org.joml.Vector2i;
 
@@ -21,7 +22,7 @@ public class BotsChunk {
 
     final Map<BlockLocation, StructureInstance> structures = new HashMap<>();
 
-    final Map<BlockLocation, StructureInstance> tickableStructures = new HashMap<>();
+    final Map<BlockLocation, Tickable> tickableStructures = new HashMap<>();
 
     final Map<BlockLocation, BlockLocation> occupations = new HashMap<>();
 
@@ -32,7 +33,8 @@ public class BotsChunk {
 
     protected void _registerStructure(StructureInstance structure) {
         structures.put(structure.location, structure);
-        tickableStructures.put(structure.location, structure);
+        if (structure instanceof Tickable tickable)
+            tickableStructures.put(structure.location, tickable);
     }
 
     protected void _unregisterStructure(StructureInstance structure) {
@@ -54,7 +56,8 @@ public class BotsChunk {
     protected void makePhysical() {
         for (StructureInstance structure : structures.values()) {
             structure.makePhysical();
-            tickableStructures.put(structure.location, structure);
+            if (structure instanceof Tickable tickable)
+                tickableStructures.put(structure.location, tickable);
         }
     }
 

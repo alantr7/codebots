@@ -447,9 +447,6 @@ public class CraftMonitor extends StructureInstance implements Monitor {
     }
 
     @Override
-    public void tick() {}
-
-    @Override
     public void setup() {
         dataConnectedBot = dataContainer.persist("connected_bot", Data.Type.UUID);
         botId = dataConnectedBot.get();

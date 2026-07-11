@@ -89,8 +89,6 @@ public abstract class StructureInstance {
         isCorrupted = true;
     }
 
-    public abstract void tick();
-
     public void save(ByteArrayWriter writer, StringPool constants) {}
 
     public void onModelSpawn() {}
