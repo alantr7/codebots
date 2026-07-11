@@ -21,6 +21,7 @@ import com.github.alantr7.codebots.utils.FileHelper;
 import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -69,7 +70,10 @@ public class ComputerProgramsGUI extends GUI {
             setItem(i * 9 + 8, filler);
         }
 
-        var startBtn = new ItemStack(computer.isActive() ? Material.LIME_CONCRETE : Material.RED_CONCRETE);
+        var startBtn = new ItemStack(computer.isActive() ? Material.RED_CONCRETE : Material.LIME_CONCRETE);
+        var startBtnMeta = startBtn.getItemMeta();
+        startBtnMeta.setDisplayName(computer.isActive() ? (ChatColor.GREEN + "Start Program") : (ChatColor.RED + "Stop Program"));
+        startBtn.setItemMeta(startBtnMeta);
         setItem(10, startBtn);
         registerInteractionCallback(10, ClickType.LEFT, () -> {
             if (!computer.hasProgram()) {

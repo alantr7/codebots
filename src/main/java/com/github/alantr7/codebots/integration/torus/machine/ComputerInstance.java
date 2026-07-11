@@ -17,6 +17,7 @@ import com.github.alantr7.codebots.integration.torus.fs.ComputerFileSystem;
 import com.github.alantr7.codebots.integration.torus.gui.ComputerProgramsGUI;
 import com.github.alantr7.codebots.world.structure.Tickable;
 import com.github.alantr7.torus.exception.SetupException;
+import com.github.alantr7.torus.structure.DataTransmitter;
 import com.github.alantr7.torus.structure.LoadContext;
 import com.github.alantr7.torus.structure.Structure;
 import com.github.alantr7.torus.structure.StructureInstance;
@@ -31,10 +32,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.io.IOException;
 import java.util.UUID;
 
-public class ComputerInstance extends StructureInstance implements Tickable {
+public class ComputerInstance extends StructureInstance implements Tickable, DataTransmitter {
 
     @Getter
     protected ComputerFileSystem fileSystem;
@@ -179,6 +179,17 @@ public class ComputerInstance extends StructureInstance implements Tickable {
                 }
             }
         }
+    }
+
+
+    @Override
+    public String getMAC() {
+        return dataContainer.persist("mac", Data.Type.STRING, DataTransmitter.generateMAC()).get();
+    }
+
+    @Override
+    public int onDataRequest(DataTransmitter dataTransmitter, int i) {
+        return 0;
     }
 
     @Override
