@@ -11,6 +11,7 @@ import com.github.alantr7.codebots.cbslang.low.runtime.memory.DataType;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.ExternalFunction;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.Module;
 import com.github.alantr7.codebots.CodeBotsPlugin;
+import com.github.alantr7.codebots.cbslang.low.runtime.modules.ModuleRepository;
 import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.config.Config;
 import com.github.alantr7.codebots.utils.MathUtils;
@@ -82,16 +83,16 @@ public class CodeEditorClient {
         });
     }
 
-    public void registerActiveSessionByBot(EditorSession session, CodeBot bot) {
-        activeSessionsByBots.put(bot.getId(), session);
+    public void registerActiveSessionByBot(EditorSession session, UUID botId) {
+        activeSessionsByBots.put(botId, session);
     }
 
-    public CompletableFuture<EditorSession> createSession(Collection<BotFile> files) {
-        return this.createSession(files, (String)null);
+    public CompletableFuture<EditorSession> createSession(ModuleRepository repository, Collection<BotFile> files) {
+        return this.createSession(repository, files, (String)null);
     }
 
     @SuppressWarnings("unchecked")
-    public CompletableFuture<EditorSession> createSession(Collection<BotFile> files, String author) {
+    public CompletableFuture<EditorSession> createSession(ModuleRepository repository, Collection<BotFile> files, String author) {
         if (serverToken == null || files == null)
             return CompletableFuture.completedFuture(null);
 
@@ -105,7 +106,7 @@ public class CodeEditorClient {
                 var jsonModules = new JSONObject();
                 json.put("modules", jsonModules);
 
-                for (Module module : CodeBotsPlugin.inst().getModuleRepository().getModules()) {
+                for (Module module : repository.getModules()) {
                     JSONObject moduleObject = new JSONObject();
                     moduleObject.put("name", module.getName());
                     moduleObject.put("auto_import", module.getName().equals("lang"));
@@ -237,6 +238,10 @@ public class CodeEditorClient {
 
     public @Nullable EditorSession getActiveSessionByBot(@NotNull CodeBot bot) {
         return activeSessionsByBots.get(bot.getId());
+    }
+
+    public @Nullable EditorSession getActiveSessionByBot(@NotNull UUID bot) {
+        return activeSessionsByBots.get(bot);
     }
 
     public void deleteSession(EditorSession session) {

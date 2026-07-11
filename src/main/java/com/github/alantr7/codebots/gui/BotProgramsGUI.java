@@ -130,9 +130,9 @@ public class BotProgramsGUI extends GUI {
                 }
 
                 player.sendMessage("§oCreating an editor session. Please wait...");
-                CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).createSession(bot.getFileSystem().getFiles(), player.getName())
+                CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).createSession(CodeBotsPlugin.inst().getModuleRepository(), bot.getFileSystem().getFiles(), player.getName())
                         .whenComplete((sess, err) -> {
-                            CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).registerActiveSessionByBot(sess, bot);
+                            CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).registerActiveSessionByBot(sess, bot.getId());
                             sess.subscribe(EditorSession.createBotSubscriber(bot));
                             sess.sendLink(player);
                         });

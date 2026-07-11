@@ -4,6 +4,7 @@ import com.github.alantr7.codebots.api.bot.CodeBot;
 import com.github.alantr7.codebots.CodeBotsPlugin;
 import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.config.Config;
+import com.github.alantr7.codebots.integration.torus.machine.ComputerInstance;
 import com.github.alantr7.codebots.world.bot.CraftCodeBot;
 import lombok.Getter;
 import lombok.Setter;
@@ -119,6 +120,29 @@ public final class EditorSession {
 //                    getPlayer().sendMessage("§4" + e.getMessage());
 //                }
 
+                e.printStackTrace();
+            }
+        };
+    }
+
+    public static Consumer<EditorSession> createComputerSubscriber(ComputerInstance computer) {
+        return session -> {
+            try {
+                session.getFiles().forEach((name, fileInfo) -> {
+                    BotFile file = computer.getFileSystem().getFile(name);
+                    if (file == null)
+                        return;
+
+                    byte[] buffer = new byte[2048];
+                    byte[] code = fileInfo.getCode().getBytes(StandardCharsets.UTF_8);
+                    System.arraycopy(code, 0, buffer, 0, Math.min(code.length, buffer.length));
+                    file.setContent(buffer);
+
+                    computer.isDirty = true;
+                    computer.location.getChunk().isUnsaved = true;
+                });
+                computer.reloadProgram();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         };

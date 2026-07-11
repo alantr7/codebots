@@ -35,7 +35,7 @@ public class ProgramSource {
 
     public CompletableFuture<EditorSession> createEditor() {
         try {
-            return CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).createSession(Collections.singletonList(source));
+            return CodeBotsPlugin.inst().getSingleton(CodeEditorClient.class).createSession(CodeBotsPlugin.inst().getModuleRepository(), Collections.singletonList(source));
         } catch (Exception e) {
             return CompletableFuture.failedFuture(e);
         }

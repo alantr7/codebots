@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BotFileSystem {
+public class BotFileSystem implements FileSystem {
 
     final CraftCodeBot bot;
 
@@ -17,6 +17,7 @@ public class BotFileSystem {
         this.bot = bot;
     }
 
+    @Override
     public BotFile createFile(String name) {
         BotFile file = new BotFile(bot.location.world.fsManager, name, new byte[0], System.currentTimeMillis());
         files.put(file.getName(), file);
@@ -27,14 +28,17 @@ public class BotFileSystem {
     }
 
     @Nullable
+    @Override
     public BotFile getFile(String name) {
         return files.get(name);
     }
 
+    @Override
     public void deleteFile(String name) {
         files.remove(name);
     }
 
+    @Override
     public Collection<BotFile> getFiles() {
         return files.values();
     }

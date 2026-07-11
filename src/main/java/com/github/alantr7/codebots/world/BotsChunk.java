@@ -22,7 +22,7 @@ public class BotsChunk {
 
     final Map<BlockLocation, StructureInstance> structures = new HashMap<>();
 
-    final Map<BlockLocation, Tickable> tickableStructures = new HashMap<>();
+    public final Map<BlockLocation, Tickable> tickableStructures = new HashMap<>();
 
     final Map<BlockLocation, BlockLocation> occupations = new HashMap<>();
 

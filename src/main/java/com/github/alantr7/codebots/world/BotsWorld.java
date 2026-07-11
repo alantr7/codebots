@@ -102,7 +102,7 @@ public class BotsWorld {
     }
 
     @NotNull
-    BotsChunk getChunkOrLoad(BlockLocation location) {
+    public BotsChunk getChunkOrLoad(BlockLocation location) {
         return getRegionOrLoad(location).getOrLoadChunk(location.x >> 4, location.z >> 4, false);
     }
 

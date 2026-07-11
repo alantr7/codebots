@@ -96,6 +96,12 @@
             <version>3.1.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.alantr7</groupId>
+            <artifactId>Torus</artifactId>
+            <version>0.8.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

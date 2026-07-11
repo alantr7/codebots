@@ -1,0 +1,6 @@
+import computer;
+
+int main() {
+   computer.chat("Hello World!");
+   return 0;
+}
