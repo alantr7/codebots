@@ -7,6 +7,7 @@ import com.github.alantr7.codebots.CodeBotsPlugin;
 import com.github.alantr7.codebots.cbslang.low.runtime.modules.ModuleRepository;
 import com.github.alantr7.codebots.codeint.modules.*;
 import com.github.alantr7.codebots.integration.torus.codeint.modules.ComputerModule;
+import com.github.alantr7.codebots.integration.torus.codeint.modules.TorusModule;
 import com.github.alantr7.codebots.integration.torus.machine.Computer;
 import com.github.alantr7.torus.api.TorusAPI;
 import com.github.alantr7.torus.api.addon.LifecycleAdapter;
@@ -44,6 +45,7 @@ public class CodeBotsTorusIntEntry {
         computerModuleRepository.registerModule(new ResponsesModule());
         computerModuleRepository.registerModule(new RedstoneModule());
         computerModuleRepository.registerModule(new ComputerModule());
+        computerModuleRepository.registerModule(new TorusModule());
 
         Structure computer = new Computer();
 

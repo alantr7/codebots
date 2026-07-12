@@ -23,6 +23,7 @@ import com.github.alantr7.torus.structure.Structure;
 import com.github.alantr7.torus.structure.StructureInstance;
 import com.github.alantr7.torus.structure.builder.StructureBodyDef;
 import com.github.alantr7.torus.structure.data.Data;
+import com.github.alantr7.torus.structure.socket.DataSocket;
 import com.github.alantr7.torus.world.BlockLocation;
 import com.github.alantr7.torus.world.Direction;
 import lombok.Getter;
@@ -32,7 +33,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.util.UUID;
+import java.util.*;
 
 public class ComputerInstance extends StructureInstance implements Tickable, DataTransmitter {
 
@@ -53,6 +54,11 @@ public class ComputerInstance extends StructureInstance implements Tickable, Dat
 
     protected Data<UUID> editorIdentifier = dataContainer.persist("editor_id", Data.Type.UUID, UUID.randomUUID());;
 
+    @Getter
+    protected DataSocket dataSocket;
+
+    private Map<UUID, DataRequest> requests = new HashMap<>();
+
     ComputerInstance(LoadContext context) {
         super(context);
     }
@@ -64,10 +70,34 @@ public class ComputerInstance extends StructureInstance implements Tickable, Dat
     @Override
     protected void setup() throws SetupException {
         fileSystem = new ComputerFileSystem(this);
+        dataSocket = requireSocket("data", DataSocket.class);
     }
 
     @Override
     public void tick(boolean isVirtual) {
+        List<UUID> deleteQueue = new ArrayList<>();
+        requests.forEach((id, request) -> {
+            if (request.isDeleted) {
+                deleteQueue.add(id);
+                return;
+            }
+
+            if (request.isCompleted)
+                return;
+
+            DataTransmitter dt = (DataTransmitter) dataSocket.getNode(request.target);
+            if (dt == null) {
+                request.isCompleted = true;
+                request.response = 0;
+                return;
+            }
+
+            int resp = dt.onDataRequest(this, request.data);
+            request.isCompleted = true;
+            request.response = resp;
+        });
+
+        deleteQueue.forEach(requests::remove);
     }
 
     @Override
@@ -192,6 +222,17 @@ public class ComputerInstance extends StructureInstance implements Tickable, Dat
         return 0;
     }
 
+    public UUID createRequest(String target, int data) {
+        var request = new DataRequest(UUID.randomUUID(), target, data);
+        requests.put(request.requestId, request);
+
+        return request.requestId;
+    }
+
+    public DataRequest getRequest(UUID id) {
+        return requests.get(id);
+    }
+
     @Override
     public void onModelSpawn() {
         com.github.alantr7.codebots.world.BlockLocation cbLoc = new com.github.alantr7.codebots.world.BlockLocation(this.location.toBukkit());
@@ -206,6 +247,34 @@ public class ComputerInstance extends StructureInstance implements Tickable, Dat
         CodeBotsPlugin.inst().getWorldManager().getWorld(location.world.getBukkit())
                 .getChunkOrLoad(cbLoc)
                 .tickableStructures.remove(cbLoc);
+    }
+
+    public static class DataRequest {
+
+        public final UUID requestId;
+
+        public final String target;
+
+        public final int data;
+
+        @Getter
+        int response;
+
+        @Getter
+        boolean isCompleted;
+
+        boolean isDeleted;
+
+        public DataRequest(UUID requestId, String target, int data) {
+            this.requestId = requestId;
+            this.target = target;;
+            this.data = data;
+        }
+
+        public void delete() {
+            isDeleted = true;
+        }
+
     }
 
 }

@@ -72,7 +72,7 @@ public class ComputerProgramsGUI extends GUI {
 
         var startBtn = new ItemStack(computer.isActive() ? Material.RED_CONCRETE : Material.LIME_CONCRETE);
         var startBtnMeta = startBtn.getItemMeta();
-        startBtnMeta.setDisplayName(computer.isActive() ? (ChatColor.GREEN + "Start Program") : (ChatColor.RED + "Stop Program"));
+        startBtnMeta.setDisplayName(computer.isActive() ? (ChatColor.RED + "Stop Program") : (ChatColor.GREEN + "Start Program"));
         startBtn.setItemMeta(startBtnMeta);
         setItem(10, startBtn);
         registerInteractionCallback(10, ClickType.LEFT, () -> {
@@ -89,10 +89,14 @@ public class ComputerProgramsGUI extends GUI {
 
             if (session != null && System.currentTimeMillis() - session.getLastFetched() > 3000) {
                 session.fetch().whenComplete((sess, err) -> {
-                    Bukkit.getScheduler().runTaskLater(CodeBotsPlugin.inst(), () -> computer.setActive(!computer.isActive()), 1L);
+                    Bukkit.getScheduler().runTaskLater(CodeBotsPlugin.inst(), () -> {
+                        computer.setActive(!computer.isActive());
+                        refill();
+                    }, 1L);
                 });
             } else {
                 computer.setActive(!computer.isActive());
+                refill();
             }
         });
 
