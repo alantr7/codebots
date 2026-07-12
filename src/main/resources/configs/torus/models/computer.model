@@ -1,0 +1,12 @@
+model_version: 2
+
+base:
+  renderer: DISPLAY_ENTITIES
+  elements:
+    - item_display,player_head[texture=e78e6a83ffa3a169fc7a12c6f6ac931ff1b212c360a56774e4c8d4e269b94e5b],0,0.9375,0,1.625,1.625,1.625,0,0,0
+    - item_display,cyan_terracotta,0,0.0625,0,1,0.125,1,0,0,0
+
+data:
+  renderer: DISPLAY_ENTITIES
+  elements:
+    - item_display,gray_concrete,0,0.5,0.4375,0.625,0.625,0.125,0,0,0
