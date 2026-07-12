@@ -1,5 +1,7 @@
 package com.github.alantr7.codebots.integration.torus.machine;
 
+import com.github.alantr7.bytils.buffer.ByteArrayReader;
+import com.github.alantr7.bytils.buffer.ByteArrayWriter;
 import com.github.alantr7.codebots.CodeBotsPlugin;
 import com.github.alantr7.codebots.api.CodeBots;
 import com.github.alantr7.codebots.api.bot.ProgramSource;
@@ -12,6 +14,7 @@ import com.github.alantr7.codebots.cbslang.low.runtime.Program;
 import com.github.alantr7.codebots.cbslang.low.tokenizer.Tokenizer;
 import com.github.alantr7.codebots.config.Config;
 import com.github.alantr7.codebots.editor.EditorSession;
+import com.github.alantr7.codebots.fs.BotFile;
 import com.github.alantr7.codebots.integration.torus.CodeBotsTorusIntEntry;
 import com.github.alantr7.codebots.integration.torus.fs.ComputerFileSystem;
 import com.github.alantr7.codebots.integration.torus.gui.ComputerProgramsGUI;
@@ -54,6 +57,8 @@ public class ComputerInstance extends StructureInstance implements Tickable, Dat
 
     protected Data<UUID> editorIdentifier = dataContainer.persist("editor_id", Data.Type.UUID, UUID.randomUUID());;
 
+    protected Data<byte[]> fsBinary = dataContainer.persist("fs", Data.Type.BYTE_ARRAY, new byte[0]);
+
     @Getter
     protected DataSocket dataSocket;
 
@@ -71,6 +76,7 @@ public class ComputerInstance extends StructureInstance implements Tickable, Dat
     protected void setup() throws SetupException {
         fileSystem = new ComputerFileSystem(this);
         dataSocket = requireSocket("data", DataSocket.class);
+        loadFiles();
     }
 
     @Override
@@ -211,6 +217,35 @@ public class ComputerInstance extends StructureInstance implements Tickable, Dat
         }
     }
 
+    public void loadFiles() {
+        ByteArrayReader reader = new ByteArrayReader(fsBinary.get());
+        if (!reader.hasNext())
+            return;
+
+        int filesCount = reader.readU1();
+        List<BotFile> files = new LinkedList<>();
+        for (int i = 0; i < filesCount; i++) {
+            files.add(new BotFile(
+                    CodeBotsPlugin.inst().getWorldManager().getWorld(location.world.getBukkit()).fsManager,
+                    reader.readShortString(),
+                    reader.readBytes(reader.readU2()),
+                    reader.readLong()
+            ));
+        }
+        fileSystem.setFiles(files);
+    }
+
+    public void saveFiles() {
+        ByteArrayWriter writer = new ByteArrayWriter();
+        writer.writeU1(fileSystem.getFiles().size());
+        for (BotFile file : fileSystem.getFiles()) {
+            writer.writeShortString(file.getName());
+            writer.writeU2(file.getContent().length);
+            writer.writeBytes(file.getContent());
+            writer.writeLong(file.getLastModified());
+        }
+        fsBinary.update(writer.getBytes());
+    }
 
     @Override
     public String getMAC() {

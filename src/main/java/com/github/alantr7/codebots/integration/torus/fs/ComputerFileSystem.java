@@ -7,7 +7,6 @@ import com.github.alantr7.codebots.integration.torus.machine.ComputerInstance;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ComputerFileSystem implements FileSystem {
@@ -20,11 +19,16 @@ public class ComputerFileSystem implements FileSystem {
         this.computer = computer;
     }
 
+    public void setFiles(Collection<BotFile> files) {
+        files.forEach(file -> this.files.put(file.getName(), file));
+    }
+
     @Override
     public BotFile createFile(String name) {
         BotFile file = new BotFile(CodeBotsPlugin.inst().getWorldManager().getWorld(computer.location.world.getBukkit()).fsManager, name, new byte[0], System.currentTimeMillis());
         files.put(file.getName(), file);
 
+        computer.saveFiles();
         computer.isDirty = true;
         computer.location.getChunk().isUnsaved = true;
         return file;
@@ -38,6 +42,8 @@ public class ComputerFileSystem implements FileSystem {
     @Override
     public void deleteFile(String name) {
         files.remove(name);
+
+        computer.saveFiles();
         computer.isDirty = true;
         computer.location.getChunk().isUnsaved = true;
     }

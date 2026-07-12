@@ -138,6 +138,7 @@ public final class EditorSession {
                     System.arraycopy(code, 0, buffer, 0, Math.min(code.length, buffer.length));
                     file.setContent(buffer);
 
+                    computer.saveFiles();
                     computer.isDirty = true;
                     computer.location.getChunk().isUnsaved = true;
                 });
