@@ -274,6 +274,11 @@ public class ComputerInstance extends StructureInstance implements Tickable, Dat
         CodeBotsPlugin.inst().getWorldManager().getWorld(location.world.getBukkit())
                 .getChunkOrLoad(cbLoc)
                 .tickableStructures.put(cbLoc, this);
+
+        EditorSession editorSession = CodeBotsPlugin.inst().getEditorClient().getActiveSessionByBot(editorIdentifier.get());
+        if (editorSession != null) {
+            editorSession.subscribe(EditorSession.createComputerSubscriber(this));
+        }
     }
 
     @Override
@@ -282,6 +287,11 @@ public class ComputerInstance extends StructureInstance implements Tickable, Dat
         CodeBotsPlugin.inst().getWorldManager().getWorld(location.world.getBukkit())
                 .getChunkOrLoad(cbLoc)
                 .tickableStructures.remove(cbLoc);
+
+        EditorSession editorSession = CodeBotsPlugin.inst().getEditorClient().getActiveSessionByBot(editorIdentifier.get());
+        if (editorSession != null) {
+            editorSession.unsubscribeAll();
+        }
     }
 
     public static class DataRequest {
